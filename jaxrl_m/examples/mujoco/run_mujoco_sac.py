@@ -33,7 +33,7 @@ flags.DEFINE_integer('render_interval', 250000, 'Render interval.')
 flags.DEFINE_integer('batch_size', 64, 'Mini batch size.')
 flags.DEFINE_integer('max_steps', int(1e7), 'Number of training steps.')
 flags.DEFINE_integer('start_steps', int(1e4), 'Number of initial exploration steps.')
-flags.DEFINE_string('wandb_entity', 'robot-learning', 'Wandb entity.')
+flags.DEFINE_string('wandb_entity', 'inchangbaek4907', 'Wandb entity.')
 
 
 def render(policy_fn, env) -> np.ndarray:
@@ -82,8 +82,8 @@ def main(_):
     kwargs = {}
     if FLAGS.env_name == 'h1hand-package-v0':
         kwargs = {'policy_path': None}
-    env = EpisodeMonitor(gym.make(FLAGS.env_name, **kwargs))
-    eval_env = EpisodeMonitor(gym.make(FLAGS.env_name, **kwargs))
+    env = EpisodeMonitor(gym.make('h1hand-kitchen-v0', **kwargs))
+    eval_env = EpisodeMonitor(gym.make('h1hand-kitchen-v0', **kwargs))
 
     example_transition = dict(
         observations=env.observation_space.sample(),
@@ -103,6 +103,7 @@ def main(_):
 
     exploration_metrics = dict()
     obs, _ = env.reset()
+    print(obs.shape)
     exploration_rng = jax.random.PRNGKey(0)
 
     for i in tqdm.tqdm(range(1, FLAGS.max_steps + 1),
