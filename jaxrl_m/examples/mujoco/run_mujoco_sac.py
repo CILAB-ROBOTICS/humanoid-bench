@@ -82,8 +82,8 @@ def main(_):
     kwargs = {}
     if FLAGS.env_name == 'h1hand-package-v0':
         kwargs = {'policy_path': None}
-    env = EpisodeMonitor(gym.make('h1hand-kitchen-v0', **kwargs))
-    eval_env = EpisodeMonitor(gym.make('h1hand-kitchen-v0', **kwargs))
+    env = EpisodeMonitor(gym.make(FLAGS.env_name, **kwargs))
+    eval_env = EpisodeMonitor(gym.make(FLAGS.env_name, **kwargs))
 
     example_transition = dict(
         observations=env.observation_space.sample(),
