@@ -192,7 +192,7 @@ class HumanoidEnv(MujocoEnv, gym.utils.EzPickle):
         self.randomness = randomness
         if isinstance(self.task, (BookshelfHard, BookshelfSimple, Kitchen, Cube)):
             self.randomness = 0
-        print(isinstance(self.task, (BookshelfHard, BookshelfSimple, Kitchen, Cube)))
+        # print(isinstance(self.task, (BookshelfHard, BookshelfSimple, Kitchen, Cube)))
 
         # Set up named indexing.
         data = MjDataWrapper(self.data)
