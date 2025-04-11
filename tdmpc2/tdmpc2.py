@@ -92,7 +92,7 @@ class TDMPC2:
         self.model.load_state_dict(state_dict["model"])
 
     @torch.no_grad()
-    def act(self, obs, t0=False, eval_mode=False, task=None):
+    def act(self, obs, t0, eval_mode=False, task=None):
         """
         Select an action by planning in the latent space of the world model.
 
@@ -109,8 +109,8 @@ class TDMPC2:
         if task is not None:
             task = torch.tensor([task], device=self.device)
         z = self.model.encode(obs, task)
+
         if self.cfg.mpc:
-            print("Planning...", z.shape)
             a = self.plan(z, t0=t0, eval_mode=eval_mode, task=task)
         else:
             a = self.model.pi(z, task)[int(not eval_mode)][0]
@@ -120,7 +120,6 @@ class TDMPC2:
     def _estimate_value(self, z, actions, task):
         """Estimate value of a trajectory starting at latent state z and executing given actions."""
         G, discount = 0, 1
-        print('_estimate_value', z.shape, actions.shape, task, self.cfg.horizon)
 
         for t in range(self.cfg.horizon):
             reward = math.two_hot_inv(self.model.reward(z, actions[:, t], task), self.cfg)
@@ -136,7 +135,7 @@ class TDMPC2:
         )
 
     @torch.no_grad()
-    def plan(self, z, t0=False, eval_mode=False, task=None):
+    def plan(self, z, t0, eval_mode=False, task=None):
         """
         Plan a sequence of actions using the learned world model.
 
@@ -162,28 +161,9 @@ class TDMPC2:
                 device=self.device,
             )
 
-
             # (4, 512) -> (4, self.cfg.num_pi_trajs, 512)
             _z = z.unsqueeze(1).repeat(1, self.cfg.num_pi_trajs, 1)
-            # print('repeat', z.shape, _z.shape)
 
-            '''
-            # _z
-            torch.Size([1, 96, 512]) 
-            '''
-
-            '''
-            # pi
-            Sequential(
-              (0): NormedLinear(in_features=512, out_features=512, bias=True, act=Mish)
-              (1): NormedLinear(in_features=512, out_features=512, bias=True, act=Mish)
-              (2): Linear(in_features=512, out_features=8, bias=True)
-            )
-            '''
-            # print('_z', _z.shape) # torch.Size([1, 96, 512])
-            # print('pi_output', self.model.pi(_z, task)[1].shape) # torch.Size([1, 96, 4])
-            # print('pi_actions', pi_actions.shape) # torch.Size([4, 3, 24, 4])
-            # print('horizon', self.cfg.horizon) # 3
             for t in range(self.cfg.horizon - 1):
                 pi_actions[:, t, :, :] = self.model.pi(_z, task)[1]
                 _z = self.model.next(_z, pi_actions[:, t, :, :], task)
@@ -200,8 +180,13 @@ class TDMPC2:
             self.cfg.action_dim,
             device=self.device
         )
-        if not t0:
-            mean[:-1] = self._prev_mean[1:]
+
+        if hasattr(self, "_prev_mean"):
+            B, H, D = mean.shape
+            shifted = self._prev_mean[:, 1:, :]  # [B, H-1, D]
+            mask = (~t0).view(B, 1, 1)  # [B, 1, 1]
+            mean[:, :-1] = torch.where(mask, shifted, mean[:, :-1])
+
         actions = torch.empty(
             n_envs,
             self.cfg.horizon,
@@ -209,38 +194,13 @@ class TDMPC2:
             self.cfg.action_dim,
             device=self.device,
         )
-        # print('actions', actions.shape, 'pi_actions', pi_actions.shape, self.cfg.num_pi_trajs)
+
         if self.cfg.num_pi_trajs > 0:
             actions[:, :, :self.cfg.num_pi_trajs, :] = pi_actions
 
         # Iterate MPPI
         for _ in range(self.cfg.iterations):
             # Sample actions
-            print('mean', mean.unsqueeze(2).shape, 'std', std.unsqueeze(2).shape)
-            # actions torch.Size([4, 3, 512, 4]) mean torch.Size([4, 3, 4]) std torch.Size([4, 3, 4])
-            print('rand', torch.randn(
-                n_envs,
-                self.cfg.horizon,
-                self.cfg.num_samples - self.cfg.num_pi_trajs,
-                self.cfg.action_dim,
-                device=std.device,
-            ).shape)
-
-            print('output', (
-                mean.unsqueeze(2)
-                + std.unsqueeze(2)
-                * torch.randn(
-                    n_envs,
-                    self.cfg.horizon,
-                    self.cfg.num_samples - self.cfg.num_pi_trajs,
-                    self.cfg.action_dim,
-                    device=std.device,
-                )
-            ).shape
-            )
-
-            # print('actions', actions[:, :, self.cfg.num_pi_trajs:, :].shape)
-
 
             actions[:, :, self.cfg.num_pi_trajs:] = (
                 mean.unsqueeze(2)
@@ -258,26 +218,15 @@ class TDMPC2:
             if self.cfg.multitask:
                 actions = actions * self.model._action_masks[task]
 
-            # Compute elite actions
-            # print('elite actions', actions.shape)
-            # print('z', z.shape, 'task', task)
             value = self._estimate_value(z, actions, task).nan_to_num_(0)
             value = value.squeeze(-1)
-
-            # elite_idxs = torch.topk(
-            #     value, self.cfg.num_elites, dim=1
-            # ).indices
-
-
-            # print('elite_idxs', elite_idxs.shape, 'value', value.shape, 'actions', actions.shape)
-            # elite_idxs torch.Size([4, 64]) value torch.Size([4, 512, 1]) actions torch.Size([4, 3, 512, 4])
-            # elite_value, elite_actions = value[elite_idxs], actions[:, :, elite_idxs]
 
             # elite_idxs: [B, top_k]
             elite_idxs = torch.topk(value, self.cfg.num_elites, dim=1).indices  # [4, 64]
 
             # elite_value: gather along candidate dim (dim=1)
-            elite_value = torch.gather(value, dim=1, index=elite_idxs)  # [4, 64]
+            elite_value = torch.gather(value, dim=1, index=elite_idxs) # [4, 64]
+            elite_value = elite_value.unsqueeze(-1)  # [4, 1, 64]
 
             # actions: [B, A, C, D]
             # expand elite_idxs for gather: [B, 1, top_k, 1] → broadcast to [B, A, top_k, D]
@@ -287,46 +236,43 @@ class TDMPC2:
             # elite_actions: gather along candidate dim (dim=2)
             elite_actions = torch.gather(actions, dim=2, index=expanded_idxs)  # [4, 3, 64, 4]
 
-            print('elite_value', elite_value.shape, 'elite_actions', elite_actions.shape)
             # elite_value torch.Size([4, 64]) elite_actions torch.Size([4, 3, 64, 4])
             # Update parameters
             # elite_value: [4, 64]
-            max_value = elite_value.max(dim=1, keepdim=True)[0]  # [4, 1]
+            max_value = elite_value.max(dim=1)[0]  # [4, 1]
+            max_value = max_value.unsqueeze(1)  # [4, 1, 1]
 
-            # score: [4, 64]
+            # elite_value: [4, 64, 1] - max_value: [4, 1] -> broadcast to [4, 64, 1]
             score = torch.exp(self.cfg.temperature * (elite_value - max_value))
             score /= score.sum(dim=1, keepdim=True)
-
-            print('elite_actions', elite_actions.shape, 'score.unsqueeze(1)', score.unsqueeze(-1).shape)
-            # score torch.Size([4, 64]) elite_actions torch.Size([4, 3, 64, 4])
 
             mean = torch.sum(score.unsqueeze(1) * elite_actions, dim=2) / (
                 score.sum(dim=1, keepdim=True) + 1e-9
             )
-            '''
-            RuntimeError: The size of tensor a (64) must match the size of tensor b (4) at non-singleton dimension 3
-
-            
-            '''
 
             std = torch.sqrt(
                 torch.sum(
-                    score.unsqueeze(0) * (elite_actions - mean.unsqueeze(1)) ** 2, dim=1
+                    score.unsqueeze(1) * (elite_actions - mean.unsqueeze(2)) ** 2, dim=2
                 )
-                / (score.sum(0) + 1e-9)
+                / (score.sum(dim=1, keepdim=True) + 1e-9)
             ).clamp_(self.cfg.min_std, self.cfg.max_std)
 
             if self.cfg.multitask:
                 mean = mean * self.model._action_masks[task]
                 std = std * self.model._action_masks[task]
 
-        # Select action
-        score = score.squeeze(1).cpu().numpy()
-        actions = elite_actions[:, np.random.choice(np.arange(score.shape[0]), p=score)]
+        score = score.squeeze(-1)  # [4, 64]
+        sampled_idxs = torch.multinomial(score, num_samples=1)  # [4, 1]
+        sampled_idxs = sampled_idxs.unsqueeze(1).expand(-1, 3, -1).unsqueeze(-1).expand(-1, -1, -1, 61)  # [4, 3, 1, 61]
+        actions = torch.gather(elite_actions, dim=2, index=sampled_idxs).squeeze(2)  # [4, 3, 61]
+
         self._prev_mean = mean
-        a, std = actions[0], std[0]
+
+        a, std = actions[:, 0], std[:, 0]
+
         if not eval_mode:
             a += std * torch.randn(self.cfg.action_dim, device=std.device)
+
         return a.clamp_(-1, 1)
 
     def update_pi(self, zs, task):

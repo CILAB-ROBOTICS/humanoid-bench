@@ -121,9 +121,6 @@ class WorldModel(nn.Module):
         if self.cfg.obs == "rgb" and obs.ndim == 5:
             return torch.stack([self._encoder[self.cfg.obs](o) for o in obs])
 
-        print(obs.shape)
-        print(self._encoder[self.cfg.obs])
-
         return self._encoder[self.cfg.obs](obs)
 
     def next(self, z, a, task):
@@ -141,7 +138,6 @@ class WorldModel(nn.Module):
         """
         if self.cfg.multitask:
             z = self.task_emb(z, task)
-        print('z,', z.shape, a.shape)
         z = torch.cat([z, a], dim=-1)
         return self._reward(z)
 
@@ -152,11 +148,8 @@ class WorldModel(nn.Module):
         mean and (log) std predicted by a neural network.
         """
 
-        #print('before z,', z.shape)
         if self.cfg.multitask:
             z = self.task_emb(z, task)
-
-        # print('pi_z,', z.shape)
 
         # Gaussian policy prior
         mu, log_std = self._pi(z).chunk(2, dim=-1)

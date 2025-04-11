@@ -1,14 +1,12 @@
 from time import time
-
 import numpy as np
 import torch
 from tensordict.tensordict import TensorDict
-
 from tdmpc2.trainer.base import Trainer
 
 
 class OnlineTrainer(Trainer):
-    """Trainer class for single-task online TD-MPC2 training."""
+    """Trainer class for multi-env online TD-MPC2 training with manual per-env reset."""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -17,7 +15,6 @@ class OnlineTrainer(Trainer):
         self._start_time = time()
 
     def common_metrics(self):
-        """Return a dictionary of current metrics."""
         return dict(
             step=self._step,
             episode=self._ep_idx,
@@ -25,102 +22,136 @@ class OnlineTrainer(Trainer):
         )
 
     def eval(self):
-        """Evaluate a TD-MPC2 agent."""
-        ep_rewards, ep_successes = [], []
-        for i in range(self.cfg.eval_episodes):
-            obs, done, ep_reward, t = self.env.reset()[0], False, 0, 0
+        """Evaluate a TD-MPC2 agent with manual per-env reset."""
+        n_envs = self.env.num_envs
+        ep_rewards = [[] for _ in range(n_envs)]
+        ep_successes = []
+        current_rewards = torch.zeros(n_envs)
+        obs = self.env.reset()[0]
+        episodes_finished = 0
+
+        t0_flags = torch.ones(n_envs, dtype=torch.bool, device=obs.device)
+
+        if self.cfg.save_video:
+            self.logger.video.init(self.env, enabled=True)
+
+        while episodes_finished < self.cfg.eval_episodes:
+            action = self.agent.act(obs, t0=t0_flags, eval_mode=True)
+            next_obs, reward, done, truncated, info = self.env.step(action)
+            final = np.logical_or(done, truncated)
+
+            current_rewards += reward
+
+            for i in range(n_envs):
+                if final[i]:
+                    ep_rewards[i].append(current_rewards[i])
+                    ep_successes.append(info["success"][i])
+                    current_rewards[i] = 0
+                    episodes_finished += 1
+                    obs_i = self.env.reset(indices=[i])[0]
+                    obs[i] = obs_i[0] if isinstance(obs_i, (list, tuple)) else obs_i
+                    t0_flags[i] = True
+                else:
+                    t0_flags[i] = False
+
+            obs = next_obs
             if self.cfg.save_video:
-                self.logger.video.init(self.env, enabled=(i == 0))
-            while not done:
-                action = self.agent.act(obs, t0=t == 0, eval_mode=True)
-                obs, reward, done, truncated, info = self.env.step(action)
-                done = done or truncated
-                ep_reward += reward
-                t += 1
-                if self.cfg.save_video:
-                    self.logger.video.record(self.env)
-            ep_rewards.append(ep_reward)
-            ep_successes.append(info["success"])
-            if self.cfg.save_video:
-                # self.logger.video.save(self._step)
-                self.logger.video.save(self._step, key='results/video')
+                self.logger.video.record(self.env)
+
+        if self.cfg.save_video:
+            self.logger.video.save(self._step, key="results/video")
+
+        flat_rewards = [r for env_r in ep_rewards for r in env_r]
         return dict(
-            episode_reward=np.nanmean(ep_rewards),
+            episode_reward=np.nanmean(flat_rewards),
             episode_success=np.nanmean(ep_successes),
         )
 
     def to_td(self, obs, action=None, reward=None):
-        """Creates a TensorDict for a new episode."""
         if isinstance(obs, dict):
-            obs = TensorDict(obs, batch_size=(), device="cpu")
+            obs = TensorDict(obs, batch_size=obs["state"].shape[:-1], device="cpu")
         else:
-            obs = obs.unsqueeze(0).cpu()
+            obs = obs.cpu()
         if action is None:
             action = torch.full_like(self.env.rand_act(), float("nan"))
         if reward is None:
-            reward = torch.tensor(float("nan"))
+            reward = torch.full((obs.shape[0],), float("nan"))
         td = TensorDict(
             dict(
                 obs=obs,
-                action=action.unsqueeze(0),
-                reward=reward.unsqueeze(0),
+                action=action,
+                reward=reward,
             ),
-            batch_size=(1,),
+            batch_size=[obs.shape[0]],
         )
         return td
 
     def train(self):
-        """Train a TD-MPC2 agent."""
-        train_metrics, done, eval_next = {}, True, True
+        """Train a TD-MPC2 agent with manual per-env reset."""
+        train_metrics = {}
+        obs = self.env.reset()[0]
+
+        self._tds = [self.to_td(obs)]
+        t0_flags = torch.ones(self.env.num_envs, dtype=torch.bool, device=obs.device)  # 시작 시 모두 True
+
         while self._step <= self.cfg.steps:
-            # Evaluate agent periodically
             if self._step % self.cfg.eval_freq == 0:
-                eval_next = True
+                eval_metrics = self.eval()
+                eval_metrics.update(self.common_metrics())
+                self.logger.log(eval_metrics, "eval")
 
-            # Reset environment
-            if done:
-                if eval_next:
-                    eval_metrics = self.eval()
-                    eval_metrics.update(self.common_metrics())
-                    self.logger.log(eval_metrics, "eval")
-                    eval_next = False
+            if self._step > self.cfg.seed_steps:
+                action = self.agent.act(obs, t0=t0_flags)
+            else:
+                action = self.env.rand_act()
 
-                if self._step > 0:
+            next_obs, reward, done, truncated, info = self.env.step(action)
+            final = np.logical_or(done, truncated)
+            self._tds.append(self.to_td(next_obs, action, reward))
+
+            for i in range(self.env.num_envs):
+                if final[i]:
+                    # log this environment's episode
+                    rewards = torch.stack([td["reward"] for td in self._tds[1:]], dim=0)  # [T, B]
+                    episode_reward = rewards[:, i].sum()
+                    success = info["success"][i]
+                    self._ep_idx += 1
+
                     train_metrics.update(
-                        episode_reward=torch.tensor(
-                            [td["reward"] for td in self._tds[1:]]
-                        ).sum(),
-                        episode_success=info["success"],
+                        episode_reward=episode_reward,
+                        episode_success=torch.tensor(success, dtype=torch.float32),
                     )
                     train_metrics.update(self.common_metrics())
 
-                    results_metrics = {'return': train_metrics['episode_reward'],
-                                       'episode_length': len(self._tds[1:]),
-                                       'success': train_metrics['episode_success'],
-                                       'success_subtasks': info['success_subtasks'],
-                                       'step': self._step,}
-                
                     self.logger.log(train_metrics, "train")
-                    self.logger.log(results_metrics, "results")
-                    self._ep_idx = self.buffer.add(torch.cat(self._tds))
+                    self.logger.log({
+                        "return": episode_reward,
+                        "episode_length": len(self._tds[1:]),
+                        "success": success,
+                        "step": self._step,
+                        "success_subtasks": info.get("success_subtasks", None),
+                    }, "results")
 
-                obs = self.env.reset()[0]
-                self._tds = [self.to_td(obs)]
+                    # extract transitions only for this env
+                    td_i = torch.cat([td.select([i]) for td in self._tds], dim=0)
+                    self._ep_idx = self.buffer.add(td_i)
 
-            # Collect experience
-            if self._step > self.cfg.seed_steps:
-                action = self.agent.act(obs, t0=len(self._tds) == 1)
-            else:
-                action = self.env.rand_act()
-            obs, reward, done, truncated, info = self.env.step(action)
-            done = done or truncated
-            self._tds.append(self.to_td(obs, action, reward))
+                    # reset env i
+                    obs_i = self.env.reset(indices=[i])[0]
+                    obs[i] = obs_i[0] if isinstance(obs_i, (list, tuple)) else obs_i
+                    self._tds = [self.to_td(obs)]  # restart tracking
 
-            # Update agent
+                    t0_flags[i] = True  # reset flag for this env
+                else:
+                    t0_flags[i] = False
+
+            obs = next_obs
+
+            # Agent update
             if self._step >= self.cfg.seed_steps:
                 if self._step == self.cfg.seed_steps:
-                    num_updates = self.cfg.seed_steps
                     print("Pretraining agent on seed data...")
+                    num_updates = self.cfg.seed_steps
                 else:
                     num_updates = 1
                 for _ in range(num_updates):

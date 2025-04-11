@@ -195,7 +195,6 @@ def make_env(cfg):
     domain, task = task.split("_", 1)
 
 
-
     domain = dict(cup="ball_in_cup", pointmass="point_mass").get(domain, domain)
     if (domain, task) not in suite.ALL_TASKS:
         raise ValueError("Unknown task:", task)
@@ -206,6 +205,7 @@ def make_env(cfg):
     env = suite.load(
         domain, task, task_kwargs={"random": cfg.seed}, visualize_reward=False
     )
+
     env = ActionDTypeWrapper(env, np.float32)
     env = ActionRepeatWrapper(env, 2)
     env = action_scale.Wrapper(env, minimum=-1.0, maximum=1.0)
