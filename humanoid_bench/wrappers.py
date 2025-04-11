@@ -1,3 +1,5 @@
+from os.path import abspath
+
 from gymnasium.spaces import Box, Dict
 import numpy as np
 import mujoco
