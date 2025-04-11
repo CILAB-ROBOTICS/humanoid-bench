@@ -30,9 +30,10 @@ Then, install the required packages:
 pip install -e .
 
 # jax GPU version
-pip install "jax[cuda12]==0.4.28"
+pip install "jax[cuda12]==0.4.28" orbax-checkpoint flax
+
 # Or, jax CPU version
-pip install "jax[cpu]==0.4.28"
+pip install "jax[cpu]==0.4.28" orbax-checkpoint flax
 
 # Install jaxrl
 pip install -r requirements_jaxrl.txt
