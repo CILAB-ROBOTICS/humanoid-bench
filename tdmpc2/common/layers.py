@@ -165,7 +165,7 @@ def enc(cfg, out={}):
     for k in cfg.obs_shape.keys():
         if k == "state":
             out[k] = mlp(
-                cfg.obs_shape[k][0] + cfg.task_dim,
+                cfg.obs_shape[k][1] + cfg.task_dim,
                 max(cfg.num_enc_layers - 1, 1) * [cfg.enc_dim],
                 cfg.latent_dim,
                 act=SimNorm(cfg),

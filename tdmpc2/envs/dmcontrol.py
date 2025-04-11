@@ -191,7 +191,11 @@ def make_env(cfg):
     Make DMControl environment.
     Adapted from https://github.com/facebookresearch/drqv2
     """
-    domain, task = cfg.task.replace("-", "_").split("_", 1)
+    task = getattr(cfg, "task", None).replace("-", "_")
+    domain, task = task.split("_", 1)
+
+
+
     domain = dict(cup="ball_in_cup", pointmass="point_mass").get(domain, domain)
     if (domain, task) not in suite.ALL_TASKS:
         raise ValueError("Unknown task:", task)

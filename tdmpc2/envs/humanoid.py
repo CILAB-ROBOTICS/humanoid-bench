@@ -1,5 +1,6 @@
 import os
 import sys
+from typing import Any
 
 import numpy as np
 import gymnasium as gym
@@ -34,6 +35,15 @@ class HumanoidWrapper(gym.Wrapper):
     def render(self, *args, **kwargs):
         return self.env.render()
 
+    def get_wrapper_attr(self, name: str) -> Any:
+        """
+        Get the attribute of the wrapped environment.
+        """
+        if hasattr(self.env.spec, name):
+            return getattr(self.env.spec, name)
+        else:
+            raise AttributeError(f"{self.__class__.__name__} has no attribute {name}")
+
 
 def make_env(cfg):
     """
@@ -48,19 +58,30 @@ def make_env(cfg):
     var_path = cfg.get("var_path", None)
     policy_type = cfg.get("policy_type", None)
     small_obs = cfg.get("small_obs", None)
+    task = cfg.get("task", None)
+    n_envs = cfg.get("n_envs", 1)
+
+    # policy_path = getattr(cfg, "policy_path", None)
+    # mean_path = getattr(cfg, "mean_path", None)
+    # var_path = getattr(cfg, "var_path", None)
+    # policy_type = getattr(cfg, "policy_type", None)
+    # small_obs = getattr(cfg, "small_obs", None)
+    # task = getattr(cfg, "task", None)
+    # n_envs = getattr(cfg, "n_envs", 1)
+
     if small_obs is not None:
         small_obs = str(small_obs)
 
-    print("small obs start:", small_obs)
-
-    env = gym.make(
-        cfg.task.removeprefix("humanoid_"),
+    env = gym.make_vec(
+        task.removeprefix("humanoid_"),
+        num_envs=n_envs,
         policy_path=policy_path,
         mean_path=mean_path,
         var_path=var_path,
         policy_type=policy_type,
         small_obs=small_obs,
     )
+
     env = HumanoidWrapper(env, cfg)
-    env.max_episode_steps = env.get_wrapper_attr("_max_episode_steps")
+    env.max_episode_steps = env.get_wrapper_attr("max_episode_steps")
     return env
