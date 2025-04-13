@@ -54,8 +54,8 @@ class ActionRepeatWrapper(dm_env.Environment):
     def action_spec(self):
         return self._env.action_spec()
 
-    def reset(self):
-        return self._env.reset()
+    def reset(self, **kwargs):
+        return self._env.reset(**kwargs)
 
     def __getattr__(self, name):
         return getattr(self._env, name)
@@ -83,8 +83,8 @@ class ActionDTypeWrapper(dm_env.Environment):
     def action_spec(self):
         return self._action_spec
 
-    def reset(self):
-        return self._env.reset()
+    def reset(self, **kwargs):
+        return self._env.reset(**kwargs)
 
     def __getattr__(self, name):
         return getattr(self._env, name)
@@ -94,8 +94,8 @@ class ExtendedTimeStepWrapper(dm_env.Environment):
     def __init__(self, env):
         self._env = env
 
-    def reset(self):
-        time_step = self._env.reset()
+    def reset(self, **kwargs):
+        time_step = self._env.reset(**kwargs)
         return self._augment_time_step(time_step)
 
     def step(self, action):
@@ -166,9 +166,9 @@ class TimeStepToGymWrapper:
     def _obs_to_array(self, obs):
         return np.concatenate([v.flatten() for v in obs.values()])
 
-    def reset(self):
+    def reset(self, **kwargs):
         self.t = 0
-        return self._obs_to_array(self.env.reset().observation), {}
+        return self._obs_to_array(self.env.reset(**kwargs).observation), {}
 
     def step(self, action):
         self.t += 1

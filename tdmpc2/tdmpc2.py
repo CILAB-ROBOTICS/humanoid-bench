@@ -181,7 +181,9 @@ class TDMPC2:
             device=self.device
         )
 
+
         if hasattr(self, "_prev_mean"):
+            t0 = t0.to(self.device)
             B, H, D = mean.shape
             shifted = self._prev_mean[:, 1:, :]  # [B, H-1, D]
             mask = (~t0).view(B, 1, 1)  # [B, 1, 1]
@@ -336,6 +338,11 @@ class TDMPC2:
         Returns:
                 dict: Dictionary of training statistics.
         """
+        if not buffer.is_available():
+            print("Buffer is empty, skipping update.")
+            return {}
+
+
         obs, action, reward, task = buffer.sample()
 
         # Compute targets

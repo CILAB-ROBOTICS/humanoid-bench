@@ -1,6 +1,7 @@
 from time import time
 import numpy as np
 import torch
+from numpy.ma.core import indices
 from tensordict.tensordict import TensorDict
 from tdmpc2.trainer.base import Trainer
 
@@ -45,11 +46,12 @@ class OnlineTrainer(Trainer):
             for i in range(n_envs):
                 if final[i]:
                     ep_rewards[i].append(current_rewards[i])
-                    ep_successes.append(info["success"][i])
+                    # ep_successes.append(info["success"][i])
                     current_rewards[i] = 0
                     episodes_finished += 1
-                    obs_i = self.env.reset(indices=[i])[0]
-                    obs[i] = obs_i[0] if isinstance(obs_i, (list, tuple)) else obs_i
+                    # obs_i = self.env.reset(indices=[i])[0]
+                    # obs[i] = obs_i[0] if isinstance(obs_i, (list, tuple)) else obs_i
+
                     t0_flags[i] = True
                 else:
                     t0_flags[i] = False
@@ -64,7 +66,7 @@ class OnlineTrainer(Trainer):
         flat_rewards = [r for env_r in ep_rewards for r in env_r]
         return dict(
             episode_reward=np.nanmean(flat_rewards),
-            episode_success=np.nanmean(ep_successes),
+            # episode_success=np.nanmean(ep_successes),
         )
 
     def to_td(self, obs, action=None, reward=None):
@@ -112,14 +114,23 @@ class OnlineTrainer(Trainer):
             for i in range(self.env.num_envs):
                 if final[i]:
                     # log this environment's episode
-                    rewards = torch.stack([td["reward"] for td in self._tds[1:]], dim=0)  # [T, B]
-                    episode_reward = rewards[:, i].sum()
-                    success = info["success"][i]
+
+                    # log this environment's episode
+                    if len(self._tds) > 1:
+                        rewards = torch.stack([td["reward"] for td in self._tds[1:]], dim=0)  # [T, B]
+                        episode_reward = rewards[:, i].sum()
+                        episode_length = rewards.shape[0]
+                    else:
+                        episode_reward = torch.tensor(0.0)
+                        episode_length = 0
+
+                    # episode_reward = rewards[:, i].sum()
+                    # success = info["success"][i]
                     self._ep_idx += 1
 
                     train_metrics.update(
                         episode_reward=episode_reward,
-                        episode_success=torch.tensor(success, dtype=torch.float32),
+                        # episode_success=torch.tensor(success, dtype=torch.float32),
                     )
                     train_metrics.update(self.common_metrics())
 
@@ -127,18 +138,17 @@ class OnlineTrainer(Trainer):
                     self.logger.log({
                         "return": episode_reward,
                         "episode_length": len(self._tds[1:]),
-                        "success": success,
+                        # "success": success,
                         "step": self._step,
                         "success_subtasks": info.get("success_subtasks", None),
                     }, "results")
 
-                    # extract transitions only for this env
-                    td_i = torch.cat([td.select([i]) for td in self._tds], dim=0)
+                    td_i = torch.cat([td[i].unsqueeze(0) for td in self._tds], dim=0)
                     self._ep_idx = self.buffer.add(td_i)
 
                     # reset env i
-                    obs_i = self.env.reset(indices=[i])[0]
-                    obs[i] = obs_i[0] if isinstance(obs_i, (list, tuple)) else obs_i
+                    # obs_i = self.env.reset(indices=[i])[0]
+                    # obs[i] = obs_i[0] if isinstance(obs_i, (list, tuple)) else obs_i
                     self._tds = [self.to_td(obs)]  # restart tracking
 
                     t0_flags[i] = True  # reset flag for this env
@@ -158,6 +168,6 @@ class OnlineTrainer(Trainer):
                     _train_metrics = self.agent.update(self.buffer)
                 train_metrics.update(_train_metrics)
 
-            self._step += 1
+            self._step += self.env.num_envs
 
         self.logger.finish(self.agent)

@@ -4,6 +4,7 @@ from typing import Any
 
 import numpy as np
 import gymnasium as gym
+from gymnasium.vector import VectorEnv
 
 from tdmpc2.envs.wrappers.time_limit import TimeLimit
 
@@ -74,6 +75,7 @@ def make_env(cfg):
 
     env = gym.make_vec(
         task.removeprefix("humanoid_"),
+        autoreset=True,
         num_envs=n_envs,
         policy_path=policy_path,
         mean_path=mean_path,
