@@ -1,10 +1,15 @@
 import os
 import sys
+from functools import partial
 from typing import Any
 
 import numpy as np
 import gymnasium as gym
+from dm_control.mujoco.testing.image_utils import humanoid
 from gymnasium.vector import VectorEnv
+from gymnasium.wrappers import PassiveEnvChecker, OrderEnforcing
+from sympy.physics.vector.printing import params
+from tdmpc2.envs import TensorWrapper
 
 from tdmpc2.envs.wrappers.time_limit import TimeLimit
 
@@ -70,18 +75,25 @@ def make_env(cfg):
     # task = getattr(cfg, "task", None)
     # n_envs = getattr(cfg, "n_envs", 1)
 
+    # partial function for HumanoidEnv
+    humanoid_wrapper_fn = partial(
+        HumanoidWrapper,
+        cfg=cfg,
+    )
+
     if small_obs is not None:
         small_obs = str(small_obs)
 
     env = gym.make_vec(
         task.removeprefix("humanoid_"),
-        autoreset=True,
+        # autoreset=True,
         num_envs=n_envs,
         policy_path=policy_path,
         mean_path=mean_path,
         var_path=var_path,
         policy_type=policy_type,
         small_obs=small_obs,
+        wrappers=[PassiveEnvChecker, OrderEnforcing, humanoid_wrapper_fn],
     )
 
     env = HumanoidWrapper(env, cfg)
