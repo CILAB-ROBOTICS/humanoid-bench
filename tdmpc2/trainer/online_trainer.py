@@ -15,6 +15,13 @@ class OnlineTrainer(Trainer):
         self._ep_idx = 0
         self._start_time = time()
 
+        self._init_tds()
+
+    def _init_tds(self):
+        self._tds = dict()
+        for i in range(self.env.num_envs):
+            self._tds[i] = list()
+
     def common_metrics(self):
         return dict(
             step=self._step,
@@ -49,8 +56,6 @@ class OnlineTrainer(Trainer):
                     # ep_successes.append(info["success"][i])
                     current_rewards[i] = 0
                     episodes_finished += 1
-                    # obs_i = self.env.reset(indices=[i])[0]
-                    # obs[i] = obs_i[0] if isinstance(obs_i, (list, tuple)) else obs_i
 
                     t0_flags[i] = True
                 else:
@@ -70,14 +75,17 @@ class OnlineTrainer(Trainer):
         )
 
     def to_td(self, obs, action=None, reward=None):
+
         if isinstance(obs, dict):
             obs = TensorDict(obs, batch_size=obs["state"].shape[:-1], device="cpu")
         else:
             obs = obs.cpu()
         if action is None:
-            action = torch.full_like(self.env.rand_act(), float("nan"))
+            action = self.env.rand_act()[0]
+            action = torch.full_like(action, float("nan")).unsqueeze(0)
         if reward is None:
-            reward = torch.full((obs.shape[0],), float("nan"))
+            reward = torch.full((1,), float("nan"))
+
         td = TensorDict(
             dict(
                 obs=obs,
@@ -88,12 +96,26 @@ class OnlineTrainer(Trainer):
         )
         return td
 
+    def add_td(self, env_id, td):
+        """Add a TD to the buffer."""
+        self._tds[env_id].append(td)
+
+    def get_tds(self, env_id):
+        """Get TDs for a specific environment."""
+        return self._tds[env_id]
+
+    def reset_tds(self, env_id):
+        """Reset TDs for a specific environment."""
+        self._tds[env_id] = list()
+
     def train(self):
         """Train a TD-MPC2 agent with manual per-env reset."""
         train_metrics = {}
         obs = self.env.reset()[0]
 
-        self._tds = [self.to_td(obs)]
+        for i in range(self.env.num_envs):
+            self.add_td(i, self.to_td(obs[i].unsqueeze(0)))
+
         t0_flags = torch.ones(self.env.num_envs, dtype=torch.bool, device=obs.device)  # 시작 시 모두 True
 
         while self._step <= self.cfg.steps:
@@ -109,24 +131,17 @@ class OnlineTrainer(Trainer):
 
             next_obs, reward, done, truncated, info = self.env.step(action)
             final = np.logical_or(done, truncated)
-            self._tds.append(self.to_td(next_obs, action, reward))
+
+            for i in range(self.env.num_envs):
+                self.add_td(i, self.to_td(next_obs[i].unsqueeze(0), action[i].unsqueeze(0), reward[i].unsqueeze(0)))
 
             for i in range(self.env.num_envs):
                 if final[i]:
                     # log this environment's episode
 
-                    # log this environment's episode
-                    if len(self._tds) > 1:
-                        rewards = torch.stack([td["reward"] for td in self._tds[1:]], dim=0)  # [T, B]
-                        episode_reward = rewards[:, i].sum()
-                        episode_length = rewards.shape[0]
-                    else:
-                        episode_reward = torch.tensor(0.0)
-                        episode_length = 0
-
-                    # episode_reward = rewards[:, i].sum()
-                    # success = info["success"][i]
-                    self._ep_idx += 1
+                    rewards = torch.stack([td["reward"] for td in self.get_tds(i)[1:]], dim=0)  # [T, B]
+                    episode_reward = rewards.sum()
+                    episode_length = rewards.shape[0]
 
                     train_metrics.update(
                         episode_reward=episode_reward,
@@ -137,19 +152,18 @@ class OnlineTrainer(Trainer):
                     self.logger.log(train_metrics, "train")
                     self.logger.log({
                         "return": episode_reward,
-                        "episode_length": len(self._tds[1:]),
+                        "episode_length": len(self.get_tds(i)[1:]),
                         # "success": success,
                         "step": self._step,
                         "success_subtasks": info.get("success_subtasks", None),
                     }, "results")
 
-                    td_i = torch.cat([td[i].unsqueeze(0) for td in self._tds], dim=0)
-                    self._ep_idx = self.buffer.add(td_i)
+                    # concatenate all TDs for this env
+                    tds = torch.cat(self.get_tds(i), dim=0)  # [T, B]
+                    self._ep_idx = self.buffer.add(tds)
 
-                    # reset env i
-                    # obs_i = self.env.reset(indices=[i])[0]
-                    # obs[i] = obs_i[0] if isinstance(obs_i, (list, tuple)) else obs_i
-                    self._tds = [self.to_td(obs)]  # restart tracking
+                    self.reset_tds(i)  # reset TDs for this env
+                    self.add_td(i, self.to_td(obs[i].unsqueeze(0)))  # add new TD for this env
 
                     t0_flags[i] = True  # reset flag for this env
                 else:
