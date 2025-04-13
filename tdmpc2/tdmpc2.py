@@ -338,11 +338,7 @@ class TDMPC2:
         Returns:
                 dict: Dictionary of training statistics.
         """
-        if not buffer.is_available():
-            print("Buffer is empty, skipping update.")
-            return {}
-
-
+#
         obs, action, reward, task = buffer.sample()
 
         # Compute targets
