@@ -51,6 +51,7 @@ from .envs.balance import BalanceHard, BalanceSimple
 from .envs.room import Room
 from .envs.powerlift import Powerlift
 from .envs.insert import Insert
+from .envs.rub import Rub
 
 DEFAULT_CAMERA_CONFIG = {
     "trackbodyid": 1,
@@ -102,6 +103,7 @@ TASKS = {
     "insert_normal": Insert,
     "insert_small": Insert,  # This is not an error
     "powerlift": Powerlift,
+    "rub": Rub,
 }
 
 
