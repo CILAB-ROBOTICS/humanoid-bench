@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 
 import numpy as np
 import mujoco
@@ -144,6 +145,8 @@ class HumanoidEnv(MujocoEnv, gym.utils.EzPickle):
         else:
             self.blocked_hands = False
 
+        self.condition = None
+
         MujocoEnv.__init__(
             self,
             model_path,
@@ -216,6 +219,19 @@ class HumanoidEnv(MujocoEnv, gym.utils.EzPickle):
             self.task.dof,
             len(data.qpos),
         )
+
+    def reset(
+        self,
+        *,
+        seed: Optional[int] = None,
+        options: Optional[dict] = None,
+    ):
+        if (options is not None and
+                'condition' in options):
+            self.condition = options['condition']
+
+        return self.reset_model(), {}
+
 
     def step(self, action):
         return self.task.step(action)

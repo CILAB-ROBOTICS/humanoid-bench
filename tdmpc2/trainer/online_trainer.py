@@ -71,6 +71,10 @@ class OnlineTrainer(Trainer):
 
     def train(self):
         """Train a TD-MPC2 agent."""
+
+        condition = self.cond_sampler.sample() if self.cond_sampler else None
+        obs = self.env.reset(options={'condition': condition})[0]
+
         train_metrics, done, eval_next = {}, True, True
         while self._step <= self.cfg.steps:
             # Evaluate agent periodically
@@ -104,7 +108,10 @@ class OnlineTrainer(Trainer):
                     self.logger.log(results_metrics, "results")
                     self._ep_idx = self.buffer.add(torch.cat(self._tds))
 
-                obs = self.env.reset()[0]
+                self._tds = []
+
+                condition = self.cond_sampler.sample() if self.cond_sampler else None
+                obs = self.env.reset(condition=condition)[0]
                 self._tds = [self.to_td(obs)]
 
             # Collect experience
