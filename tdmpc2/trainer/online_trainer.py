@@ -1,9 +1,11 @@
 from time import time
 import numpy as np
 import torch
+from gymnasium.experimental.vector import AsyncVectorEnv
 from numpy.ma.core import indices
 from tensordict.tensordict import TensorDict
 from tdmpc2.trainer.base import Trainer
+from utils.render import is_renderable
 
 
 class OnlineTrainer(Trainer):
@@ -39,6 +41,10 @@ class OnlineTrainer(Trainer):
         episodes_finished = 0
 
         t0_flags = torch.ones(n_envs, dtype=torch.bool, device=obs.device)
+
+        if not is_renderable(self.env):
+            self.cfg.save_video = False
+            print("Environment does not support rendering. Disabling video saving.")
 
         if self.cfg.save_video:
             self.logger.video.init(self.env, enabled=True)
@@ -113,12 +119,12 @@ class OnlineTrainer(Trainer):
         train_metrics = {}
         obs = self.env.reset()[0]
 
+        print(self.eval())
+
         for i in range(self.env.num_envs):
             self.add_td(i, self.to_td(obs[i].unsqueeze(0)))
 
         t0_flags = torch.ones(self.env.num_envs, dtype=torch.bool, device=obs.device)  # 시작 시 모두 True
-
-        self.env.render()
 
         while self._step <= self.cfg.steps:
             if self._step % self.cfg.eval_freq == 0:

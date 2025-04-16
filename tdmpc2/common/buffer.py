@@ -112,6 +112,8 @@ class Buffer:
 
     def sample(self):
         """Sample a batch of subsequences from the buffer."""
+        print(self._buffer.sample())
+
         td = self._buffer.sample().view(-1, self.cfg.horizon + 1).permute(1, 0)
         return self._prepare_batch(td)
 
