@@ -1,13 +1,8 @@
 from time import time
 import numpy as np
 import torch
-from gymnasium.experimental.vector import AsyncVectorEnv
-from numpy.ma.core import indices
 from tensordict.tensordict import TensorDict
-from tensorstore import dtype
-
 from tdmpc2.trainer.base import Trainer
-from utils.render import is_renderable
 
 
 class OnlineTrainer(Trainer):
@@ -35,8 +30,6 @@ class OnlineTrainer(Trainer):
 
     def eval(self):
         """Evaluate a TD-MPC2 agent with manual per-env reset."""
-
-        self.env_eval.reset()
 
         if self.cfg.save_video:
             self.logger.video.init(self.env_eval, enabled=True)
