@@ -38,7 +38,7 @@ class ConditionSet:
         if self.modality == "embed":
             return self.embed
         elif self.modality == "vector":
-            feature = [0] * self.get_feature_size()
+            feature = [-1] * self.get_feature_size()
             for condition in self.conditions:
                 feature[condition.condition_type] = condition.value
             feature = np.array(feature, dtype=np.float32)
