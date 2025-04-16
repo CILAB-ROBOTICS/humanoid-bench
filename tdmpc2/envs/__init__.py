@@ -2,6 +2,7 @@ from copy import deepcopy
 import warnings
 
 import gymnasium as gym
+from omegaconf import MissingMandatoryValue
 
 from tdmpc2.envs.wrappers.multitask import MultitaskWrapper
 from tdmpc2.envs.wrappers.pixels import PixelWrapper
@@ -82,10 +83,28 @@ def make_env(cfg):
         env = TensorWrapper(env)
     if cfg.get("obs", "state") == "rgb":
         env = PixelWrapper(cfg, env)
+
+
     try:  # Dict
         cfg.obs_shape = {k: v.shape for k, v in env.observation_space.spaces.items()}
+
     except:  # Box
         cfg.obs_shape = {cfg.get("obs", "state"): env.observation_space.shape}
+
+    if cfg.instruct:
+
+        try:
+            if cfg.modality == "vector":
+                cfg.condition_dim = 3
+                cfg.obs_shape["state"] = [cfg.obs_shape["state"][0] + 3]
+            elif cfg.modality == "embed":
+                cfg.condition_dim = 768
+                cfg.obs_shape["state"] = [cfg.obs_shape["state"][0] + 768]
+            else:
+                raise ValueError("Unknown condition modality:", cfg.modality)
+        except MissingMandatoryValue:
+            raise ValueError("Condition modality not specified in config.")
+
     cfg.action_dim = env.action_space.shape[0]
     cfg.episode_length = env.max_episode_steps
     cfg.seed_steps = max(1000, 5 * cfg.episode_length)

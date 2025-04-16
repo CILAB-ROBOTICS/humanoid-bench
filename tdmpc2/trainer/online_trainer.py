@@ -28,9 +28,11 @@ class OnlineTrainer(Trainer):
         """Evaluate a TD-MPC2 agent."""
         ep_rewards, ep_successes = [], []
         for i in range(self.cfg.eval_episodes):
-            obs, done, ep_reward, t = self.env.reset()[0], False, 0, 0
+            condition = self.cond_sampler.sample() if self.cond_sampler else None
+            obs, done, ep_reward, t = self.env.reset(condition)[0], False, 0, 0
             if self.cfg.save_video:
                 self.logger.video.init(self.env, enabled=(i == 0))
+
             while not done:
                 action = self.agent.act(obs, t0=t == 0, eval_mode=True)
                 obs, reward, done, truncated, info = self.env.step(action)

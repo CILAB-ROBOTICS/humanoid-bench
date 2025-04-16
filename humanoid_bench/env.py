@@ -188,7 +188,7 @@ class HumanoidEnv(MujocoEnv, gym.utils.EzPickle):
                 self.task = DoubleReachRelativeWrapper(self.task, **kwargs)
             else:
                 raise ValueError(f"Unknown policy_type: {kwargs['policy_type']}")
-        
+
 
         if self.obs_wrapper:
             # Note that observation wrapper is not compatible with hierarchical policy
@@ -203,7 +203,6 @@ class HumanoidEnv(MujocoEnv, gym.utils.EzPickle):
         self.randomness = randomness
         if isinstance(self.task, (BookshelfHard, BookshelfSimple, Kitchen, Cube)):
             self.randomness = 0
-        print(isinstance(self.task, (BookshelfHard, BookshelfSimple, Kitchen, Cube)))
 
         # Set up named indexing.
         data = MjDataWrapper(self.data)
@@ -226,15 +225,23 @@ class HumanoidEnv(MujocoEnv, gym.utils.EzPickle):
         seed: Optional[int] = None,
         options: Optional[dict] = None,
     ):
+
         if (options is not None and
                 'condition' in options):
             self.condition = options['condition']
 
         return self.reset_model(), {}
 
-
     def step(self, action):
-        return self.task.step(action)
+        obs, reward, t1, t2, info = self.task.step(action)
+        if self.condition is not None:
+            cond_obs = self.get_condition_obs()
+            obs = np.concatenate([obs, cond_obs])
+
+        return obs, reward, t1, t2, info
+
+    def get_condition_obs(self):
+        return self.condition.get_feature()
 
     def reset_model(self):
         mujoco.mj_resetDataKeyframe(self.model, self.data, self.keyframe)
@@ -248,8 +255,17 @@ class HumanoidEnv(MujocoEnv, gym.utils.EzPickle):
             init_qpos + self.np_random.uniform(-r, r, size=self.model.nq), init_qvel
         )
 
+        task_obs = self.task.reset_model()
+
+
+        if self.condition is not None:
+            cond_obs = self.get_condition_obs()
+            obs = np.concatenate([task_obs, cond_obs])
+        else:
+            obs = task_obs
+
         # Task-specific reset and return observations
-        return self.task.reset_model()
+        return obs
 
     def seed(self, seed=None):
         np.random.seed(seed)
