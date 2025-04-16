@@ -29,7 +29,7 @@ class OnlineTrainer(Trainer):
         ep_rewards, ep_successes = [], []
         for i in range(self.cfg.eval_episodes):
             condition = self.cond_sampler.sample() if self.cond_sampler else None
-            obs, done, ep_reward, t = self.env.reset(condition)[0], False, 0, 0
+            obs, done, ep_reward, t = self.env.reset(options={'condition': condition})[0], False, 0, 0
             if self.cfg.save_video:
                 self.logger.video.init(self.env, enabled=(i == 0))
 
@@ -110,10 +110,8 @@ class OnlineTrainer(Trainer):
                     self.logger.log(results_metrics, "results")
                     self._ep_idx = self.buffer.add(torch.cat(self._tds))
 
-                self._tds = []
-
                 condition = self.cond_sampler.sample() if self.cond_sampler else None
-                obs = self.env.reset(condition=condition)[0]
+                obs = self.env.reset(options={'condition': condition})[0]
                 self._tds = [self.to_td(obs)]
 
             # Collect experience
