@@ -118,6 +118,8 @@ class OnlineTrainer(Trainer):
 
         t0_flags = torch.ones(self.env.num_envs, dtype=torch.bool, device=obs.device)  # 시작 시 모두 True
 
+        self.env.render()
+
         while self._step <= self.cfg.steps:
             if self._step % self.cfg.eval_freq == 0:
                 eval_metrics = self.eval()
@@ -141,11 +143,11 @@ class OnlineTrainer(Trainer):
 
                     rewards = torch.stack([td["reward"] for td in self.get_tds(i)[1:]], dim=0)  # [T, B]
                     episode_reward = rewards.sum()
-                    episode_length = rewards.shape[0]
+                    # success = info["success"][i].item() # TODO vecenv에 맞춰서 변경
 
                     train_metrics.update(
                         episode_reward=episode_reward,
-                        # episode_success=torch.tensor(success, dtype=torch.float32),
+                        # episode_success=torch.tensor(success, dtype=torch.float32),  # TODO vecenv에 맞춰서 변경
                     )
                     train_metrics.update(self.common_metrics())
 
@@ -153,7 +155,7 @@ class OnlineTrainer(Trainer):
                     self.logger.log({
                         "return": episode_reward,
                         "episode_length": len(self.get_tds(i)[1:]),
-                        # "success": success,
+                        # "success": success,  # TODO vecenv에 맞춰서 변경
                         "step": self._step,
                         "success_subtasks": info.get("success_subtasks", None),
                     }, "results")
@@ -177,7 +179,7 @@ class OnlineTrainer(Trainer):
                     print("Pretraining agent on seed data...")
                     num_updates = self.cfg.seed_steps
                 else:
-                    num_updates = 1
+                    num_updates = self.env.num_envs // 4
                 for _ in range(num_updates):
                     _train_metrics = self.agent.update(self.buffer)
                 train_metrics.update(_train_metrics)
