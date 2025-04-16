@@ -2,6 +2,8 @@ from time import time
 import numpy as np
 import torch
 from tensordict.tensordict import TensorDict
+
+from tdmpc2.envs import make_eval_env
 from tdmpc2.trainer.base import Trainer
 
 
@@ -30,6 +32,11 @@ class OnlineTrainer(Trainer):
 
     def eval(self):
         """Evaluate a TD-MPC2 agent with manual per-env reset."""
+
+
+        if not hasattr(self, "env_eval") or self.env_eval is None:
+            self.env_eval = make_eval_env(self.cfg)
+        self.env_eval.reset()
 
         if self.cfg.save_video:
             self.logger.video.init(self.env_eval, enabled=True)
