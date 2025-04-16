@@ -4,6 +4,8 @@ import torch
 from gymnasium.experimental.vector import AsyncVectorEnv
 from numpy.ma.core import indices
 from tensordict.tensordict import TensorDict
+from tensorstore import dtype
+
 from tdmpc2.trainer.base import Trainer
 from utils.render import is_renderable
 
@@ -33,51 +35,35 @@ class OnlineTrainer(Trainer):
 
     def eval(self):
         """Evaluate a TD-MPC2 agent with manual per-env reset."""
-        n_envs = self.env.num_envs
-        ep_rewards = [[] for _ in range(n_envs)]
-        ep_successes = []
-        current_rewards = torch.zeros(n_envs)
-        obs = self.env.reset()[0]
-        episodes_finished = 0
 
-        t0_flags = torch.ones(n_envs, dtype=torch.bool, device=obs.device)
-
-        if not is_renderable(self.env):
-            self.cfg.save_video = False
-            print("Environment does not support rendering. Disabling video saving.")
+        self.env_eval.reset()
 
         if self.cfg.save_video:
-            self.logger.video.init(self.env, enabled=True)
+            self.logger.video.init(self.env_eval, enabled=True)
 
-        while episodes_finished < self.cfg.eval_episodes:
-            action = self.agent.act(obs, t0=t0_flags, eval_mode=True)
-            next_obs, reward, done, truncated, info = self.env.step(action)
-            final = np.logical_or(done, truncated)
-
-            current_rewards += reward
-
-            for i in range(n_envs):
-                if final[i]:
-                    ep_rewards[i].append(current_rewards[i])
-                    # ep_successes.append(info["success"][i])
-                    current_rewards[i] = 0
-                    episodes_finished += 1
-
-                    t0_flags[i] = True
-                else:
-                    t0_flags[i] = False
-
-            obs = next_obs
+        """Evaluate a TD-MPC2 agent."""
+        ep_rewards, ep_successes = [], []
+        for i in range(self.cfg.eval_episodes):
+            obs, done, ep_reward, t = self.env_eval.reset()[0], False, 0, 0
             if self.cfg.save_video:
-                self.logger.video.record(self.env)
+                self.logger.video.init(self.env_eval, enabled=(i == 0))
+            while not done:
+                t0 = torch.tensor([t == 0], dtype=torch.bool, device=obs.device)
 
-        if self.cfg.save_video:
-            self.logger.video.save(self._step, key="results/video")
-
-        flat_rewards = [r for env_r in ep_rewards for r in env_r]
+                action = self.agent.act(obs.unsqueeze(0), t0=t0.unsqueeze(0), eval_mode=True)
+                obs, reward, done, truncated, info = self.env_eval.step(action.squeeze(0))
+                done = done or truncated
+                ep_reward += reward
+                t += 1
+                if self.cfg.save_video:
+                    self.logger.video.record(self.env_eval)
+            ep_rewards.append(ep_reward)
+            ep_successes.append(info["success"])
+            if self.cfg.save_video:
+                self.logger.video.save(self._step, key='results/video')
         return dict(
-            episode_reward=np.nanmean(flat_rewards),
-            # episode_success=np.nanmean(ep_successes),
+            episode_reward=np.nanmean(ep_rewards),
+            episode_success=np.nanmean(ep_successes),
         )
 
     def to_td(self, obs, action=None, reward=None):
@@ -118,8 +104,6 @@ class OnlineTrainer(Trainer):
         """Train a TD-MPC2 agent with manual per-env reset."""
         train_metrics = {}
         obs = self.env.reset()[0]
-
-        print(self.eval())
 
         for i in range(self.env.num_envs):
             self.add_td(i, self.to_td(obs[i].unsqueeze(0)))

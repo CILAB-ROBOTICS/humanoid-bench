@@ -66,6 +66,7 @@ def make_env(cfg):
     small_obs = cfg.get("small_obs", None)
     task = cfg.get("task", None)
     n_envs = cfg.get("n_envs", 1)
+    vec_env = cfg.get("vec_env", False)
 
     # policy_path = getattr(cfg, "policy_path", None)
     # mean_path = getattr(cfg, "mean_path", None)
@@ -84,17 +85,27 @@ def make_env(cfg):
     if small_obs is not None:
         small_obs = str(small_obs)
 
-    env = gym.make_vec(
-        task.removeprefix("humanoid_"),
-        # autoreset=True,
-        num_envs=n_envs,
-        policy_path=policy_path,
-        mean_path=mean_path,
-        var_path=var_path,
-        policy_type=policy_type,
-        small_obs=small_obs,
-        wrappers=[PassiveEnvChecker, OrderEnforcing, humanoid_wrapper_fn],
-    )
+    if vec_env:
+        env = gym.make_vec(
+            task.removeprefix("humanoid_"),
+            # autoreset=True,
+            num_envs=n_envs,
+            policy_path=policy_path,
+            mean_path=mean_path,
+            var_path=var_path,
+            policy_type=policy_type,
+            small_obs=small_obs,
+            wrappers=[PassiveEnvChecker, OrderEnforcing, humanoid_wrapper_fn],
+        )
+    else:
+        env = gym.make(
+            task.removeprefix("humanoid_"),
+            policy_path=policy_path,
+            mean_path=mean_path,
+            var_path=var_path,
+            policy_type=policy_type,
+            small_obs=small_obs,
+        )
 
     env = HumanoidWrapper(env, cfg)
     env.max_episode_steps = env.get_wrapper_attr("max_episode_steps")

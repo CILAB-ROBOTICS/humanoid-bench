@@ -16,7 +16,7 @@ from termcolor import colored
 from tdmpc2.common.parser import parse_cfg
 from tdmpc2.common.seed import set_seed
 from tdmpc2.common.buffer import Buffer
-from tdmpc2.envs import make_env
+from tdmpc2.envs import make_env, make_eval_env
 from tdmpc2 import TDMPC2
 from tdmpc2.trainer.offline_trainer import OfflineTrainer
 from tdmpc2.trainer.online_trainer import OnlineTrainer
@@ -55,6 +55,7 @@ def train(cfg: dict):
     trainer = trainer_cls(
         cfg=cfg,
         env=make_env(cfg),
+        env_eval=make_eval_env(cfg),
         agent=TDMPC2(cfg),
         buffer=Buffer(cfg),
         logger=Logger(cfg),

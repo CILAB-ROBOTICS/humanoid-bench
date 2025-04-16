@@ -9,6 +9,7 @@ obs: state
 checkpoint: ???
 eval_episodes: 1
 eval_freq: 50000
+vec_env: true
 
 # training
 steps: 10_000_000
