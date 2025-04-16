@@ -1,0 +1,263 @@
+{
+    "scenarios": {
+        "1": {"feature": "strength", "prompt": "{strength}"},
+        "2": {"feature": "direction", "prompt": "{direction}"},
+        "3": {"feature": "frequency", "prompt": "{frequency}"}
+    },
+    "strength": {
+        "gentle": {
+            "value": 0.0,
+            "similar": [
+                "The surface is touched with very light pressure",
+                "There is almost no resistance from the motion",
+                "Contact is soft and does not press deeply",
+                "The hand barely presses against the surface",
+                "The pressure is minimal and barely noticeable",
+                "Only the fingertips make contact",
+                "There is no deformation in the surface",
+                "Motion creates no indentation",
+                "The force applied is close to zero",
+                "Movement is soft and controlled",
+                "Touch is slow and lacks weight",
+                "The skin barely responds to contact",
+                "There is no tension in the pressing motion",
+                "Only surface-level contact occurs",
+                "The pressure is not enough to alter texture",
+                "The force remains at a passive level",
+                "The hand moves without adding weight",
+                "The surface tension is undisturbed",
+                "The contact does not spread beyond the point",
+                "There is no visible effect from the pressure"
+            ]
+        },
+        "moderate": {
+            "value": 0.5,
+            "similar": [
+                "The surface is pressed with medium pressure",
+                "There is clear but controlled force",
+                "The contact is stable and consistent",
+                "The motion engages skin and muscle evenly",
+                "The pressure is noticeable but not heavy",
+                "The hand maintains steady force",
+                "The surface compresses slightly",
+                "There is partial resistance from the surface",
+                "The depth of contact is moderate",
+                "The speed and force are balanced",
+                "Touch is firm without being excessive",
+                "The motion causes light deformation",
+                "The applied force is deliberate",
+                "The hand maintains consistent pressure",
+                "The surface reacts but is not compressed fully",
+                "The grip strength is medium",
+                "The contact area expands moderately",
+                "The force supports movement but does not dominate",
+                "The motion is functional and controlled",
+                "The pressure remains within comfortable range"
+            ]
+        },
+        "firm": {
+            "value": 1.0,
+            "similar": [
+                "The surface is pressed with strong force",
+                "The motion pushes into the material deeply",
+                "There is high resistance from the contact",
+                "The force causes significant compression",
+                "The hand applies full pressure",
+                "The surface is visibly deformed",
+                "The touch is strong and direct",
+                "The motion is forceful and assertive",
+                "There is full engagement of hand and arm",
+                "Contact spreads broadly across the surface",
+                "The surface reacts immediately to the force",
+                "The motion is intended to apply maximum pressure",
+                "The grip is tight and unrelenting",
+                "The hand pushes with full weight",
+                "The skin and underlying structure respond strongly",
+                "The applied force restricts movement",
+                "The pressure limits feedback from the surface",
+                "The hand maintains a high-pressure hold",
+                "The motion affects the entire contact area",
+                "There is no hesitation in the applied pressure"
+            ]
+        }
+    },
+    "direction": {
+        "vertical": {
+            "value": 0.0,
+            "similar": [
+                "The motion goes up and down",
+                "Movement is aligned with height",
+                "The hand moves vertically",
+                "Touch follows a vertical line",
+                "Motion travels top to bottom",
+                "Contact is directed upward or downward",
+                "The movement follows the Y-axis",
+                "There is no sideways shift",
+                "The action is straight along height",
+                "Direction is perpendicular to the floor",
+                "The hand is moving from low to high",
+                "Motion returns in the same vertical path",
+                "There is no horizontal spread",
+                "The contact travels in a straight vertical route",
+                "There is clear up-down movement",
+                "The motion reaches from base to top",
+                "Contact is constrained to vertical direction",
+                "The movement is only along height",
+                "There is full control in the vertical axis",
+                "The action repeats in vertical cycles"
+            ]
+        },
+        "diagonal_left": {
+            "value": 0.25,
+            "similar": [
+                "The motion angles from lower right to upper left",
+                "There is a clear diagonal direction",
+                "The movement crosses both axes slightly",
+                "Touch travels diagonally leftward",
+                "The motion includes upward and left movement",
+                "Contact is slanted across the surface",
+                "The path is between vertical and horizontal",
+                "There is balanced diagonal travel",
+                "The hand shifts up and to the left",
+                "The motion avoids straight lines",
+                "Touch follows a diagonal from right to left",
+                "The angle is controlled and even",
+                "There is no pure vertical or horizontal path",
+                "The contact cuts across the surface",
+                "The movement tilts to the upper left",
+                "The direction mixes up and left vectors",
+                "There is cross-axis involvement",
+                "The motion clearly moves left and up",
+                "The angle remains consistent",
+                "The hand follows a fixed diagonal line"
+            ]
+        },
+        "horizontal": {
+            "value": 0.5,
+            "similar": [
+                "The motion is left to right",
+                "Contact moves side to side",
+                "There is no upward motion",
+                "Touch travels along the X-axis",
+                "The direction is horizontal",
+                "The motion is aligned with width",
+                "Movement is perpendicular to height",
+                "The hand glides laterally",
+                "There is even side-to-side travel",
+                "The surface is engaged across",
+                "The direction is stable and flat",
+                "There is constant widthwise motion",
+                "No vertical angle is present",
+                "The hand maintains a horizontal path",
+                "Movement spreads across the surface",
+                "Contact moves in a straight line sideways",
+                "The motion does not ascend or descend",
+                "The hand keeps level movement",
+                "The action is consistently horizontal",
+                "The direction is fixed across width"
+            ]
+        },
+        "diagonal_right": {
+            "value": 0.75,
+            "similar": [
+                "The motion angles from lower left to upper right",
+                "Movement combines upward and rightward motion",
+                "The hand travels diagonally to the right",
+                "Contact direction is slanted",
+                "Touch moves across the surface diagonally",
+                "There is an upward-right slope in motion",
+                "Both vertical and horizontal axes are involved",
+                "There is clear right-diagonal movement",
+                "The angle is steady",
+                "The direction does not stay vertical or horizontal",
+                "The motion tilts to the upper right",
+                "Touch follows a consistent diagonal path",
+                "Contact cuts across surface at an angle",
+                "The hand moves with a diagonal intent",
+                "There is control over cross-axis travel",
+                "The direction moves evenly between axes",
+                "There is upward and right direction simultaneously",
+                "The surface is contacted at a slant",
+                "Motion continues diagonally with no curve",
+                "The hand maintains consistent angle"
+            ]
+        }
+    },
+    "frequency": {
+        "rare": {
+            "value": 0.0,
+            "similar": [
+                "The motion happens infrequently",
+                "There are long gaps between touches",
+                "Contact occurs only occasionally",
+                "The motion is mostly paused",
+                "There is low repetition",
+                "The hand moves only at intervals",
+                "There are large delays between motions",
+                "Few contact points are made",
+                "Touch occurs with hesitation",
+                "The speed of repetition is very low",
+                "Contact is isolated in time",
+                "There is no consistent rhythm",
+                "The action is mostly still",
+                "Contact points are far apart",
+                "There is little temporal continuity",
+                "Touch happens with rare instances",
+                "Motion is minimal over time",
+                "There is high stillness between motions",
+                "Contact repeats very slowly",
+                "Only a few motions are observed"
+            ]
+        },
+        "moderate": {
+            "value": 0.5,
+            "similar": [
+                "The motion repeats steadily",
+                "Contact occurs with regular intervals",
+                "There is a moderate rhythm",
+                "The hand moves at even timing",
+                "There is consistent repetition",
+                "Touch happens at a normal pace",
+                "The speed is balanced",
+                "Contact follows a predictable pattern",
+                "The motion is neither fast nor slow",
+                "There are even gaps between motions",
+                "The hand moves at a moderate rate",
+                "Timing of motion is consistent",
+                "Contact happens with clear regularity",
+                "The rhythm is stable",
+                "Movement happens often enough",
+                "There are no long pauses or rushes",
+                "The pace is maintained",
+                "The surface is touched with regular timing",
+                "Motion repeats without extremes",
+                "The frequency stays in the middle range"
+            ]
+        },
+        "frequent": {
+            "value": 1.0,
+            "similar": [
+                "The motion repeats quickly",
+                "There are rapid contact points",
+                "Touch happens with high speed",
+                "There is minimal delay between motions",
+                "The hand moves continuously",
+                "Contact is very frequent",
+                "There are short intervals between touches",
+                "The motion does not pause",
+                "Touch is applied rapidly",
+                "There is fast repetition",
+                "Contact happens again and again",
+                "The action is nearly constant",
+                "There is no stillness between motions",
+                "The hand keeps moving",
+                "Motion is applied with high speed",
+                "The rhythm is fast and continuous",
+                "The frequency is close to maximum",
+                "There are almost no gaps",
+                "Motion covers the surface quickly",
+                "Contact happens in rapid succession"
+            ]
+        }
+    }
+}
