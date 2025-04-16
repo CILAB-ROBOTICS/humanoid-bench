@@ -48,7 +48,7 @@ class Rub(Task):
         return Box(
             low=-np.inf,
             high=np.inf,
-            shape=(self.robot.dof * 2 - 1 + self.dof * 2 - 2,),
+            shape=(self.robot.dof * 2 - 1 + self.dof * 2,),
             dtype=np.float64,
         )
 
