@@ -30,8 +30,8 @@ class TensorWrapper(gym.Wrapper):
             obs = self._try_f32_tensor(obs)
         return obs
 
-    def reset(self, task_idx=None):
-        obs, info = self.env.reset()
+    def reset(self, task_idx=None, options=None):
+        obs, info = self.env.reset(options=options)
         return self._obs_to_tensor(obs), info
 
     def step(self, action):

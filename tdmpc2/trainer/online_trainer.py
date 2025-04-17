@@ -44,9 +44,12 @@ class OnlineTrainer(Trainer):
         """Evaluate a TD-MPC2 agent."""
         ep_rewards, ep_successes = [], []
         for i in range(self.cfg.eval_episodes):
-            obs, done, ep_reward, t = self.env_eval.reset()[0], False, 0, 0
+
+            condition = self.cond_sampler.sample() if self.cond_sampler else None
+            obs, done, ep_reward, t = self.env.reset(options={'condition': condition})[0], False, 0, 0
             if self.cfg.save_video:
-                self.logger.video.init(self.env_eval, enabled=(i == 0))
+                self.logger.video.init(self.env, enabled=(i == 0))
+
             while not done:
                 t0 = torch.tensor([t == 0], dtype=torch.bool, device=obs.device)
 
@@ -103,12 +106,16 @@ class OnlineTrainer(Trainer):
     def train(self):
         """Train a TD-MPC2 agent with manual per-env reset."""
         train_metrics = {}
-        obs = self.env.reset()[0]
 
         for i in range(self.env.num_envs):
             self.add_td(i, self.to_td(obs[i].unsqueeze(0)))
 
         t0_flags = torch.ones(self.env.num_envs, dtype=torch.bool, device=obs.device)  # 시작 시 모두 True
+
+        condition = self.cond_sampler.sample() if self.cond_sampler else None
+        obs = self.env.reset(options={'condition': condition})[0]
+
+        train_metrics, done, eval_next = {}, True, True
 
         while self._step <= self.cfg.steps:
             if self._step % self.cfg.eval_freq == 0:
@@ -162,6 +169,10 @@ class OnlineTrainer(Trainer):
                     t0_flags[i] = False
 
             obs = next_obs
+
+            # TODO reset 할 때 새로운 task로 샘플링하는 코드 추가
+            # condition = self.cond_sampler.sample() if self.cond_sampler else None
+            # obs = self.env.reset(options={'condition': condition})[0]
 
             # Agent update
             if self._step >= self.cfg.seed_steps:

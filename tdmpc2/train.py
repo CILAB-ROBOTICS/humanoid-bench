@@ -1,5 +1,8 @@
 import os
 import sys
+from os.path import dirname
+
+from tdmpc2.common.sampler import ConditionSampler
 
 if sys.platform != "darwin":
     os.environ["MUJOCO_GL"] = "egl"
@@ -51,6 +54,10 @@ def train(cfg: dict):
     set_seed(cfg.seed)
     print(colored("Work dir:", "yellow", attrs=["bold"]), cfg.work_dir)
 
+    if cfg.instruct:
+        instruct_dir = os.path.join(dirname(__file__), "..", "instruct_rl", "instruct", "bert-base-uncased")
+        cfg.instruct_path = os.path.abspath(os.path.join(instruct_dir, f"{cfg.instruct}.csv"))
+
     trainer_cls = OfflineTrainer if cfg.multitask else OnlineTrainer
     trainer = trainer_cls(
         cfg=cfg,
@@ -58,6 +65,7 @@ def train(cfg: dict):
         agent=TDMPC2(cfg),
         buffer=Buffer(cfg),
         logger=Logger(cfg),
+        cond_sampler=ConditionSampler(cfg) if cfg.instruct_path else None,
     )
     trainer.train()
     print("\nTraining completed successfully")

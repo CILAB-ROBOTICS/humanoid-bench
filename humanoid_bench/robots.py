@@ -84,6 +84,8 @@ class H1Touch(H1):
 class H1Strong(H1):
     dof = 76
 
+class H1DualArm(H1):
+    dof = 76
 
 class G1 (H1):
     dof = 44
