@@ -28,9 +28,11 @@ class OnlineTrainer(Trainer):
         """Evaluate a TD-MPC2 agent."""
         ep_rewards, ep_successes = [], []
         for i in range(self.cfg.eval_episodes):
-            obs, done, ep_reward, t = self.env.reset()[0], False, 0, 0
+            condition = self.cond_sampler.sample() if self.cond_sampler else None
+            obs, done, ep_reward, t = self.env.reset(options={'condition': condition})[0], False, 0, 0
             if self.cfg.save_video:
                 self.logger.video.init(self.env, enabled=(i == 0))
+
             while not done:
                 action = self.agent.act(obs, t0=t == 0, eval_mode=True)
                 obs, reward, done, truncated, info = self.env.step(action)
@@ -71,6 +73,10 @@ class OnlineTrainer(Trainer):
 
     def train(self):
         """Train a TD-MPC2 agent."""
+
+        condition = self.cond_sampler.sample() if self.cond_sampler else None
+        obs = self.env.reset(options={'condition': condition})[0]
+
         train_metrics, done, eval_next = {}, True, True
         while self._step <= self.cfg.steps:
             # Evaluate agent periodically
@@ -104,7 +110,8 @@ class OnlineTrainer(Trainer):
                     self.logger.log(results_metrics, "results")
                     self._ep_idx = self.buffer.add(torch.cat(self._tds))
 
-                obs = self.env.reset()[0]
+                condition = self.cond_sampler.sample() if self.cond_sampler else None
+                obs = self.env.reset(options={'condition': condition})[0]
                 self._tds = [self.to_td(obs)]
 
             # Collect experience
