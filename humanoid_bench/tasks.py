@@ -34,6 +34,9 @@ class Task:
         state = np.concatenate((position, velocity))
         return state
 
+    def get_info(self):
+        return {}
+
     def get_reward(self):
         return 0, {}
 
@@ -61,10 +64,11 @@ class Task:
         self._env.do_simulation(action, self._env.frame_skip)
 
         obs = self.get_obs()
+        info = self.get_info()
         reward, reward_info = self.get_reward()
         terminated, terminated_info = self.get_terminated()
 
-        info = {"per_timestep_reward": reward, **reward_info, **terminated_info}
+        info = {"per_timestep_reward": reward, **info, **reward_info, **terminated_info}
         return obs, reward, terminated, False, info
 
     def render(self):

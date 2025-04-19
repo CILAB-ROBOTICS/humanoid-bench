@@ -52,6 +52,31 @@ class Rub(Task):
             dtype=np.float64,
         )
 
+    def get_info(self):
+        info = {}
+
+        # contact
+        contact_info = {}
+        window_pane_id = self._env.named.data.geom_xpos.axes.row.names.index("window_pane_collision")
+        contact_force = np.empty(6, dtype=np.float64)
+        for cid, pair in enumerate(self._env.data.contact.geom):
+            if (
+                window_pane_id in pair
+            ):  # if has hand
+                pair0_name = self._env.named.data.geom_xpos.axes.row.names[pair[0]]
+                pair1_name = self._env.named.data.geom_xpos.axes.row.names[pair[1]]
+
+                import mujoco
+                mujoco.mj_contactForce(self._env.model, self._env.data, cid, contact_force)
+
+                contact_info[pair0_name] = {
+                    'other': pair1_name,
+                    'force': contact_force[:3],
+                }
+        info['contact'] = contact_info
+
+        return info
+
     def get_reward(self):
         self.window_pane_id = self._env.named.data.geom_xpos.axes.row.names.index(
             "window_pane_collision"
