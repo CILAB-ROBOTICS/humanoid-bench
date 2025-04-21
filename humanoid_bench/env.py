@@ -300,7 +300,7 @@ if __name__ == "__main__":
     while True:
         action = env.action_space.sample()
         ob, rew, terminated, truncated, info = env.step(action)
-        print(f"ob_space = {env.observation_space}, ob = {ob.shape}")
+        print(f"ob_space = {env.observation_space}, ob = {ob.shape}, info = {info}")
         image = env.render()
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
         cv2.imshow("mujoco", image)

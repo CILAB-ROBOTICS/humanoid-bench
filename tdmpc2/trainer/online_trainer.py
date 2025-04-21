@@ -5,6 +5,7 @@ import torch
 from tensordict.tensordict import TensorDict
 
 from tdmpc2.trainer.base import Trainer
+from utils.statistics import Statistics
 
 
 class OnlineTrainer(Trainer):
@@ -77,7 +78,7 @@ class OnlineTrainer(Trainer):
         condition = self.cond_sampler.sample() if self.cond_sampler else None
         obs = self.env.reset(options={'condition': condition})[0]
 
-        train_metrics, done, eval_next = {}, True, True
+        train_metrics, done, eval_next, info_metrics = {}, True, True, Statistics()
         while self._step <= self.cfg.steps:
             # Evaluate agent periodically
             if self._step % self.cfg.eval_freq == 0:
@@ -105,9 +106,10 @@ class OnlineTrainer(Trainer):
                                        'success': train_metrics['episode_success'],
                                        'success_subtasks': info['success_subtasks'],
                                        'step': self._step,}
-                
+
                     self.logger.log(train_metrics, "train")
                     self.logger.log(results_metrics, "results")
+                    self.logger.log(info_metrics.pop(self._step, train_metrics['episode_reward']), "reward")
                     self._ep_idx = self.buffer.add(torch.cat(self._tds))
 
                 condition = self.cond_sampler.sample() if self.cond_sampler else None
@@ -122,6 +124,7 @@ class OnlineTrainer(Trainer):
             obs, reward, done, truncated, info = self.env.step(action)
             done = done or truncated
             self._tds.append(self.to_td(obs, action, reward))
+            info_metrics.append(info)
 
             # Update agent
             if self._step >= self.cfg.seed_steps:

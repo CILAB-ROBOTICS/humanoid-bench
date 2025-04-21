@@ -8,7 +8,9 @@
     <include file="../tasks/floorwipe.xml"/>
 
     <equality>
-<!--        <weld name="fix_robot" body1="world" body2="pelvis"/>-->
+        <weld name="fix_robot1" body1="world" body2="right_ankle_link"/>
+        <weld name="fix_robot2" body1="world" body2="left_ankle_link"/>
+
         <weld name="fix_tool_left" body1="left_hand" body2="window_wiping_tool"/>
         <weld name="fix_tool_right" body1="right_hand" body2="window_wiping_tool"/>
     </equality>

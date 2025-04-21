@@ -88,7 +88,7 @@ class FloorWipe(Task):
             [
                 rewards.tolerance(
                     self._env.named.data.site_xpos[site_name, "y"],
-                    bounds=(ground_y, ground_y + 0.2),
+                    bounds=(ground_y, ground_y + 0.4),
                     margin=0.4,
                     sigmoid="linear",
                 )
@@ -113,16 +113,17 @@ class FloorWipe(Task):
         #
         moving_wipe_reward = rewards.tolerance(
             abs(self._env.named.data.sensordata["window_wiping_tool_subtreelinvel"][2]),
-            bounds=(0.5, 0.5),
+            bounds=(0.3, 0.7),
             margin=0.5,
         )
 
         manipulation_reward = (
             0.2 * (stand_reward * small_control)
-            + 0.4 * moving_wipe_reward
+            # + 0.4 * moving_wipe_reward
         )
         floor_contact_total_reward = floor_contact_filter * floor_contact_reward
-        reward = 0.5 * manipulation_reward + 0.5 * floor_contact_total_reward
+        moving_wipe_reward = floor_contact_filter * moving_wipe_reward
+        reward = 0.1 * manipulation_reward + 5 * floor_contact_total_reward + 5 * moving_wipe_reward
 
         return reward, {
             "stand_reward": stand_reward,
