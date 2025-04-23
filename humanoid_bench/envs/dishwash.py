@@ -152,6 +152,7 @@ class Dishwash(Task):
 
         return reward, {
             "small_control": small_control,
+            "hand_dish_proximity_reward": hand_window_proximity_reward,
             "rubbing_reward": rubbing_reward,
             "dish_contact_filter": dish_contact_filter,
         }
