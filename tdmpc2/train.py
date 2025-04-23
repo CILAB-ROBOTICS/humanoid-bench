@@ -59,6 +59,7 @@ def train(cfg: dict):
         cfg.instruct_path = os.path.abspath(os.path.join(instruct_dir, f"{cfg.instruct}.csv"))
     else:
         cfg.instruct_path = None
+
     trainer_cls = OfflineTrainer if cfg.multitask else OnlineTrainer
     trainer = trainer_cls(
         cfg=cfg,
