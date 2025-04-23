@@ -11,7 +11,6 @@
         <material name="kettle_wood" rgba="1 1 1 1" texture="T_kettle_wood" texrepeat="3 3" reflectance="1" shininess="1" texuniform="false" />
         <material name="kettle_metal" rgba="1 1 1 1" texture="T_kettle_metal" texrepeat="3 3" reflectance="1" shininess="1" texuniform="false" />
         <material name="kettle_white" rgba=".9 .9 .9 1" reflectance="1" shininess="1" />
-        <material name="kettle_collision_blue" rgba="0.3 0.3 1.0 0.5" shininess="0" specular="0" />
     </asset>
     <default class="kettle">
         <joint damping="2" frictionloss="2" armature=".01" limited="true" />

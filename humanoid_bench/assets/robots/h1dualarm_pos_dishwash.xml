@@ -40,6 +40,7 @@
     </default>
 
     <default>
+
         <default class="left_hand">
             <mesh scale="0.001 0.001 0.001"/>
             <joint axis="1 0 0" damping="0.05" armature="0.0002" frictionloss="0.01"/>
@@ -244,10 +245,9 @@
     </asset>
 
     <worldbody>
-        <camera name="cam_kitchen" pos="-0.3 -2.5 2.5" xyaxes="1 0 0 0 0.5 1"/>
-        <camera name="cam_dishwash" pos="-0.3 -0.5 2.5" xyaxes="0.3 0.3 0.7 0 0.3 0.3"/>
+        <camera name="cam_kitchen" pos="-0.3 -0.5 1.7" xyaxes="1 -0.8 1 0 0.3 1"/>
 
-        <body name="pelvis" pos="0 0 0.98" childclass="h1">
+        <body name="pelvis" pos="1.7 0.7 0.98" quat="0 0 0 1"  childclass="h1">
             <site name="com" pos="0 0 0" rgba="1 0 0 0" size="0.01"/>
             <camera name="cam_default" pos="2 3 0.8" mode="trackcom" xyaxes="-1 0.5 0 -0.2 -0.2 1"/>
             <camera name="cam_maze" pos="3 3 3" mode="trackcom" xyaxes="-0.5 0.5 0 -0.4 -0.4 1"/>

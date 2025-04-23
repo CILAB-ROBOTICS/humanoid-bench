@@ -12,6 +12,7 @@ from dm_control.mujoco.engine import NamedIndexStructs
 from dm_control.utils import rewards
 
 from humanoid_bench.dmc_wrapper import MjDataWrapper, MjModelWrapper
+from humanoid_bench.envs.dishwash import Dishwash
 
 from .wrappers import (
     SingleReachWrapper,
@@ -105,6 +106,7 @@ TASKS = {
     "insert_small": Insert,  # This is not an error
     "powerlift": Powerlift,
     "rub": Rub,
+    "dishwash": Dishwash
 }
 
 
@@ -282,13 +284,13 @@ if __name__ == "__main__":
         entry_point="humanoid_bench.env:HumanoidEnv",
         max_episode_steps=1000,
         kwargs={
-            "robot": "h1hand",
+            "robot": "h1dualarm",
             "control": "pos",
-            "task": "maze_hard",
+            "task": "dishwash",
         },
     )
 
-    env = gym.make("temp-v0", render_mode="human")
+    env = gym.make("temp-v0", render_mode="rgb_array")
     ob, _ = env.reset()
     print(f"ob_space = {env.observation_space}, ob = {ob.shape}")
     print(f"ac_space = {env.action_space.shape}")
@@ -296,7 +298,12 @@ if __name__ == "__main__":
     while True:
         action = env.action_space.sample()
         ob, rew, terminated, truncated, info = env.step(action)
-        env.render()
+        image = env.render()
+
+        import cv2
+
+        cv2.imshow("image", image)
+        cv2.waitKey(1)
 
         if terminated or truncated:
             env.reset()
