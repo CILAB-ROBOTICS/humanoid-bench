@@ -106,9 +106,9 @@ class Dishwash(Task):
         return np.concatenate([qp, obj_qp])
 
     def get_reward(self):
-        # self.window_pane_id = self._env.named.data.geom_xpos.axes.row.names.index(
-        #     "dish_collision"
-        # )
+        self.window_pane_id = self._env.named.data.geom_xpos.axes.row.names.index(
+            "dish_collision"
+        )
 
 
         small_control = rewards.tolerance(
@@ -119,56 +119,41 @@ class Dishwash(Task):
         ).mean()
         small_control = (4 + small_control) / 5
 
-        # left_hand_window_distance = np.linalg.norm(
-        #     self._env.named.data.site_xpos["left_hand"] - self._env.named.data.geom_xpos["window_pane_collision"]
-        # )
-        # right_hand_window_distance = np.linalg.norm(
-        #     self._env.named.data.site_xpos["right_hand"] - self._env.named.data.geom_xpos["window_pane_collision"]
-        # )
-        # hand_window_proximity_reward = min(
-        #     [
-        #         rewards.tolerance(left_hand_window_distance, bounds=(0, 0.05), margin=0.2),
-        #         rewards.tolerance(right_hand_window_distance, bounds=(0, 0.05), margin=0.2),
-        #     ]
-        # )
+
+        right_hand_window_distance = np.linalg.norm(
+            self._env.named.data.site_xpos["right_hand"] - self._env.named.data.geom_xpos["dish_collision"]
+        )
+        hand_window_proximity_reward = min(
+            [
+                rewards.tolerance(right_hand_window_distance, bounds=(0, 0.05), margin=1.0),
+            ]
+        )
 
 
-        left_hand_vel = np.linalg.norm(self.robot.left_hand_velocity()[:2])
         right_hand_vel = np.linalg.norm(self.robot.right_hand_velocity()[:2])
         rubbing_reward = rewards.tolerance(
-            max(left_hand_vel, right_hand_vel),
+            right_hand_vel,
             bounds=(0.5, 0.5),
             margin=0.5,
             sigmoid="linear",
         )
 
-        # head_window_distance_reward = rewards.tolerance(
-        #     np.linalg.norm(self._env.named.data.site_xpos["head"] - self.head_pos0),
-        #     bounds=(0.4, 0.4),
-        #     margin=0.1,
-        # )
+        if right_hand_window_distance < 0.05:
+            dish_contact_filter = 1
+        else:
+            dish_contact_filter = 0
 
-        # manipulation_reward = (
-        #         0.2 * (small_control * head_window_distance_reward)
-        #         + 0.4 * rubbing_reward
-        #         # + 0.4 * hand_window_proximity_reward
-        # )
 
-        window_contact_filter = 0
-        # for pair in self._env.data.contact.geom:
-        #     if self.window_pane_id in pair:
-        #         window_contact_filter = 1
-        #         break
-        # window_contact_total_reward = window_contact_filter * hand_window_proximity_reward
-        # reward = 0.5 * manipulation_reward + 0.5 * window_contact_total_reward
-        reward = 0
+        hand_window_proximity_reward = 1 * hand_window_proximity_reward
+        rubbing_reward = 1 * rubbing_reward
+
+        window_contact_total_reward = hand_window_proximity_reward + dish_contact_filter * rubbing_reward
+        reward = small_control + window_contact_total_reward
 
         return reward, {
             "small_control": small_control,
             "rubbing_reward": rubbing_reward,
-            # "hand_window_proximity_reward": hand_window_proximity_reward,
-            "window_contact_filter": window_contact_filter,
-            # "window_contact_total_reward": window_contact_total_reward,
+            "dish_contact_filter": dish_contact_filter,
         }
 
     def get_terminated(self):
