@@ -54,6 +54,7 @@ from .envs.room import Room
 from .envs.powerlift import Powerlift
 from .envs.insert import Insert
 from .envs.rub import Rub
+from .envs.floorwipe import FloorWipe
 
 DEFAULT_CAMERA_CONFIG = {
     "trackbodyid": 1,
@@ -107,6 +108,7 @@ TASKS = {
     "powerlift": Powerlift,
     "rub": Rub,
     "dishwash": Dishwash
+    "floorwipe": FloorWipe,
 }
 
 
@@ -151,6 +153,7 @@ class HumanoidEnv(MujocoEnv, gym.utils.EzPickle):
 
         self.condition = None
 
+
         MujocoEnv.__init__(
             self,
             model_path,
@@ -192,7 +195,6 @@ class HumanoidEnv(MujocoEnv, gym.utils.EzPickle):
                 self.task = DoubleReachRelativeWrapper(self.task, **kwargs)
             else:
                 raise ValueError(f"Unknown policy_type: {kwargs['policy_type']}")
-
 
         if self.obs_wrapper:
             # Note that observation wrapper is not compatible with hierarchical policy
@@ -238,6 +240,7 @@ class HumanoidEnv(MujocoEnv, gym.utils.EzPickle):
 
     def step(self, action):
         obs, reward, t1, t2, info = self.task.step(action)
+
         if self.condition is not None:
             cond_obs = self.get_condition_obs()
             obs = np.concatenate([obs, cond_obs])
@@ -291,18 +294,23 @@ if __name__ == "__main__":
     )
 
     env = gym.make("temp-v0", render_mode="rgb_array")
+
+
+    import cv2
+    env = gym.make("temp-v0")
+
     ob, _ = env.reset()
     print(f"ob_space = {env.observation_space}, ob = {ob.shape}")
     print(f"ac_space = {env.action_space.shape}")
-    env.render()
+    # env.render()
     while True:
         action = env.action_space.sample()
         ob, rew, terminated, truncated, info = env.step(action)
+
+        print(f"ob_space = {env.observation_space}, ob = {ob.shape}, info = {info}")
         image = env.render()
-
-        import cv2
-
-        cv2.imshow("image", image)
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        cv2.imshow("mujoco", image)
         cv2.waitKey(1)
 
         if terminated or truncated:

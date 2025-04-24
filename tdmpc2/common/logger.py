@@ -23,6 +23,7 @@ CAT_TO_COLOR = {
     "train": "blue",
     "eval": "green",
     "results": "magenta",
+    "reward": "light_grey",
 }
 
 
@@ -252,7 +253,7 @@ class Logger:
     def log(self, d, category="train"):
         assert category in CAT_TO_COLOR.keys(), f"invalid category: {category}"
         if self._wandb:
-            if category in {"train", "eval", "results"}:
+            if category in {"train", "eval", "results", "reward"}:
                 xkey = "step"
             elif category == "pretrain":
                 xkey = "iteration"
