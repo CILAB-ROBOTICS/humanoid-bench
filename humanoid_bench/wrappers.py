@@ -46,10 +46,10 @@ class BaseWrapper(Task):
     def reset_model(self):
         self.task.reset_model()
         return self.get_obs()
-    
+
     def render(self):
         return self.task.render()
-    
+
     def step(self, action):
         return self.task.step(action)
 
@@ -67,7 +67,7 @@ class BaseWrapper(Task):
 
     def get_terminated(self):
         return self.task.get_terminated()
-    
+
     def reset_model(self):
         self.task.reset_model()
         return self.get_obs()
@@ -463,7 +463,7 @@ class ObservationWrapper(BaseWrapper):
 
         if self._tactile_ob:
             assert (
-                "H1Touch" == task.unwrapped._env.robot.__class__.__name__
+                task.unwrapped._env.robot.__class__.__name__ in ["H1Touch", "H1TouchDualArm"]
             ), "Tactile observations are only available for H1Touch robot"
 
     @property
