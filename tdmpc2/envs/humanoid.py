@@ -22,10 +22,22 @@ class HumanoidWrapper(gym.Wrapper):
         self.env = env
         self.cfg = cfg
 
+    @staticmethod
+    def _process_obs(obs):
+        if isinstance(obs, dict):
+            for key, value in obs.items():
+                obs[key] = value.flatten().astype(np.float32)
+        else:
+            obs = obs.astype(np.float32)
+        return obs
+
+    def reset(self, options=None):
+        obs, info = self.env.reset(options=options)
+        return self._process_obs(obs), info
+
     def step(self, action):
         obs, reward, done, truncated, info = self.env.step(action.copy())
-        obs = obs.astype(np.float32)
-        return obs, reward, done, truncated, info
+        return self._process_obs(obs), reward, done, truncated, info
 
     @property
     def unwrapped(self):
@@ -53,6 +65,9 @@ def make_env(cfg):
 
     print("small obs start:", small_obs)
 
+    if cfg.tactile:
+        assert cfg.obs == "multi-modal", "The observation must be multi-modal in config."
+
     env = gym.make(
         cfg.task.removeprefix("humanoid_"),
         policy_path=policy_path,
@@ -60,6 +75,8 @@ def make_env(cfg):
         var_path=var_path,
         policy_type=policy_type,
         small_obs=small_obs,
+        obs_wrapper='true' if cfg.tactile else None,
+        sensors="proprio,tactile" if cfg.tactile else None,
     )
     env = HumanoidWrapper(env, cfg)
     env.max_episode_steps = env.get_wrapper_attr("_max_episode_steps")
