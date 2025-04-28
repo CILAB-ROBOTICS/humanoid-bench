@@ -53,6 +53,7 @@ from .envs.room import Room
 from .envs.powerlift import Powerlift
 from .envs.insert import Insert
 from .envs.rub import Rub
+from .envs.standpush import StandPush
 
 DEFAULT_CAMERA_CONFIG = {
     "trackbodyid": 1,
@@ -105,6 +106,7 @@ TASKS = {
     "insert_small": Insert,  # This is not an error
     "powerlift": Powerlift,
     "rub": Rub,
+    "standpush": StandPush,
 }
 
 
@@ -277,18 +279,20 @@ class HumanoidEnv(MujocoEnv, gym.utils.EzPickle):
 
 
 if __name__ == "__main__":
+    import cv2
+
     register(
         id="temp-v0",
         entry_point="humanoid_bench.env:HumanoidEnv",
         max_episode_steps=1000,
         kwargs={
-            "robot": "h1hand",
+            "robot": "h1dualarm",
             "control": "pos",
-            "task": "maze_hard",
+            "task": "standpush",
         },
     )
 
-    env = gym.make("temp-v0", render_mode="human")
+    env = gym.make("temp-v0", render_mode="rgb_array")
     ob, _ = env.reset()
     print(f"ob_space = {env.observation_space}, ob = {ob.shape}")
     print(f"ac_space = {env.action_space.shape}")
@@ -296,7 +300,10 @@ if __name__ == "__main__":
     while True:
         action = env.action_space.sample()
         ob, rew, terminated, truncated, info = env.step(action)
-        env.render()
+        image = env.render()
+
+        cv2.imshow("image", image)
+        cv2.waitKey(1)
 
         if terminated or truncated:
             env.reset()
