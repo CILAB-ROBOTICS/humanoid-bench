@@ -1,11 +1,15 @@
 import numpy as np
+import mujoco
 import gymnasium as gym
 from gymnasium.spaces import Box
 from dm_control.utils import rewards
 
 from humanoid_bench.tasks import Task
+from instruct_rl.create_instruct import ConditionFeature
 
 _STAND_HEIGHT = 1.65
+_MIN_FORCE = 0.0
+_MAX_FORCE = 10000.0  # TODO: we need to find the proper value empirically
 
 
 class Rub(Task):
@@ -53,10 +57,53 @@ class Rub(Task):
         )
 
     def get_reward(self):
-        self.window_pane_id = self._env.named.data.geom_xpos.axes.row.names.index(
-            "window_pane_collision"
+        stand_reward = self._compute_stand_reward()
+        small_control = self._compute_small_control_reward()
+        hand_window_proximity_reward = self._compute_hand_window_proximity_reward()
+        head_window_distance_reward = self._compute_head_window_distance_reward()
+        rubbing_reward = self._compute_rubbing_reward()
+        pressure_reward, pressure_info = self._compute_pressure_reward(self._env.condition)
+        direction_reward, direction_info = self._compute_direction_reward(self._env.condition)
+        frequency_reward, frequency_info = self._compute_frequency_reward(self._env.condition)
+        window_contact_filter = self._check_window_contact()
+
+        manipulation_reward = (
+            0.1 * (stand_reward * small_control * head_window_distance_reward)
+            + 0.2 * rubbing_reward
+            + 0.2 * hand_window_proximity_reward
+            + 0.2 * pressure_reward
+            + 0.2 * direction_reward
+            + 0.1 * frequency_reward
         )
 
+        window_contact_total_reward = window_contact_filter * hand_window_proximity_reward
+        reward = 0.7 * manipulation_reward + 0.3 * window_contact_total_reward
+
+        return reward, {
+            "stand_reward": stand_reward,
+            "small_control": small_control,
+            "rubbing_reward": rubbing_reward,
+            "hand_window_proximity_reward": hand_window_proximity_reward,
+            "pressure_reward": pressure_reward,
+            "direction_reward": direction_reward,
+            "frequency_reward": frequency_reward,
+            "window_contact_filter": window_contact_filter,
+            "window_contact_total_reward": window_contact_total_reward,
+            **pressure_info,
+            **direction_info,
+            **frequency_info,
+        }
+
+    def _get_window_pane_cid(self):
+        window_pane_id = self._env.named.data.geom_xpos.axes.row.names.index("window_pane_collision")
+
+        cids = []
+        for cid, pair in enumerate(self._env.data.contact.geom):
+            if window_pane_id in pair:
+                cids.append(cid)
+        return cids
+
+    def _compute_stand_reward(self):
         standing = rewards.tolerance(
             self.robot.head_height(),
             bounds=(_STAND_HEIGHT, float("inf")),
@@ -69,73 +116,116 @@ class Rub(Task):
             margin=1.9,
             value_at_margin=0,
         )
-        stand_reward = standing * upright
-        small_control = rewards.tolerance(
-            self.robot.actuator_forces(),
-            margin=10,
-            value_at_margin=0,
-            sigmoid="quadratic",
-        ).mean()
-        small_control = (4 + small_control) / 5
+        return standing * upright
 
-        left_hand_window_distance = np.linalg.norm(
+    def _compute_small_control_reward(self):
+        ctrl = self.robot.actuator_forces()
+        reward = rewards.tolerance(ctrl, margin=10, value_at_margin=0, sigmoid="quadratic").mean()
+        return (4 + reward) / 5
+
+    def _compute_hand_window_proximity_reward(self):
+        ldist = np.linalg.norm(
             self._env.named.data.site_xpos["left_hand"] - self._env.named.data.geom_xpos["window_pane_collision"]
         )
-        right_hand_window_distance = np.linalg.norm(
+        rdist = np.linalg.norm(
             self._env.named.data.site_xpos["right_hand"] - self._env.named.data.geom_xpos["window_pane_collision"]
         )
-        hand_window_proximity_reward = min(
-            [
-                rewards.tolerance(left_hand_window_distance, bounds=(0, 0.05), margin=0.2),
-                rewards.tolerance(right_hand_window_distance, bounds=(0, 0.05), margin=0.2),
-            ]
-        )
+        return min([
+            rewards.tolerance(ldist, bounds=(0, 0.05), margin=0.2),
+            rewards.tolerance(rdist, bounds=(0, 0.05), margin=0.2),
+        ])
 
-        left_hand_vel = np.linalg.norm(self.robot.left_hand_velocity()[:2])
-        right_hand_vel = np.linalg.norm(self.robot.right_hand_velocity()[:2])
-        rubbing_reward = rewards.tolerance(
-            max(left_hand_vel, right_hand_vel),
-            bounds=(0.5, 0.5),
-            margin=0.5,
-            sigmoid="linear",
-        )
-
-        head_window_distance_reward = rewards.tolerance(
+    def _compute_head_window_distance_reward(self):
+        return rewards.tolerance(
             np.linalg.norm(self._env.named.data.site_xpos["head"] - self.head_pos0),
             bounds=(0.4, 0.4),
             margin=0.1,
         )
 
-        manipulation_reward = (
-            0.2 * (stand_reward * small_control * head_window_distance_reward)
-            + 0.4 * rubbing_reward
-            + 0.4 * hand_window_proximity_reward
+    def _compute_rubbing_reward(self):
+        lvel = np.linalg.norm(self.robot.left_hand_velocity()[:2])
+        rvel = np.linalg.norm(self.robot.right_hand_velocity()[:2])
+        return rewards.tolerance(
+            max(lvel, rvel),
+            bounds=(0.5, 0.5),
+            margin=0.5,
+            sigmoid="linear",
         )
 
-        window_contact_filter = 0
-        for pair in self._env.data.contact.geom:
-            if self.window_pane_id in pair:
-                window_contact_filter = 1
-                break
-        window_contact_total_reward = window_contact_filter * hand_window_proximity_reward
-        reward = 0.5 * manipulation_reward + 0.5 * window_contact_total_reward
+    def _compute_pressure_reward(self, condition):
+        if condition is not None:
+            modality = condition.modality
+            if modality == "embed":
+                raise NotImplementedError(
+                    "The 'embed' modality is not implemented yet."
+                )
+            elif modality == "vector":
+                feature = condition.get_feature()
+                target_str = feature[ConditionFeature.strength]
+            else:
+                raise ValueError(
+                    "There is no such modality. "
+                    "Please refer to the 'ConditionSet' class in 'tdmpc2/common/sampler.py'."
+                )
+        else:
+            target_str = 1.0
 
-        return reward, {
-            "stand_reward": stand_reward,
-            "small_control": small_control,
-            "rubbing_reward": rubbing_reward,
-            "hand_window_proximity_reward": hand_window_proximity_reward,
-            "window_contact_filter": window_contact_filter,
-            "window_contact_total_reward": window_contact_total_reward,
+        # calculate current maximum strength
+        current_str = []
+        for cid in self._get_window_pane_cid():
+            contact_force = np.zeros(6)
+            mujoco.mj_contactForce(self._env.model, self._env.data, cid, contact_force)
+            current_str.append(contact_force[0])  # vertical force
+        current_str = max(current_str) if len(current_str) > 0 else 0.0
+
+        # normalize strength
+        clipped_str = min(max(current_str, _MIN_FORCE), _MAX_FORCE)
+        normalized_str = (clipped_str - _MIN_FORCE) / (_MAX_FORCE - _MIN_FORCE)
+
+        # rewarding
+        reward = 0
+        curr_gap = abs(target_str - normalized_str)
+        if self.prev_gap:
+            reward += self.prev_gap - curr_gap
+        self.prev_gap = curr_gap
+
+        # update max/min strength
+        if self.max_strength < current_str:
+            self.max_strength = current_str
+        elif self.min_strength > current_str:
+            self.min_strength = current_str
+
+        # update info
+        info = {
+            'target_str': target_str,
+            'normalized_str': normalized_str,
+            'current_str': current_str,
+            'max_strength': self.max_strength,
+            'min_strength': self.min_strength,
         }
+
+        return reward, info
+
+    def _compute_direction_reward(self, condition):
+        # TODO: implement
+        return 0, {}
+
+    def _compute_frequency_reward(self, condition):
+        # TODO: implement
+        return 0, {}
+
+    def _check_window_contact(self):
+        window_pane_id = self._env.named.data.geom_xpos.axes.row.names.index("window_pane_collision")
+        return any(window_pane_id in pair for pair in self._env.data.contact.geom)
 
     def get_terminated(self):
         if self._env.data.qpos[2] < 0.58:
             return True, {}
-        # if self._env.named.data.xpos["window_wiping_tool"][2] < 0.58:
-        #     return True, {}
         return False, {}
 
     def reset_model(self):
         self.head_pos0 = np.copy(self._env.named.data.site_xpos["head"])
+        self.max_strength = -np.inf
+        self.min_strength = np.inf
+        self.prev_gap = None
         return super().reset_model()
