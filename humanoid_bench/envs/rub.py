@@ -184,17 +184,18 @@ class Rub(Task):
         if condition is not None:
             modality = condition.modality
             if modality == "embed":
-                raise NotImplementedError(
-                    "The 'embed' modality is not implemented yet."
-                )
+                feature = [-1] * condition.get_feature_size()
+                for condition in condition.conditions:
+                    feature[condition.condition_type] = condition.value
+                feature = np.array(feature, dtype=np.float32)
             elif modality == "vector":
                 feature = condition.get_feature()
-                target_str = feature[ConditionFeature.strength]
             else:
                 raise ValueError(
                     "There is no such modality. "
                     "Please refer to the 'ConditionSet' class in 'tdmpc2/common/sampler.py'."
                 )
+            target_str = feature[ConditionFeature.strength]
         else:
             target_str = 1.0
 
