@@ -12,6 +12,20 @@ _MIN_FORCE = 0.0
 _MAX_FORCE = 10000.0  # TODO: we need to find the proper value empirically
 
 
+def _is_body_descendant(model, body_id, target_name):
+    cur = body_id
+    while True:
+        name = model.body(cur).name
+
+        if name == target_name:
+            return True
+
+        parent = model.body_parentid[cur]
+        if parent <= 0:
+            return False
+        cur = parent
+
+
 class Rub(Task):
     qpos0_robot = {
         "h1hand": """
@@ -94,13 +108,27 @@ class Rub(Task):
             **frequency_info,
         }
 
-    def _get_window_pane_cid(self):
+    def _get_window_pane_cid_with(self, body_names=[]):
         window_pane_id = self._env.named.data.geom_xpos.axes.row.names.index("window_pane_collision")
 
         cids = []
-        for cid, pair in enumerate(self._env.data.contact.geom):
-            if window_pane_id in pair:
+        for cid in range(self._env.data.ncon):
+            c = self._env.data.contact[cid]
+            geom1, geom2 = c.geom1, c.geom2
+
+            if geom1 != window_pane_id and geom2 != window_pane_id:
+                continue
+
+            if len(body_names) == 0:
                 cids.append(cid)
+
+            other_geom = geom2 if geom1 == window_pane_id else geom1
+            body_id = self._env.model.geom_bodyid[other_geom]
+
+            for body_name in body_names:
+                if _is_body_descendant(self._env.model, body_id, body_name):
+                    cids.append(cid)
+                    break
         return cids
 
     def _compute_stand_reward(self):
@@ -172,7 +200,7 @@ class Rub(Task):
 
         # calculate current maximum strength
         current_str = []
-        for cid in self._get_window_pane_cid():
+        for cid in self._get_window_pane_cid_with(body_names=["left_hand", "right_hand"]):
             contact_force = np.zeros(6)
             mujoco.mj_contactForce(self._env.model, self._env.data, cid, contact_force)
             current_str.append(contact_force[0])  # vertical force
