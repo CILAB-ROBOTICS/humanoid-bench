@@ -37,7 +37,7 @@ class Rolling(Task):
         return Box(
             low=-np.inf,
             high=np.inf,
-            shape=(self.robot.dof * 2 - 1 + 12,),
+            shape=(self.robot.dof * 2 - 1 + 15,),
             dtype=np.float64,
         )
 
