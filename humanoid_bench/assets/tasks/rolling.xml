@@ -9,6 +9,9 @@
         <material name="plywood_cover"  texuniform="false"  texture="plywood_cover"/>
         <texture type="2d" name="plywood_cover" file="../tasks/assets/plywood-4k.png"/>
 
+        <material name="dough"  texuniform="false"  texture="dough"/>
+        <texture type="2d" name="dough" file="../tasks/assets/dough.png"/>
+
         <mesh name="roller" file="../rolling/assets/roller.stl" scale="0.015 0.015 0.015" />
 
     </asset>
@@ -33,8 +36,13 @@
             <geom name="roller_collision" type="cylinder" pos="0 0 0" size=".035 .22" zaxis="1 0 0" class="collision"/>
             <geom name="roller_handle_left" type="cylinder" pos="-0.3 0 0" size=".015 .075" zaxis="1 0 0" class="collision"/>
             <geom name="roller_handle_right" type="cylinder" pos="0.3 0 0" size=".015 .075" zaxis="1 0 0" class="collision"/>
-
         </body>
+
+        <body name="dough" pos="0.6 0 0.945">
+            <inertial pos="0 0 0" mass="0.3" diaginertia="0.01 0.01 0.01"/>
+            <geom name="dough" type="cylinder" pos="0 0 0" size="0.2 0.01 0.001" rgba="0.9 0.9 0.9 1" class="visual" material="dough"/>
+        </body>
+
 
     </worldbody>
 </mujocoinclude>
