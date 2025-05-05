@@ -1,5 +1,6 @@
 import numpy as np
 from gymnasium.spaces import Box
+from dm_control.utils import rewards
 
 from humanoid_bench.tasks import Task
 
@@ -15,11 +16,6 @@ class Rolling(Task):
     dof = 7
     max_episode_steps = 500
     camera_name = "cam_tabletop"
-    # Below args are only used for reaching-based hierarchical control
-    htarget_low = np.array([0, -1, 0.8])
-    htarget_high = np.array([2.0, 1, 1.2])
-
-    success_bar = 700
 
     def __init__(
         self,
@@ -31,15 +27,6 @@ class Rolling(Task):
 
         if env is None:
             return
-
-        self.reward_dict = {
-            "hand_dist": 0.1,
-            "target_dist": 1,
-            "success": 1000,
-            "terminate": True,
-        }
-
-        self.goal = np.array([1.0, 0.0, 1.0])
 
         if robot.__class__.__name__ == "G1":
             global _STAND_HEIGHT
@@ -58,69 +45,87 @@ class Rolling(Task):
         position = self._env.data.qpos.flat.copy()[: self.robot.dof]
         velocity = self._env.data.qvel.flat.copy()[: self.robot.dof - 1]
         left_hand = self.robot.left_hand_position()
-        target = self.goal.copy()
-        box = self._env.data.qpos.flat.copy()[-7:-4]
-        dofadr = self._env.named.model.body_dofadr["object"]
-        box_vel = self._env.data.qvel.flat.copy()[dofadr : dofadr + 3]
+        right_hand = self.robot.right_hand_position()
 
-        return np.concatenate((position, velocity, left_hand, target, box, box_vel))
+        left_handle = self._env.named.data.geom_xpos["roller_handle_left"]
+        right_handle = self._env.named.data.geom_xpos["roller_handle_right"]
+        roller_pos = self._env.named.data.geom_xpos["roller"]
 
-    def goal_dist(self):
-        box = self._env.data.qpos.flat.copy()[-7:-4]
-        return np.sqrt(np.square(box - self.goal).sum())
+        concatenated = np.concatenate((position, velocity, left_hand, right_hand,
+                               roller_pos, left_handle, right_handle))
+
+        return concatenated
+
 
     def get_reward(self):
-        goal_dist = self.goal_dist()
-        penalty_dist = self.reward_dict["target_dist"] * goal_dist
-        reward_success = self.reward_dict["success"] if goal_dist < 0.05 else 0
+        if not hasattr(self, "left_hand_contact_id"):
+            self.right_hand_contact_id = self._env.named.data.xpos.axes.row.names.index("right_hand")
+            self.left_hand_contact_id = self._env.named.data.xpos.axes.row.names.index("left_hand")
+            self.right_roller_handle_id = self._env.named.data.geom_xpos.axes.row.names.index("roller_handle_right")
+            self.left_roller_handle_id = self._env.named.data.geom_xpos.axes.row.names.index("roller_handle_left")
 
-        left_hand = self.robot.left_hand_position()
-        # box = self._env.data.qpos.flat.copy()[-7:-4]
-        box = self._env.named.data.qpos["free_object"][:3]
 
-        hand_dist = np.sqrt(np.square(left_hand - box).sum())
-        hand_penalty = self.reward_dict["hand_dist"] * hand_dist
+        left_hand_tool_distance = np.linalg.norm(
+            self._env.named.data.site_xpos["left_hand"]
+            - self._env.named.data.geom_xpos["roller_handle_left"]
+        )
+        right_hand_tool_distance = np.linalg.norm(
+            self._env.named.data.site_xpos["right_hand"]
+            - self._env.named.data.geom_xpos["roller_handle_right"]
+        )
 
-        reward = -hand_penalty - penalty_dist + reward_success
+        left_hand_reward = rewards.tolerance(left_hand_tool_distance, bounds=(0, 0.2), margin=0.5)
+        right_hand_reward = rewards.tolerance(
+            right_hand_tool_distance, bounds=(0, 0.2), margin=0.5
+        )
+        hand_tool_proximity_reward = left_hand_reward + right_hand_reward
+
+
+        left_hand_contact_filter = False
+        right_hand_contact_filter = False
+        for pair in self._env.data.contact.geom:
+
+            if self.right_hand_contact_id in pair and self.right_roller_handle_id in pair:
+                right_hand_contact_filter = True
+
+            if self.left_hand_contact_id in pair and self.left_roller_handle_id in pair:
+                left_hand_contact_filter = True
+
+            if left_hand_contact_filter and right_hand_contact_filter:
+                break
+
+        contact_filter = left_hand_contact_filter or right_hand_contact_filter
+
+        moving_tool_reward = rewards.tolerance(
+            abs(self._env.named.data.sensordata["roller_tool_subtreelinvel"][0]),
+            bounds=(0.5, 0.5),
+            margin=0.5,
+        )
+
+        tool_drop = False
+        if self._env.named.data.xpos["roller"][2] < 0.60:
+            tool_drop = True
+
+        hand_tool_proximity_reward = hand_tool_proximity_reward * 0.1
+        moving_tool_reward = contact_filter * moving_tool_reward * 1
+        tool_drop_reward = -1.0 if tool_drop else 0.0
+
+        reward = hand_tool_proximity_reward + moving_tool_reward + tool_drop_reward
+
         info = {
-            "target_dist": goal_dist,
-            "hand_dist": hand_dist,
-            "reward_success": reward_success,
-            "success": reward_success > 0,
+            "hand_tool_proximity": hand_tool_proximity_reward,
+            "moving_tool": moving_tool_reward,
+            "tool_drop": tool_drop_reward,
         }
+
         return reward, info
 
     def get_terminated(self):
-        if self.reward_dict["terminate"]:
-            terminated = self.goal_dist() < 0.05
-        else:
-            terminated = False
+        terminated = False
+
+        if self._env.named.data.xpos["roller"][2] < 0.58:
+            return True, {}
 
         return terminated, {}
 
-    def reset_model(self):
-        self.goal[0] = np.random.uniform(0.7, 1.0)
-        self.goal[1] = np.random.uniform(-0.5, 0.5)
 
-        return self.get_obs()
-
-    def render(self):
-        found = False
-        for i in range(len(self._env.viewer._markers)):
-            if self._env.viewer._markers[i]["objid"] == 789:
-                self._env.viewer._markers[i]["pos"] = self.goal
-                found = True
-                break
-
-        if not found:
-            self._env.viewer.add_marker(
-                pos=self.goal,
-                size=0.05,
-                objid=789,
-                rgba=(0.8, 0.28, 0.28, 1.0),
-                label="",
-            )
-
-        return self._env.mujoco_renderer.render(
-            self._env.render_mode, self._env.camera_id, self._env.camera_name
-        )
