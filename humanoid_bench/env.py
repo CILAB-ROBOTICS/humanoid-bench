@@ -9,7 +9,6 @@ from gymnasium.envs.mujoco import MujocoEnv
 from gymnasium.spaces import Box
 from dm_control.mujoco import index
 from dm_control.mujoco.engine import NamedIndexStructs
-from dm_control.utils import rewards
 
 from humanoid_bench.dmc_wrapper import MjDataWrapper, MjModelWrapper
 
@@ -54,6 +53,7 @@ from .envs.powerlift import Powerlift
 from .envs.insert import Insert
 from .envs.rub import Rub
 from .envs.floorwipe import FloorWipe
+from .envs.rolling import Rolling
 
 DEFAULT_CAMERA_CONFIG = {
     "trackbodyid": 1,
@@ -107,6 +107,7 @@ TASKS = {
     "powerlift": Powerlift,
     "rub": Rub,
     "floorwipe": FloorWipe,
+    "rolling": Rolling
 }
 
 
@@ -287,7 +288,7 @@ if __name__ == "__main__":
         kwargs={
             "robot": "h1dualarm",
             "control": "pos",
-            "task": "floorwipe",
+            "task": "rolling",
         },
     )
 

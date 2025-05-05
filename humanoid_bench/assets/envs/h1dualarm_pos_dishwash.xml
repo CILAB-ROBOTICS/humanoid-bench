@@ -10,7 +10,6 @@
     <equality>
         <weld name="fix_robot" body1="world" body2="pelvis"/>
         <weld name="fix_dish" body1="left_hand" body2="dish"/>
-
     </equality>
 
     <keyframe>
