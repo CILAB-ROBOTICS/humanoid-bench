@@ -17,7 +17,7 @@ class StandPush(Task):
         "g1": "0 0 0.75 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -1.57 0 0 0 0 0 0 0 0 0 0 0 1.57 0 0 0 0 0 0 0 0.7 0 1 1 0 0 0"
     }
     dof = 7
-    max_episode_steps = 500
+    max_episode_steps = 5
     camera_name = "cam_tabletop"
     # Below args are only used for reaching-based hierarchical control
     htarget_low = np.array([0, -1, 0.8])
@@ -100,11 +100,14 @@ class StandPush(Task):
         else:
             terminated = False
 
+        if self._env.named.data.xpos["object"][2] < 0.58:
+            return True, {}
+
         return terminated, {}
 
     def reset_model(self):
-        self.goal[0] = np.random.uniform(0.7, 1.0)
-        self.goal[1] = np.random.uniform(-0.5, 0.5)
+        self.goal[0] = np.random.uniform(0.7, 1.5)
+        self.goal[1] = np.random.uniform(-0.25, 0.25)
 
         return self.get_obs()
 
