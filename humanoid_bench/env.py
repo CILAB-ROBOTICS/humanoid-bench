@@ -11,6 +11,7 @@ from dm_control.mujoco import index
 from dm_control.mujoco.engine import NamedIndexStructs
 
 from humanoid_bench.dmc_wrapper import MjDataWrapper, MjModelWrapper
+from humanoid_bench.envs.dishwash import Dishwash
 
 from .wrappers import (
     SingleReachWrapper,
@@ -106,6 +107,7 @@ TASKS = {
     "insert_small": Insert,  # This is not an error
     "powerlift": Powerlift,
     "rub": Rub,
+    "dishwash": Dishwash
     "floorwipe": FloorWipe,
     "rolling": Rolling
 }
@@ -288,12 +290,16 @@ if __name__ == "__main__":
         kwargs={
             "robot": "h1dualarm",
             "control": "pos",
-            "task": "rolling",
+            "task": "dishwash",
         },
     )
 
+    env = gym.make("temp-v0", render_mode="rgb_array")
+
+
     import cv2
     env = gym.make("temp-v0")
+
     ob, _ = env.reset()
     print(f"ob_space = {env.observation_space}, ob = {ob.shape}")
     print(f"ac_space = {env.action_space.shape}")
@@ -301,6 +307,7 @@ if __name__ == "__main__":
     while True:
         action = env.action_space.sample()
         ob, rew, terminated, truncated, info = env.step(action)
+
         print(f"ob_space = {env.observation_space}, ob = {ob.shape}, info = {info}")
         image = env.render()
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)

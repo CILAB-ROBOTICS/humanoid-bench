@@ -5,10 +5,11 @@
     <include file="../common/visual.xml"/>
     <include file="../common/floor.xml"/>
     <include file="../robots/h1dualarm_pos.xml"/>
-    <include file="../tasks/window.xml"/>
+    <include file="../tasks/dishwash.xml"/>
 
     <equality>
         <weld name="fix_robot" body1="world" body2="pelvis"/>
+        <weld name="fix_dish" body1="pelvis" body2="dish"/>
     </equality>
 
     <keyframe>
