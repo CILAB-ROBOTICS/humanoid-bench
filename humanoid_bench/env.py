@@ -53,6 +53,7 @@ from .envs.room import Room
 from .envs.powerlift import Powerlift
 from .envs.insert import Insert
 from .envs.rub import Rub
+from .envs.standpush import StandPush
 from .envs.floorwipe import FloorWipe
 from .envs.rolling import Rolling
 
@@ -107,6 +108,7 @@ TASKS = {
     "insert_small": Insert,  # This is not an error
     "powerlift": Powerlift,
     "rub": Rub,
+    "standpush": StandPush,
     "dishwash": Dishwash
     "floorwipe": FloorWipe,
     "rolling": Rolling
@@ -283,6 +285,8 @@ class HumanoidEnv(MujocoEnv, gym.utils.EzPickle):
 
 
 if __name__ == "__main__":
+    import cv2
+
     register(
         id="temp-v0",
         entry_point="humanoid_bench.env:HumanoidEnv",
@@ -295,23 +299,18 @@ if __name__ == "__main__":
     )
 
     env = gym.make("temp-v0", render_mode="rgb_array")
-
-
-    import cv2
-    env = gym.make("temp-v0")
-
     ob, _ = env.reset()
     print(f"ob_space = {env.observation_space}, ob = {ob.shape}")
     print(f"ac_space = {env.action_space.shape}")
-    # env.render()
+    env.render()
     while True:
         action = env.action_space.sample()
         ob, rew, terminated, truncated, info = env.step(action)
 
         print(f"ob_space = {env.observation_space}, ob = {ob.shape}, info = {info}")
         image = env.render()
-        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-        cv2.imshow("mujoco", image)
+
+        cv2.imshow("image", image)
         cv2.waitKey(1)
 
         if terminated or truncated:
