@@ -56,6 +56,7 @@ from .envs.rub import Rub
 from .envs.standpush import StandPush
 from .envs.floorwipe import FloorWipe
 from .envs.rolling import Rolling
+from .envs.polishing import Polishing
 
 DEFAULT_CAMERA_CONFIG = {
     "trackbodyid": 1,
@@ -111,7 +112,8 @@ TASKS = {
     "standpush": StandPush,
     "dishwash": Dishwash
     "floorwipe": FloorWipe,
-    "rolling": Rolling
+    "rolling": Rolling,
+    "polishing": Polishing,
 }
 
 
@@ -294,7 +296,7 @@ if __name__ == "__main__":
         kwargs={
             "robot": "h1dualarm",
             "control": "pos",
-            "task": "dishwash",
+            "task": "polishing",
         },
     )
 
