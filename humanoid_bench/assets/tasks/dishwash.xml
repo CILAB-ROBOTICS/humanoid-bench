@@ -49,6 +49,7 @@
         </body>
         <body name="dish" pos="1.269 0.35 1">
             <freejoint name="free_dish"/>
+            <geom name="dish_collision" type="mesh" mesh="dish" pos="0 0 0" size="0.03 0.03 0.03" material="dish_white" contype="1" conaffinity="1" group="4"/>
             <include file="../dishwash/adept_models/kitchen/assets/dish_chain.xml"/>
         </body>
     </worldbody>

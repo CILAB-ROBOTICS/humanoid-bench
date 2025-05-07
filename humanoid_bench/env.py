@@ -9,9 +9,9 @@ from gymnasium.envs.mujoco import MujocoEnv
 from gymnasium.spaces import Box
 from dm_control.mujoco import index
 from dm_control.mujoco.engine import NamedIndexStructs
-from dm_control.utils import rewards
 
 from humanoid_bench.dmc_wrapper import MjDataWrapper, MjModelWrapper
+from humanoid_bench.envs.dishwash import Dishwash
 
 from .wrappers import (
     SingleReachWrapper,
@@ -55,6 +55,7 @@ from .envs.insert import Insert
 from .envs.rub import Rub
 from .envs.standpush import StandPush
 from .envs.floorwipe import FloorWipe
+from .envs.rolling import Rolling
 
 DEFAULT_CAMERA_CONFIG = {
     "trackbodyid": 1,
@@ -108,7 +109,9 @@ TASKS = {
     "powerlift": Powerlift,
     "rub": Rub,
     "standpush": StandPush,
+    "dishwash": Dishwash
     "floorwipe": FloorWipe,
+    "rolling": Rolling
 }
 
 
@@ -291,7 +294,7 @@ if __name__ == "__main__":
         kwargs={
             "robot": "h1dualarm",
             "control": "pos",
-            "task": "standpush",
+            "task": "dishwash",
         },
     )
 
@@ -303,6 +306,8 @@ if __name__ == "__main__":
     while True:
         action = env.action_space.sample()
         ob, rew, terminated, truncated, info = env.step(action)
+
+        print(f"ob_space = {env.observation_space}, ob = {ob.shape}, info = {info}")
         image = env.render()
 
         cv2.imshow("image", image)
