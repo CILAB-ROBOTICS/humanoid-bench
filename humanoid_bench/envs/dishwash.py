@@ -125,7 +125,7 @@ class Dishwash(Task):
         )
         hand_window_proximity_reward = min(
             [
-                rewards.tolerance(right_hand_window_distance, bounds=(0, 0.05), margin=1.0),
+                rewards.tolerance(right_hand_window_distance, bounds=(0, 0.05), margin=0.5),
             ]
         )
 
@@ -143,11 +143,11 @@ class Dishwash(Task):
         else:
             dish_contact_filter = 0
 
+        small_control = small_control * 0.1
+        hand_window_proximity_reward = 10 * hand_window_proximity_reward
+        rubbing_reward = 0.4 * rubbing_reward * dish_contact_filter
 
-        hand_window_proximity_reward = 1 * hand_window_proximity_reward
-        rubbing_reward = 1 * rubbing_reward
-
-        window_contact_total_reward = hand_window_proximity_reward + dish_contact_filter * rubbing_reward
+        window_contact_total_reward = hand_window_proximity_reward + rubbing_reward
         reward = small_control + window_contact_total_reward
 
         return reward, {
