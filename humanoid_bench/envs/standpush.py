@@ -17,7 +17,7 @@ class StandPush(Task):
         "g1": "0 0 0.75 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -1.57 0 0 0 0 0 0 0 0 0 0 0 1.57 0 0 0 0 0 0 0 0.7 0 1 1 0 0 0"
     }
     dof = 7
-    max_episode_steps = 5
+    max_episode_steps = 500
     camera_name = "cam_tabletop"
     # Below args are only used for reaching-based hierarchical control
     htarget_low = np.array([0, -1, 0.8])
