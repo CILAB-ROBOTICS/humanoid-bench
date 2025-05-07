@@ -54,6 +54,7 @@ from .envs.powerlift import Powerlift
 from .envs.insert import Insert
 from .envs.rub import Rub
 from .envs.standpush import StandPush
+from .envs.floorwipe import FloorWipe
 
 DEFAULT_CAMERA_CONFIG = {
     "trackbodyid": 1,
@@ -107,6 +108,7 @@ TASKS = {
     "powerlift": Powerlift,
     "rub": Rub,
     "standpush": StandPush,
+    "floorwipe": FloorWipe,
 }
 
 
@@ -151,6 +153,7 @@ class HumanoidEnv(MujocoEnv, gym.utils.EzPickle):
 
         self.condition = None
 
+
         MujocoEnv.__init__(
             self,
             model_path,
@@ -192,7 +195,6 @@ class HumanoidEnv(MujocoEnv, gym.utils.EzPickle):
                 self.task = DoubleReachRelativeWrapper(self.task, **kwargs)
             else:
                 raise ValueError(f"Unknown policy_type: {kwargs['policy_type']}")
-
 
         if self.obs_wrapper:
             # Note that observation wrapper is not compatible with hierarchical policy
@@ -238,6 +240,7 @@ class HumanoidEnv(MujocoEnv, gym.utils.EzPickle):
 
     def step(self, action):
         obs, reward, t1, t2, info = self.task.step(action)
+
         if self.condition is not None:
             cond_obs = self.get_condition_obs()
             obs = np.concatenate([obs, cond_obs])
