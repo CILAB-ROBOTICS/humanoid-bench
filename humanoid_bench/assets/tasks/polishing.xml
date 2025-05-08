@@ -14,15 +14,15 @@
         <material name="vase_blue" rgba="0 0 1 1" reflectance="1" shininess="1"/>
     </asset>
 
-    <default class="vase">
-        <joint damping="2" frictionloss="2" armature=".01" limited="true"/>
-        <geom conaffinity="0" contype="0" group="2" material="vase_white" type="mesh"/>
-        <default class="vase_collision">
-            <geom conaffinity="1" condim="4" contype="1" group="4"
-                  margin="0.001" material="vase_blue"
-                  solimp=".8 .9 .01" solref=".02 1" type="mesh"/>
-        </default>
-    </default>
+<!--    <default class="vase">-->
+<!--        <joint damping="2" frictionloss="2" armature=".01" limited="true"/>-->
+<!--        <geom conaffinity="0" contype="0" group="2" material="vase_white" type="mesh"/>-->
+<!--        <default class="vase_collision">-->
+<!--            <geom conaffinity="1" condim="4" contype="1" group="4"-->
+<!--                  margin="0.001" material="vase_blue"-->
+<!--                  solimp=".8 .9 .01" solref=".02 1" type="mesh"/>-->
+<!--        </default>-->
+<!--    </default>-->
 
     <worldbody>
         <body name="table" pos="0.9 0 0.45">
@@ -40,8 +40,8 @@
         <body name="vase" pos="0.7 0 0.86" euler="0 0 0">
             <freejoint name="free_vase"/>
             <inertial pos="0 0 0" mass="2.0" diaginertia="0.002 0.002 0.001"/>
-            <geom name="vase_visual" type="mesh" mesh="vase" class="vase"/>
-            <geom name="vase_collision" type="mesh" mesh="vase" class="vase_collision"/>
+            <geom name="vase_visual" type="mesh" mesh="vase" class="visual"/>
+            <geom name="vase_collision" type="mesh" mesh="vase" class="collision"/>
         </body>
     </worldbody>
 </mujocoinclude>
