@@ -2,7 +2,7 @@ defaults:
     - override hydra/launcher: submitit_local
 
 # environment
-task: dog-run
+task: humanoid_h1dualarm-rub-v0
 obs: state
 
 # evaluation
@@ -63,9 +63,9 @@ simnorm_dim: 8
 
 # logging
 wandb_project: humanoid-bench
-wandb_entity: robot-learning
+wandb_entity: cilab-robot
 wandb_silent: false
-disable_wandb: true
+disable_wandb: false
 save_csv: true
 
 # misc

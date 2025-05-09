@@ -110,7 +110,7 @@ TASKS = {
     "powerlift": Powerlift,
     "rub": Rub,
     "standpush": StandPush,
-    "dishwash": Dishwash
+    "dishwash": Dishwash,
     "floorwipe": FloorWipe,
     "rolling": Rolling,
     "polishing": Polishing,
