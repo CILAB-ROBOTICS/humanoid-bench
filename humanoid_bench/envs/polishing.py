@@ -17,7 +17,7 @@ class Polishing(Task):
         "h1touch": "0 0 0.98 1 0 0 0 0 0 -0.4 0.8 -0.4 0 0 -0.4 0.8 -0.4 0 0 0 0 0 1.57 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.57 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.7 0 1 1 0 0 0",
         "g1": "0 0 0.75 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -1.57 0 0 0 0 0 0 0 0 0 0 0 1.57 0 0 0 0 0 0 0 0.7 0 1 1 0 0 0"
     }
-    dof = 7
+    dof = 0
     max_episode_steps = 500
     camera_name = "cam_tabletop"
     # Below args are only used for reaching-based hierarchical control
@@ -63,7 +63,7 @@ class Polishing(Task):
         velocity = self._env.data.qvel.flat.copy()[: self.robot.dof - 1]
         right_hand = self.robot.right_hand_position()
         left_hand = self.robot.left_hand_position()
-        vase = self._env.named.data.qpos["free_vase"][:3]
+        vase = self._env.named.data.xpos["vase"][:3]
         dofadr = self._env.named.model.body_dofadr["vase"]
         vase_vel = self._env.data.qvel.flat.copy()[dofadr : dofadr + 3]
 
@@ -72,7 +72,7 @@ class Polishing(Task):
     def hand_dist(self):
         left_hand = self.robot.left_hand_position()
         right_hand = self.robot.right_hand_position()
-        vase = self._env.named.data.qpos["free_vase"][:3]
+        vase = self._env.named.data.xpos["vase"][:3]
 
         left_hand_dist = np.sqrt(np.square(left_hand - vase).sum())
         right_hand_dist = np.sqrt(np.square(right_hand - vase).sum())
@@ -144,12 +144,9 @@ class Polishing(Task):
 
     def get_terminated(self):
         terminated = False
-        vase_pos = self._env.named.data.qpos["free_vase"][:3]
+        left_hand_dist, right_hand_dist = self.hand_dist()
 
-        if vase_pos[2] < 0.4:
-            terminated = True
-
-        if np.linalg.norm(vase_pos[:2]) > 1.0:
+        if left_hand_dist > 1.5 or right_hand_dist > 1.5:
             terminated = True
 
         return terminated, {}
