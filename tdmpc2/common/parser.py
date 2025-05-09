@@ -37,7 +37,7 @@ def parse_cfg(cfg: OmegaConf) -> OmegaConf:
     # Convenience
     cfg.work_dir = (
         Path(hydra.utils.get_original_cwd())
-        / "logs"
+        / "results"
         / cfg.task
         / str(cfg.seed)
         / cfg.exp_name
