@@ -3,8 +3,8 @@ parameters:
     distribution: categorical
     values:
       - humanoid_h1dualarm-rub-v0
-      - humanoid_h1dualarm-window-v0
       - humanoid_h1dualarm-standpush-v0
+      - humanoid_h1dualarm-window-v0
       - humanoid_h1dualarm-dishwash-v0
       - humanoid_h1dualarm-floorwipe-v0
       - humanoid_h1dualarm-rolling-v0
