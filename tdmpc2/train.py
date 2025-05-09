@@ -22,8 +22,6 @@ from tdmpc2.trainer.online_trainer import OnlineTrainer
 from tdmpc2.common.logger import Logger
 from tdmpc2.common.sampler import ConditionSampler
 
-from dotenv import load_dotenv
-
 
 @hydra.main(config_name="config", config_path=".")
 def train(cfg: dict):
@@ -70,5 +68,4 @@ def train(cfg: dict):
 
 
 if __name__ == "__main__":
-    load_dotenv(os.path.join(dirname(__file__), "..", ".env"))
     train()
