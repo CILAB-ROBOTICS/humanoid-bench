@@ -29,15 +29,15 @@ def evaluate(cfg: dict):
     cfg = parse_cfg(cfg)
     set_seed(cfg.seed)
 
-    logger.info(f"Task: {cfg.task}")
+
+
+    logger.info(f"cfg.eval_dir: {cfg.eval_dir}")
 
     # Make environment
     env = make_env(cfg)
 
     # Load agent
     agent = TDMPC2(cfg)
-
-
 
     # load the agent checkpoint
     # agent.load(cfg.checkpoint) # TODO checkpoint 로드 하는 부분 작성하기
@@ -58,7 +58,7 @@ def evaluate(cfg: dict):
 
 
     if cfg.save_video:
-        video_dir = os.path.join(cfg.work_dir, "videos")
+        video_dir = os.path.join(cfg.eval_dir, "videos")
         os.makedirs(video_dir, exist_ok=True)
 
     eval_logs = list()
@@ -122,8 +122,7 @@ def evaluate(cfg: dict):
             eval_logs += step_logs
 
             eval_df = pd.DataFrame(eval_logs)
-            eval_df.to_csv(os.path.join(cfg.work_dir, f"step.csv"), index=False)
-
+            eval_df.to_csv(os.path.join(cfg.eval_dir, f"step.csv"), index=False)
 
             # eval
             eval_summary_df = eval_df.groupby(["task", "repeat", *cond_columns]).agg(
@@ -135,7 +134,7 @@ def evaluate(cfg: dict):
                     **{col: "mean" for col in info_columns},
                 }
             ).reset_index()
-            eval_summary_df.to_csv(os.path.join(cfg.work_dir, f"episode.csv"), index=False)
+            eval_summary_df.to_csv(os.path.join(cfg.eval_dir, f"episode.csv"), index=False)
 
             # print the last series of the eval_summary_df
             last_series = eval_summary_df.iloc[-1]

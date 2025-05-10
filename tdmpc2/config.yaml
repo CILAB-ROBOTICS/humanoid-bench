@@ -5,10 +5,16 @@ defaults:
 task: humanoid_h1dualarm-rub-v0
 obs: state
 
+exp_group: ???
+exp_name: tdmpc2
+short_task_name: ???
+
 # evaluation
 checkpoint: ???
+eval_dir: ???
 eval_episodes: 1
 eval_freq: 50000
+reevaluate: false
 render: false
 
 # training
@@ -26,7 +32,7 @@ discount_denom: 5
 discount_min: 0.95
 discount_max: 0.995
 buffer_size: 3_000_000
-exp_name: default
+
 data_dir: ???
 
 # planning
@@ -96,6 +102,6 @@ policy_type: ???
 small_obs: ???
 
 instruct: false
+modality: !!null
 instruct_path: ???
-modality: ???
 condition_dim: ???
