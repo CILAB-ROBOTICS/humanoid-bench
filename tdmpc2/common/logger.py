@@ -166,16 +166,6 @@ class Logger:
     def model_dir(self):
         return self._model_dir
 
-    def _load_checkpoint_meta(self):
-        if self._meta_file.exists():
-            with open(self._meta_file, "r") as f:
-                return json.load(f)
-        return []
-
-    def _save_checkpoint_meta(self, data):
-        with open(self._meta_file, "w") as f:
-            json.dump(data, f, indent=2)
-
     def _save_best_meta(self, step, score):
         best_data = {
             "step": step,
@@ -198,35 +188,43 @@ class Logger:
                 self._wandb.log_artifact(artifact)
 
     def save_checkpoint(self, agent, step: int, score=None, preserve_count: int = 2):
-
         logger.info(f"Saving checkpoint {step} with score {score}.")
 
-        # Save current checkpoint file
+        # Save checkpoint model
         ckpt_name = f"{step}.pt"
         ckpt_path = self._model_dir / ckpt_name
         agent.save(ckpt_path)
 
-        # Load and update checkpoint metadata
-        meta_data = self._load_checkpoint_meta()
-        meta_data.append({
+        # Save checkpoint metadata as individual JSON
+        meta_path = self._model_dir / f"{step}.json"
+        meta = {
             "step": step,
-            "score": score,
-            "filename": ckpt_name
-        })
-        self._save_checkpoint_meta(meta_data)
+            "score": float(score) if score is not None else None,
+            "filename": ckpt_name,
+        }
+        with open(meta_path, "w") as f:
+            json.dump(meta, f, indent=2)
 
-        # Keep only the last `preserve_count` entries
-        if len(meta_data) > preserve_count:
-            to_delete = meta_data[:-preserve_count]
-            for item in to_delete:
+        # Clean up old checkpoints beyond preserve_count
+        all_ckpts = []
+        for f in os.listdir(self._model_dir):
+            if f.endswith(".pt"):
                 try:
-                    logger.info(f"Deleting old checkpoint {item['filename']}")
-                    os.remove(self._model_dir / item["filename"])
-                except Exception as e:
-                    logger.warning(f"Failed to delete old checkpoint {item['filename']}: {e}")
-            meta_data = meta_data[-preserve_count:]
+                    step_num = int(f.replace(".pt", ""))
+                    all_ckpts.append(step_num)
+                except ValueError:
+                    continue  # skip non-numeric (e.g. best.pt)
 
-        self._save_checkpoint_meta(meta_data)
+        all_ckpts.sort()
+        if len(all_ckpts) > preserve_count:
+            to_delete = all_ckpts[:-preserve_count]
+            for s in to_delete:
+                try:
+                    os.remove(self._model_dir / f"{s}.pt")
+                    os.remove(self._model_dir / f"{s}.json")
+                    logger.info(f"Deleted old checkpoint {s}.pt and {s}.json")
+                except Exception as e:
+                    logger.warning(f"Failed to delete checkpoint {s}: {e}")
 
         # Save best model separately
         if score is not None:
@@ -249,12 +247,13 @@ class Logger:
                     artifact.add_file(best_path)
                     self._wandb.log_artifact(artifact)
 
-        # Optionally log checkpoint to wandb
+        # Optionally log to wandb
         if self._wandb:
             artifact = self._wandb.Artifact(
                 f"{self._group}-{self._seed}-{step}", type="model"
             )
             artifact.add_file(ckpt_path)
+            artifact.add_file(meta_path)
             self._wandb.log_artifact(artifact)
 
     def finish(self, agent=None):
