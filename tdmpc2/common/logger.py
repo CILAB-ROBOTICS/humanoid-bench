@@ -1,6 +1,9 @@
 import os
 import datetime
 import re
+import json
+from os.path import basename
+
 import numpy as np
 import pandas as pd
 from termcolor import colored
@@ -8,6 +11,8 @@ from omegaconf import OmegaConf
 
 from tdmpc2.common import TASK_SET
 
+import logging
+logger = logging.getLogger(basename(__file__))
 
 CONSOLE_FORMAT = [
     ("iteration", "I", "int"),
@@ -124,6 +129,10 @@ class Logger:
         print_run(cfg)
         self.project = cfg.get("wandb_project", "none")
         self.entity = cfg.get("wandb_entity", "none")
+
+        self._meta_file = self._model_dir / "checkpoints.json"
+        self._best_file = self._model_dir / "best.json"
+
         if cfg.disable_wandb or self.project == "none" or self.entity == "none":
             print(colored("Wandb disabled.", "blue", attrs=["bold"]))
             cfg.save_agent = False
@@ -157,6 +166,25 @@ class Logger:
     def model_dir(self):
         return self._model_dir
 
+    def _load_checkpoint_meta(self):
+        if self._meta_file.exists():
+            with open(self._meta_file, "r") as f:
+                return json.load(f)
+        return []
+
+    def _save_checkpoint_meta(self, data):
+        with open(self._meta_file, "w") as f:
+            json.dump(data, f, indent=2)
+
+    def _save_best_meta(self, step, score):
+        best_data = {
+            "step": step,
+            "score": score,
+            "filename": "best_model.pt"
+        }
+        with open(self._best_file, "w") as f:
+            json.dump(best_data, f, indent=2)
+
     def save_agent(self, agent=None, identifier="final"):
         if self._save_agent and agent:
             fp = self._model_dir / f"{str(identifier)}.pt"
@@ -168,6 +196,66 @@ class Logger:
                 )
                 artifact.add_file(fp)
                 self._wandb.log_artifact(artifact)
+
+    def save_checkpoint(self, agent, step: int, score=None, preserve_count: int = 2):
+
+        logger.info(f"Saving checkpoint {step} with score {score}.")
+
+        # Save current checkpoint file
+        ckpt_name = f"{step}.pt"
+        ckpt_path = self._model_dir / ckpt_name
+        agent.save(ckpt_path)
+
+        # Load and update checkpoint metadata
+        meta_data = self._load_checkpoint_meta()
+        meta_data.append({
+            "step": step,
+            "score": score,
+            "filename": ckpt_name
+        })
+        self._save_checkpoint_meta(meta_data)
+
+        # Keep only the last `preserve_count` entries
+        if len(meta_data) > preserve_count:
+            to_delete = meta_data[:-preserve_count]
+            for item in to_delete:
+                try:
+                    logger.info(f"Deleting old checkpoint {item['filename']}")
+                    os.remove(self._model_dir / item["filename"])
+                except Exception as e:
+                    logger.warning(f"Failed to delete old checkpoint {item['filename']}: {e}")
+            meta_data = meta_data[-preserve_count:]
+
+        self._save_checkpoint_meta(meta_data)
+
+        # Save best model separately
+        if score is not None:
+            is_best = False
+            if not self._best_file.exists():
+                is_best = True
+            else:
+                with open(self._best_file, "r") as f:
+                    best_score = json.load(f).get("score", float("-inf"))
+                    is_best = score > best_score
+
+            if is_best:
+                best_path = self._model_dir / "best.pt"
+                agent.save(best_path)
+                self._save_best_meta(step, score)
+                if self._wandb:
+                    artifact = self._wandb.Artifact(
+                        f"{self._group}-{self._seed}-best", type="model"
+                    )
+                    artifact.add_file(best_path)
+                    self._wandb.log_artifact(artifact)
+
+        # Optionally log checkpoint to wandb
+        if self._wandb:
+            artifact = self._wandb.Artifact(
+                f"{self._group}-{self._seed}-{step}", type="model"
+            )
+            artifact.add_file(ckpt_path)
+            self._wandb.log_artifact(artifact)
 
     def finish(self, agent=None):
         try:
