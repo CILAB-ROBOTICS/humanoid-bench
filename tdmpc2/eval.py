@@ -48,6 +48,10 @@ def evaluate(cfg: dict):
     # Evaluate
     logger.info(f"Evaluating agent on {cfg.task}")
 
+
+    if cfg.eval_instruct is not None:
+        cfg.instruct = cfg.eval_instruct
+
     if cfg.instruct:
         instruct_dir = os.path.join(dirname(__file__), "..", "instruct_rl", "instruct", "bert-base-uncased")
         cfg.instruct_path = os.path.abspath(os.path.join(instruct_dir, f"{cfg.instruct}.csv"))

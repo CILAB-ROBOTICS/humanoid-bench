@@ -17,6 +17,7 @@ checkpoint: ???
 eval_dir: ???
 eval_episodes: 1
 eval_freq: 50000
+eval_instruct: false
 reevaluate: false
 render: false
 load_best: false
