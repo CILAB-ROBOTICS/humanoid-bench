@@ -29,7 +29,7 @@ def evaluate(cfg: dict):
     cfg = parse_cfg(cfg)
     set_seed(cfg.seed)
 
-    logger.info(colored(f"Task: {cfg.task}", "blue", attrs=["bold"]))
+    logger.info(f"Task: {cfg.task}")
 
     # Make environment
     env = make_env(cfg)
@@ -37,8 +37,12 @@ def evaluate(cfg: dict):
     # Load agent
     agent = TDMPC2(cfg)
 
+
+
     # load the agent checkpoint
     # agent.load(cfg.checkpoint) # TODO checkpoint 로드 하는 부분 작성하기
+
+
 
     # Evaluate
     logger.info(f"Evaluating agent on {cfg.task}")
@@ -109,7 +113,7 @@ def evaluate(cfg: dict):
 
 
             if cfg.save_video:
-                imageio.mimsave(os.path.join(video_dir, f"{i}.mp4"), frames, fps=15)
+                imageio.mimsave(os.path.join(video_dir, f"{i}.mp4"), frames, fps=30)
 
             step_df = pd.DataFrame(step_logs)
             info_columns = [col for col in step_df.columns if col.startswith("info_")]
