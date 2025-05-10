@@ -3,6 +3,7 @@ import sys
 from os.path import basename, dirname
 
 from tdmpc2.common.sampler import ConditionSampler
+from tdmpc2.utils.checkpoint import find_last_checkpoint, find_best_checkpoint
 
 if sys.platform != "darwin":
     os.environ["MUJOCO_GL"] = "egl"
@@ -30,19 +31,19 @@ def evaluate(cfg: dict):
     set_seed(cfg.seed)
 
 
-
     logger.info(f"cfg.eval_dir: {cfg.eval_dir}")
+
+
+    cfg.checkpoint = find_best_checkpoint(cfg.model_dir) if cfg.load_best else find_last_checkpoint(cfg.model_dir)
+
+    assert cfg.checkpoint is not None, "Checkpoint not found. Please check the checkpoint path."
+    logger.info(f"cfg.checkpoint: {cfg.checkpoint}")
 
     # Make environment
     env = make_env(cfg)
 
-    # Load agent
     agent = TDMPC2(cfg)
-
-    # load the agent checkpoint
-    # agent.load(cfg.checkpoint) # TODO checkpoint 로드 하는 부분 작성하기
-
-
+    agent.load(cfg.checkpoint)
 
     # Evaluate
     logger.info(f"Evaluating agent on {cfg.task}")

@@ -76,5 +76,6 @@ def parse_cfg(cfg: OmegaConf) -> OmegaConf:
     cfg.tasks = TASK_SET.get(cfg.task, [cfg.task])
 
     cfg.eval_dir = join(cfg.work_dir, "eval")
+    cfg.model_dir = join(cfg.work_dir, "models")
 
     return cfg

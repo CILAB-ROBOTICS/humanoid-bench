@@ -9,6 +9,9 @@ exp_group: ???
 exp_name: tdmpc2
 short_task_name: ???
 
+
+model_dir: ???
+
 # evaluation
 checkpoint: ???
 eval_dir: ???
@@ -16,6 +19,8 @@ eval_episodes: 1
 eval_freq: 50000
 reevaluate: false
 render: false
+load_best: false
+
 
 # training
 steps: 10_000_000
