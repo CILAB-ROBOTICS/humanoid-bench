@@ -49,7 +49,7 @@ def evaluate(cfg: dict):
     logger.info(f"Evaluating agent on {cfg.task}")
 
 
-    if cfg.eval_instruct is not None:
+    if cfg.eval_instruct is not False:
         cfg.instruct = cfg.eval_instruct
 
     if cfg.instruct:
