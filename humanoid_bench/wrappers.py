@@ -598,7 +598,7 @@ class ObservationWrapper(BaseWrapper):
 
 
 class TactileInfoWrapper(BaseWrapper):
-    AVAILABLE_ROBOTS = ["H1Touch"]
+    AVAILABLE_ROBOTS = ["H1Touch", "H1TouchDualArm"]
 
     def __init__(self, task):
 
