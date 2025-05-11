@@ -19,6 +19,7 @@ from .wrappers import (
     DoubleReachRelativeWrapper,
     BlockedHandsLocoWrapper,
     ObservationWrapper,
+    TactileInfoWrapper,
 )
 
 from .robots import H1, H1Hand, H1SimpleHand, H1Touch, H1Strong, G1, H1DualArm
@@ -150,6 +151,12 @@ class HumanoidEnv(MujocoEnv, gym.utils.EzPickle):
         else:
             self.obs_wrapper = False
 
+        self.tactile_info = kwargs.get("tactile_info", None)
+        if self.tactile_info is not None:
+            self.tactile_info = kwargs.get("tactile_info", "False").lower() == "true"
+        else:
+            self.tactile_info = False
+
         self.blocked_hands = kwargs.get("blocked_hands", None)
         if self.blocked_hands is not None:
             self.blocked_hands = kwargs.get("blocked_hands", "False").lower() == "true"
@@ -205,6 +212,9 @@ class HumanoidEnv(MujocoEnv, gym.utils.EzPickle):
             # Note that observation wrapper is not compatible with hierarchical policy
             self.task = ObservationWrapper(self.task, **kwargs)
             self.observation_space = self.task.observation_space
+
+        if self.tactile_info:
+            self.task = TactileInfoWrapper(self.task)
 
         # Keyframe
         self.keyframe = (

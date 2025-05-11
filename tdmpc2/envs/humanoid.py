@@ -50,6 +50,9 @@ def make_env(cfg):
     small_obs = cfg.get("small_obs", None)
     if small_obs is not None:
         small_obs = str(small_obs)
+    tactile_info = cfg.get("tactile_info", None)
+    if tactile_info is not None:
+        tactile_info = str(tactile_info)
 
     print("small obs start:", small_obs)
 
@@ -60,6 +63,7 @@ def make_env(cfg):
         var_path=var_path,
         policy_type=policy_type,
         small_obs=small_obs,
+        tactile_info=tactile_info,
     )
     env = HumanoidWrapper(env, cfg)
     env.max_episode_steps = env.get_wrapper_attr("_max_episode_steps")
