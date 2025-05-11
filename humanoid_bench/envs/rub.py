@@ -9,7 +9,7 @@ from instruct_rl.create_instruct import ConditionFeature
 
 _STAND_HEIGHT = 1.65
 _MIN_FORCE = 0.0
-_MAX_FORCE = 10000.0  # TODO: we need to find the proper value empirically
+_MAX_FORCE = 2000.0
 
 
 def _is_body_descendant(model, body_id, target_name):
@@ -82,12 +82,12 @@ class Rub(Task):
         window_contact_filter = self._check_window_contact()
 
         manipulation_reward = (
-            0.1 * (stand_reward * small_control * head_window_distance_reward)
-            + 0.2 * rubbing_reward
-            + 0.2 * hand_window_proximity_reward
-            + 0.2 * pressure_reward
-            + 0.2 * direction_reward
-            + 0.1 * frequency_reward
+            0.05 * (stand_reward * small_control * head_window_distance_reward)
+            + 0.15 * rubbing_reward
+            + 0.15 * hand_window_proximity_reward
+            + 0.5 * pressure_reward
+            + 0.1 * direction_reward
+            + 0.05 * frequency_reward
         )
 
         window_contact_total_reward = window_contact_filter * hand_window_proximity_reward
