@@ -12,8 +12,9 @@ dist
 logdir
 logs
 models
+results
 outputs
-runs
+uns
 wandb
 .idea
 
