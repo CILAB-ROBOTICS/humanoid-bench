@@ -34,7 +34,7 @@ class FloorWipe(Task):
     }
     frame_skip = 10
     camera_name = "cam_hurdle"
-    dof = 11
+    dof = 15
 
     success_bar = 650
 
@@ -49,7 +49,7 @@ class FloorWipe(Task):
         return Box(
             low=-np.inf,
             high=np.inf,
-            shape=(self.robot.dof * 2 - 1 + self.dof * 2 - 2,),
+            shape=(self.robot.dof * 2 - 2 + self.dof * 2 - 2,),
             dtype=np.float64,
         )
 
