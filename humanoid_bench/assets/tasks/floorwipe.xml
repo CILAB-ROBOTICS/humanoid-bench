@@ -14,31 +14,33 @@
     </asset>
 
     <worldbody>
-        <body name="window" pos="0.6 0 0">
+        <body name="floor" pos="0.7 0 0">
             <light pos="0 0 10" dir="0 0 -1" directional="true" ambient="0.1 0.1 0.1" diffuse="0.5 0.5 0.5" specular="0.3 0.3 0.3"/>
             <geom name="floor" size="20 20 1" pos="0 0 -0.02" type="plane" conaffinity="1" material="MatPlane"/>
-            <geom name="window_base" type="box" pos="0 0 -0.01" size="3 3 0.01" class="visual" material="wooden_cover"/>
-
-            <geom type="box" pos="0 0 0.35" size="0.1 1 0.35" class="collision"/>
-            <geom type="box" pos="0 -0.975 1.1" size="0.1 0.025 0.4" class="collision"/>
-            <geom type="box" pos="0 -0.325 1.1" size="0.1 0.025 0.4" class="collision"/>
-            <geom type="box" pos="0 0.325 1.1" size="0.1 0.025 0.4" class="collision"/>
-            <geom type="box" pos="0 0.975 1.1" size="0.1 0.025 0.4" class="collision"/>
-
-
-            <geom type="box" pos="0 0 1.5125" size="0.1 1 0.025" class="collision"/>
-            <geom type="box" pos="0 -0.975 1.7125" size="0.1 0.025 0.2" class="collision"/>
-            <geom type="box" pos="0 -0.325 1.7125" size="0.1 0.025 0.2" class="collision"/>
-            <geom type="box" pos="0 0.325 1.7125" size="0.1 0.025 0.2" class="collision"/>
-            <geom type="box" pos="0 0.975 1.7125" size="0.1 0.025 0.2" class="collision"/>
-            <geom type="box" pos="0 0 1.915" size="0.1 1 0.025" class="collision"/>
-
-
         </body>
-        <body name="window_wiping_tool" pos="0.45 0.15 1.15">
+        <body name="window_wiping_tool" pos="0.45 0.0 0.53" euler="-1.57 1.57 0">
             <freejoint name="free_window_wiping_tool"/>
-            <geom type="cylinder" pos="0 0 0.02" size="0.02 0.5" zaxis="0 1 0" material="steel_cover" class="visual"/>
-            <geom type="cylinder" pos="0 0 0.02" size="0.02 0.5" zaxis="0 1 0" class="collision"/>
+
+            <body name="window_handle_sphere" pos="0 -0.58 0.02">
+                <joint type="ball" range="0 0.3"/>
+                <geom type="sphere" pos="0 0 0" size="0.03" material="steel_cover" class="visual"/>
+
+                <geom type="cylinder" pos="0 0 0" size="0.02 0.25" zaxis="1 0 0" material="steel_cover" class="visual"/>
+                <geom type="cylinder" pos="0 0 0" size="0.02 0.25" zaxis="1 0 0" class="collision"/>
+
+                <body name="tool_handle_right" pos="0.0 0 0">
+                    <geom type="sphere" pos="0 0 0" size="0.01" class="collision"/>
+                </body>
+
+                <body name="tool_handle_left" pos="0.0 0 0">
+                    <geom type="sphere" pos="0 0 0" size="0.01" class="collision"/>
+                </body>
+
+            </body>
+
+            <geom type="cylinder" pos="0 -0.05 0.02" size="0.02 0.55" zaxis="0 1 0" material="steel_cover" class="visual"/>
+            <geom type="cylinder" pos="0 -0.05 0.02" size="0.02 0.55" zaxis="0 1 0" class="collision"/>
+
             <body name="window_wiper_sphere" pos="0 0.5 0.02">
                 <joint type="ball" range="0 1.4"/>
 
