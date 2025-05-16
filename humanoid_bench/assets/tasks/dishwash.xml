@@ -3,20 +3,25 @@
     <compiler inertiafromgeom='auto' inertiagrouprange='3 5' angle="radian"/>
 
     <include file="../dishwash/adept_models/kitchen/assets/counters_asset.xml"/>
-    <include file="../dishwash/adept_models/kitchen/assets/dish_asset.xml"/>
+
+    <asset>
+        <mesh name="dish" file="./assets/dish.stl" scale="0.025 0.025 0.025"/>
+        <material name="dark_wooden_cover"  texuniform="false"  texture="dark_wooden_cover"/>
+        <texture type="2d" name="dark_wooden_cover" file="../tasks/assets/steel-scratched.png"/>
+    </asset>
 
     <worldbody>
-
+        <body name="dish" pos="0.4 0.2 1.15" euler="-1.6 0 0">
+            <freejoint name="free_dish"/>
+            <inertial pos="0 0 0" mass="0.3" diaginertia="0.01 0.01 0.01"/>
+            <geom name="dish" type="mesh" mesh="dish" pos="0 0.04 0" rgba="0.67 0.73 0.78 1" class="visual"  material="dark_wooden_cover"/>
+            <geom name="dish_collision" type="mesh" mesh="dish" pos="0 0 0" class="collision"/>
+        </body>
         <body name='desk' pos='0.5 0 0'>
-
             <body name="counters1" pos="-0.2 0 0" >
                 <include file="../dishwash/adept_models/kitchen/assets/counters_chain_scaled.xml"/>
             </body>
         </body>
-        <body name="dish" pos="0 0 0">
-            <freejoint name="free_dish"/>
-            <geom name="dish_collision" type="mesh" mesh="dish" pos="0 0 0" size="1 1 1" material="dish_white" contype="1" conaffinity="1" group="4"/>
-            <include file="../dishwash/adept_models/kitchen/assets/dish_chain.xml"/>
-        </body>
+
     </worldbody>
 </mujocoinclude>
