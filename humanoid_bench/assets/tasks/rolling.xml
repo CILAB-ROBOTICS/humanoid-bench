@@ -12,7 +12,7 @@
         <material name="dough"  texuniform="false"  texture="dough"/>
         <texture type="2d" name="dough" file="../tasks/assets/dough.png"/>
 
-        <mesh name="roller" file="../rolling/assets/roller.stl" scale="0.015 0.015 0.015" />
+        <mesh name="roller" file="../rolling/assets/roller.stl" scale="0.15 0.015 0.015" />
 
     </asset>
     <worldbody>
