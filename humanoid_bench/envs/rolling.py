@@ -102,20 +102,14 @@ class Rolling(Task):
             margin=0.1,
         )
 
-        tool_drop = False
-        if self._env.named.data.xpos["roller"][2] < 0.59:
-            tool_drop = True
-
         hand_tool_proximity_reward = hand_tool_proximity_reward * 0.1
         moving_tool_reward = contact_filter * moving_tool_reward * 1
-        tool_drop_reward = -5.0 if tool_drop else 0.0
 
-        reward = hand_tool_proximity_reward + moving_tool_reward + tool_drop_reward
+        reward = hand_tool_proximity_reward + moving_tool_reward
 
         info = {
             "hand_tool_proximity": hand_tool_proximity_reward,
             "moving_tool": moving_tool_reward,
-            "tool_drop": tool_drop_reward,
             "contact_filter": contact_filter,
         }
 
