@@ -4,7 +4,7 @@
     <asset>
         <mesh file="../kitchen/adept_models/kitchen/meshes/cabinetdrawer.stl" name="cabinetdrawer"/>
         <mesh file="../kitchen/adept_models/kitchen/meshes/cabinethandle.stl" name="cabinethandle"/>
-        <mesh file="../kitchen/adept_models/kitchen/meshes/cabinetbase.stl" name="cabinetbase" scale="1 1 0.6"/>
+        <mesh file="../dishwash/adept_models/kitchen/meshes/sink.stl" name="cabinetbase" scale="1 1 0.6"/>
         <mesh file="../kitchen/adept_models/kitchen/meshes/countertop.stl" name="countertop"/>
         <mesh file="../kitchen/adept_models/kitchen/meshes/faucet.stl" name="faucet"/>
 
