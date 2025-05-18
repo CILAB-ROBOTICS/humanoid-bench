@@ -117,11 +117,13 @@ class StandPush(Task):
         if self._env.named.data.xpos["object"][0] > 0.7 and box_stop:
             return True, {}
 
+        return True, {}
+
         return terminated, {}
 
     def reset_model(self):
-        self.goal[0] = np.random.uniform(1.0, 1.5)
-        self.goal[1] = np.random.uniform(-0.25, 0.25)
+        self.goal[0] = np.random.uniform(1.0, 1.25)
+        self.goal[1] = np.random.uniform(-0.3, 0.3)
 
         return self.get_obs()
 
