@@ -113,8 +113,6 @@ class StandPush(Task):
         if self._env.named.data.xpos["object"][0] > 0.7 and box_stop:
             return True, {}
 
-        return True, {}
-
         return terminated, {}
 
     def reset_model(self):
