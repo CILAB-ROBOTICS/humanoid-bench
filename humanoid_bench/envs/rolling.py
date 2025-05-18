@@ -64,10 +64,6 @@ class Rolling(Task):
             self.right_roller_handle_id = self._env.named.data.geom_xpos.axes.row.names.index("roller_handle_right")
             self.left_roller_handle_id = self._env.named.data.geom_xpos.axes.row.names.index("roller_handle_left")
 
-        print(self.right_hand_contact_id, self.left_hand_contact_id,
-              self.right_roller_handle_id, self.left_roller_handle_id)
-
-
         left_hand_tool_distance = np.linalg.norm(
             self._env.named.data.site_xpos["left_hand"]
             - self._env.named.data.geom_xpos["roller_handle_left"]
