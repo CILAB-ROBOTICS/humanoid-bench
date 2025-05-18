@@ -64,6 +64,9 @@ class Rolling(Task):
             self.right_roller_handle_id = self._env.named.data.geom_xpos.axes.row.names.index("roller_handle_right")
             self.left_roller_handle_id = self._env.named.data.geom_xpos.axes.row.names.index("roller_handle_left")
 
+        print(self.right_hand_contact_id, self.left_hand_contact_id,
+              self.right_roller_handle_id, self.left_roller_handle_id)
+
 
         left_hand_tool_distance = np.linalg.norm(
             self._env.named.data.site_xpos["left_hand"]
@@ -74,15 +77,16 @@ class Rolling(Task):
             - self._env.named.data.geom_xpos["roller_handle_right"]
         )
 
-        left_hand_reward = rewards.tolerance(left_hand_tool_distance, bounds=(0, 0.0), margin=0.1)
+        left_hand_reward = rewards.tolerance(left_hand_tool_distance, bounds=(0, 0.0), margin=0.5)
         right_hand_reward = rewards.tolerance(
-            right_hand_tool_distance, bounds=(0, 0.0), margin=0.1
+            right_hand_tool_distance, bounds=(0, 0.0), margin=0.5
         )
-        hand_tool_proximity_reward = left_hand_reward + right_hand_reward
+        hand_tool_proximity_reward = left_hand_reward * right_hand_reward
 
 
         left_hand_contact_filter = False
         right_hand_contact_filter = False
+
         for pair in self._env.data.contact.geom:
 
             if self.right_hand_contact_id in pair and self.right_roller_handle_id in pair:
@@ -98,12 +102,12 @@ class Rolling(Task):
 
         moving_tool_reward = rewards.tolerance(
             abs(self._env.named.data.sensordata["roller_tool_subtreelinvel"][0]),
-            bounds=(0.5, 0.5),
-            margin=0.1,
+            bounds=(0.4, 0.5),
+            margin=0.2,
         )
 
         hand_tool_proximity_reward = hand_tool_proximity_reward * 0.1
-        moving_tool_reward = contact_filter * moving_tool_reward * 1
+        moving_tool_reward = moving_tool_reward * 1
 
         reward = hand_tool_proximity_reward + moving_tool_reward
 
