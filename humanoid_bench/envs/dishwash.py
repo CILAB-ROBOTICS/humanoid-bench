@@ -87,7 +87,7 @@ class Dishwash(Task):
         return Box(
             low=-np.inf,
             high=np.inf,
-            shape=(self.robot.dof + self.dof,),
+            shape=(self.robot.dof * 2 - 3 + self.dof * 2 - 3,),
             dtype=np.float64,
         )
 
