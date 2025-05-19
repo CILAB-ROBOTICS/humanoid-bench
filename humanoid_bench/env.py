@@ -22,7 +22,7 @@ from .wrappers import (
     TactileInfoWrapper,
 )
 
-from .robots import H1, H1Hand, H1SimpleHand, H1Touch, H1Strong, G1, H1DualArm
+from .robots import H1, H1Hand, H1SimpleHand, H1Touch, H1Strong, G1, H1DualArm, H1TouchDualArm
 from .envs.cube import Cube
 from .envs.bookshelf import BookshelfSimple, BookshelfHard
 from .envs.window import Window
@@ -75,6 +75,7 @@ ROBOTS = {
     "h1strong": H1Strong,
     "h1touch": H1Touch,
     "h1dualarm": H1DualArm,
+    "h1touchdualarm": H1TouchDualArm,
     "g1": G1
 }
 TASKS = {
