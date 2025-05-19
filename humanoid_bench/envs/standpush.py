@@ -1,12 +1,8 @@
-import os
 
 import numpy as np
-import mujoco
-import gymnasium as gym
 from gymnasium.spaces import Box
 
 from humanoid_bench.tasks import Task
-from humanoid_bench.mjx.flax_to_torch import TorchModel, TorchPolicy
 
 
 class StandPush(Task):
@@ -19,6 +15,8 @@ class StandPush(Task):
     dof = 7
     max_episode_steps = 500
     camera_name = "cam_tabletop"
+
+
     # Below args are only used for reaching-based hierarchical control
     htarget_low = np.array([0, -1, 0.8])
     htarget_high = np.array([2.0, 1, 1.2])
@@ -103,11 +101,23 @@ class StandPush(Task):
         if self._env.named.data.xpos["object"][2] < 0.58:
             return True, {}
 
+        vel = self._env.named.data.cvel["object"]
+        lin_vel = vel[:3]  # 선형 속도
+        ang_vel = vel[3:]  # 각속도
+
+        if np.all(np.abs(lin_vel) < 1e-3) and np.all(np.abs(ang_vel) < 1e-3):
+            box_stop = True
+        else:
+            box_stop = False
+
+        if self._env.named.data.xpos["object"][0] > 0.7 and box_stop:
+            return True, {}
+
         return terminated, {}
 
     def reset_model(self):
-        self.goal[0] = np.random.uniform(0.7, 1.5)
-        self.goal[1] = np.random.uniform(-0.25, 0.25)
+        self.goal[0] = np.random.uniform(1.0, 1.25)
+        self.goal[1] = np.random.uniform(-0.3, 0.3)
 
         return self.get_obs()
 
