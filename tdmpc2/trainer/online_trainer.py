@@ -75,6 +75,8 @@ class OnlineTrainer(Trainer):
     def train(self):
         """Train a TD-MPC2 agent."""
 
+        self.logger.save_checkpoint(self.agent, self._step)
+
         condition = self.cond_sampler.sample() if self.cond_sampler else None
         obs = self.env.reset(options={'condition': condition})[0]
 
@@ -89,7 +91,10 @@ class OnlineTrainer(Trainer):
                 if eval_next:
                     eval_metrics = self.eval()
                     eval_metrics.update(self.common_metrics())
+
                     self.logger.log(eval_metrics, "eval")
+                    self.logger.save_checkpoint(self.agent, self._step, score=float(eval_metrics['episode_reward']))
+
                     eval_next = False
 
                 if self._step > 0:

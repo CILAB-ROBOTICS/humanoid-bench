@@ -9,6 +9,11 @@
 
     <equality>
         <weld name="fix_robot" body1="world" body2="pelvis"/>
+
+        <weld name="fix_tool_left" body1="left_hand" body2="tool_handle_left"
+              solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
+        <weld name="fix_tool_right" body1="right_hand" body2="tool_handle_right"
+              solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
     </equality>
 
     <keyframe>

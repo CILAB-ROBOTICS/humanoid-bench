@@ -2,13 +2,26 @@ defaults:
     - override hydra/launcher: submitit_local
 
 # environment
-task: dog-run
+task: humanoid_h1dualarm-rub-v0
 obs: state
+
+exp_group: ???
+exp_name: tdmpc2
+short_task_name: ???
+
+
+model_dir: ???
 
 # evaluation
 checkpoint: ???
+eval_dir: ???
 eval_episodes: 1
 eval_freq: 50000
+eval_instruct: false
+reevaluate: false
+render: false
+load_best: false
+
 
 # training
 steps: 10_000_000
@@ -25,7 +38,7 @@ discount_denom: 5
 discount_min: 0.95
 discount_max: 0.995
 buffer_size: 3_000_000
-exp_name: default
+
 data_dir: ???
 
 # planning
@@ -63,9 +76,9 @@ simnorm_dim: 8
 
 # logging
 wandb_project: humanoid-bench
-wandb_entity: robot-learning
+wandb_entity: cilab-robot
 wandb_silent: false
-disable_wandb: true
+disable_wandb: false
 save_csv: true
 
 # misc
@@ -93,8 +106,9 @@ mean_path: ???
 var_path: ???
 policy_type: ???
 small_obs: ???
+tactile_info: ???
 
 instruct: false
+modality: !!null
 instruct_path: ???
-modality: ???
 condition_dim: ???

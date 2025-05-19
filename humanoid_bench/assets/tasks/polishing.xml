@@ -1,0 +1,35 @@
+<mujocoinclude>
+    <asset>
+        <material name="wooden_cover" texuniform="false" texture="wooden_cover"/>
+        <texture type="2d" name="wooden_cover" file="../tasks/assets/kitchen-wood.png"/>
+
+        <material name="dark_wooden_cover" texuniform="false" texture="dark_wooden_cover"/>
+        <texture type="2d" name="dark_wooden_cover" file="../tasks/assets/dark-wood.png"/>
+
+        <material name="plywood_cover" texuniform="false" texture="plywood_cover"/>
+        <texture type="2d" name="plywood_cover" file="../tasks/assets/plywood-4k.png"/>
+
+        <mesh file="../tasks/assets/vase.stl" name="vase" scale="0.0012 0.0012 0.0012"/>
+        <material name="vase_material" rgba="1.0 1.0 1.0 1.0" specular="0.8" shininess="0.9" reflectance="0.5"/>
+
+    </asset>
+    <worldbody>
+        <body name="table" pos="0.9 0 0.45">
+            <geom name="table_top" type="box" pos="0 0 0.4" size="0.5 1 0.05" class="visual" material="wooden_cover"/>
+            <geom name="table_top_collision" type="box" pos="0 0 0.4" size="0.5 1 0.05" class="collision"/>
+            <geom name="table_leg_1" type="box" pos="0.4 0.85 -0.05" size="0.05 0.05 0.4" class="visual" material="dark_wooden_cover"/>
+            <geom name="table_leg_2" type="box" pos="0.4 -0.85 -0.05" size="0.05 0.05 0.4" class="visual" material="dark_wooden_cover"/>
+            <geom name="table_leg_3" type="box" pos="-0.4 0.85 -0.05" size="0.05 0.05 0.4" class="visual" material="dark_wooden_cover"/>
+            <geom name="table_leg_4" type="box" pos="-0.4 -0.85 -0.05" size="0.05 0.05 0.4" class="visual" material="dark_wooden_cover"/>
+            <geom name="table_leg_1_collision" type="box" pos="0.4 0.85 -0.05" size="0.05 0.05 0.4" class="collision"/>
+            <geom name="table_leg_2_collision" type="box" pos="0.4 -0.85 -0.05" size="0.05 0.05 0.4" class="collision"/>
+            <geom name="table_leg_3_collision" type="box" pos="-0.4 0.85 -0.05" size="0.05 0.05 0.4" class="collision"/>
+            <geom name="table_leg_4_collision" type="box" pos="-0.4 -0.85 -0.05" size="0.05 0.05 0.4" class="collision"/>
+        </body>
+        <body name="vase" pos="0.7 0 0.898" euler="1.55 0 0">
+            <inertial pos="0 0 0" mass="2.0" diaginertia="0.01 0.01 0.01"/>
+            <geom name="vase_visual" type="mesh" mesh="vase" material="vase_material" class="visual"/>
+            <geom name="vase_collision" type="mesh" mesh="vase" class="collision"/>
+        </body>
+    </worldbody>
+</mujocoinclude>

@@ -595,3 +595,50 @@ class ObservationWrapper(BaseWrapper):
             / (self.task._env.action_high - self.task._env.action_low)
             - 1
         )
+
+
+class TactileInfoWrapper(BaseWrapper):
+    AVAILABLE_ROBOTS = ["H1Touch"]
+
+    def __init__(self, task):
+
+        super().__init__(task)
+
+        assert (
+            task.unwrapped._env.robot.__class__.__name__ in self.AVAILABLE_ROBOTS
+        ), f"Tactile info is only available for {self.AVAILABLE_ROBOTS}"
+
+    def get_tactile_obs(self):
+        """
+        Touch data is in the form of a dictionary with keys as the sensor names and values as the touch data.
+        The touch data is then reshaped to a 3D array with the first dimension as the number of components (x-y-z),
+        and the second and third dimensions as the touch data in a 2D grid, e.g., np.reshape(touch_data, (3, 2, 4))[[1, 2, 0]]
+        (note that Mujoco returns them in the order z-x-y).
+        """
+        model = self.task._env.model
+        data = self.task._env.data
+        sensor_names = [
+            mujoco.mj_id2name(model, mujoco.mjtObj.mjOBJ_SENSOR, i)
+            for i in range(model.nsensor)
+        ]
+
+        touch = dict(
+            [
+                ("_".join(["tactile", *name.split("_")[:-1]]), data.sensor(name).data)
+                for i, name in enumerate(sensor_names)
+                if name.endswith("_touch")
+            ]
+        )
+
+        for key in touch:
+            if key != "tactile_torso":
+                touch[key] = touch[key].reshape(3, 2, 4)[[1, 2, 0]]
+            else:
+                touch[key] = touch[key].reshape(3, 4, 8)[[1, 2, 0]]
+
+        return touch
+
+    def step(self, action):
+        obs, rew, terminated, truncated, info = self.task.step(action)
+        info.update({'tactile': self.get_tactile_obs()})
+        return obs, rew, terminated, truncated, info
