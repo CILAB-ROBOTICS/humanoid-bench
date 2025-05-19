@@ -50,7 +50,7 @@ class Dishwash(Task):
         ],
     }
 
-    dof = 21
+    dof = 7
     camera_name = "cam_default"
     max_episode_steps = 500
     success_bar = 4
@@ -87,23 +87,21 @@ class Dishwash(Task):
         return Box(
             low=-np.inf,
             high=np.inf,
-            shape=(self.robot.dof + self.dof,),
+            shape=(self.robot.dof * 2 - 3 + self.dof * 2 - 3,),
             dtype=np.float64,
         )
 
 
     def get_obs(self):
-        qp = self._env.data.qpos[: self.robot.dof].copy()
-        qv = self._env.data.qvel[: self.robot.dof - 1].copy()
-        obj_qp = self._env.data.qpos[-self.dof :].copy()
-        obj_qv = self._env.data.qvel[-self.dof + 1 :].copy()
 
-        self.obs_dict = {}
-        self.obs_dict["qp"] = qp
-        self.obs_dict["qv"] = qv
-        self.obs_dict["obj_qp"] = obj_qp
-        self.obs_dict["obj_qv"] = obj_qv
-        return np.concatenate([qp, obj_qp])
+        position = self._env.data.qpos.flat.copy()[: self.robot.dof]
+        velocity = self._env.data.qvel.flat.copy()[: self.robot.dof - 1]
+        left_hand = self.robot.left_hand_position()
+        right_hand = self.robot.right_hand_position()
+
+        dish = self._env.named.data.geom_xpos["dish"]
+
+        return np.concatenate((position, velocity, left_hand, right_hand, dish))
 
     def get_reward(self):
         self.window_pane_id = self._env.named.data.geom_xpos.axes.row.names.index(
