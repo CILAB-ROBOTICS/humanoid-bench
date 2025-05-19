@@ -26,9 +26,10 @@
             <geom name="table_leg_3_collision" type="box" pos="-0.4 0.85 -0.05" size="0.05 0.05 0.4" class="collision"/>
             <geom name="table_leg_4_collision" type="box" pos="-0.4 -0.85 -0.05" size="0.05 0.05 0.4" class="collision"/>
         </body>
-        <body name="vase" pos="0.7 0 0.898" euler="1.55 0 0">
-            <inertial pos="0 0 0" mass="2.0" diaginertia="0.01 0.01 0.01"/>
-            <geom name="vase_visual" type="mesh" mesh="vase" material="vase_material" class="visual"/>
+        <body name="vase" pos="0.45 0.3 0.898" euler="1.55 0 0">
+            <freejoint name="free_vase"/>
+            <inertial pos="0 0 0" mass="3.0" diaginertia="0.05 0.05 0.02"/>
+            <geom name="vase_visual" type="mesh" mesh="vase" pos="0 0 0" material="vase_material" class="visual"/>
             <geom name="vase_collision" type="mesh" mesh="vase" class="collision"/>
         </body>
     </worldbody>

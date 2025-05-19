@@ -1,14 +1,8 @@
-import os
-
 import numpy as np
-import mujoco
-import gymnasium as gym
 from gymnasium.spaces import Box
+from dm_control.utils import rewards
 
 from humanoid_bench.tasks import Task
-from humanoid_bench.mjx.flax_to_torch import TorchModel, TorchPolicy
-
-from dm_control.utils import rewards
 
 class Polishing(Task):
     qpos0_robot = {
@@ -17,14 +11,12 @@ class Polishing(Task):
         "h1touch": "0 0 0.98 1 0 0 0 0 0 -0.4 0.8 -0.4 0 0 -0.4 0.8 -0.4 0 0 0 0 0 1.57 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.57 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.7 0 1 1 0 0 0",
         "g1": "0 0 0.75 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -1.57 0 0 0 0 0 0 0 0 0 0 0 1.57 0 0 0 0 0 0 0 0.7 0 1 1 0 0 0"
     }
-    dof = 0
+    dof = 7
     max_episode_steps = 500
     camera_name = "cam_tabletop"
-    # Below args are only used for reaching-based hierarchical control
+
     htarget_low = np.array([0, -1, 0.8])
     htarget_high = np.array([2.0, 1, 1.2])
-
-    success_bar = 700
 
     def __init__(
         self,
@@ -36,14 +28,6 @@ class Polishing(Task):
 
         if env is None:
             return
-
-        self.reward_dict = {
-            "hand_dist": 0.1,
-            "success": 1000,
-            "terminate": True,
-        }
-
-        #self.goal = np.array([1.0, 0.0, 1.0])
 
         if robot.__class__.__name__ == "G1":
             global _STAND_HEIGHT
@@ -146,15 +130,10 @@ class Polishing(Task):
         terminated = False
         left_hand_dist, right_hand_dist = self.hand_dist()
 
-        if left_hand_dist > 1.5 or right_hand_dist > 1.5:
+        if left_hand_dist > 1.0 or right_hand_dist > 1.0:
             terminated = True
 
         return terminated, {}
 
     def reset_model(self):
         return self.get_obs()
-
-    def render(self):
-        return self._env.mujoco_renderer.render(
-            self._env.render_mode, self._env.camera_id, self._env.camera_name
-        )
