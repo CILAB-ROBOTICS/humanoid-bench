@@ -1,0 +1,52 @@
+<mujocoinclude>
+    <asset>
+        <material name="wooden_cover" texuniform="false" texture="wooden_cover"/>
+        <texture type="2d" name="wooden_cover" file="../tasks/assets/kitchen-wood.png"/>
+
+        <material name="dark_wooden_cover" texuniform="false" texture="dark_wooden_cover"/>
+        <texture type="2d" name="dark_wooden_cover" file="../tasks/assets/dark-wood.png"/>
+
+        <material name="plywood_cover" texuniform="false" texture="plywood_cover"/>
+        <texture type="2d" name="plywood_cover" file="../tasks/assets/plywood-4k.png"/>
+
+        <material name="fabric"  texuniform="false"  texture="fabric"/>
+        <texture type="2d" name="fabric" file="../tasks/assets/fabric.png"/>
+
+        <mesh name="iron" file="../tasks/assets/iron.stl" scale="1.2 1.2 1.2" />
+        <material name="iron_material" rgba="0.7 0.7 0.7 1.0" specular="1.0" shininess="0.9" reflectance="0.8"/>
+
+    </asset>
+    <worldbody>
+        <body name="table" pos="0.9 0 0.45">
+            <geom name="table_top" type="box" pos="0 0 0.4" size="0.5 1 0.05" class="visual" material="wooden_cover"/>
+            <geom name="table_top_collision" type="box" pos="0 0 0.4" size="0.5 1 0.05" class="collision"/>
+            <geom name="table_leg_1" type="box" pos="0.4 0.85 -0.05" size="0.05 0.05 0.4" class="visual" material="dark_wooden_cover"/>
+            <geom name="table_leg_2" type="box" pos="0.4 -0.85 -0.05" size="0.05 0.05 0.4" class="visual" material="dark_wooden_cover"/>
+            <geom name="table_leg_3" type="box" pos="-0.4 0.85 -0.05" size="0.05 0.05 0.4" class="visual" material="dark_wooden_cover"/>
+            <geom name="table_leg_4" type="box" pos="-0.4 -0.85 -0.05" size="0.05 0.05 0.4" class="visual" material="dark_wooden_cover"/>
+            <geom name="table_leg_1_collision" type="box" pos="0.4 0.85 -0.05" size="0.05 0.05 0.4" class="collision"/>
+            <geom name="table_leg_2_collision" type="box" pos="0.4 -0.85 -0.05" size="0.05 0.05 0.4" class="collision"/>
+            <geom name="table_leg_3_collision" type="box" pos="-0.4 0.85 -0.05" size="0.05 0.05 0.4" class="collision"/>
+            <geom name="table_leg_4_collision" type="box" pos="-0.4 -0.85 -0.05" size="0.05 0.05 0.4" class="collision"/>
+        </body>
+        
+        <body name="iron" pos="0.55 0.0 0.902" euler="0 0 0">
+            <freejoint name="free_iron"/>
+            <inertial pos="0 0 0" mass="1.5" diaginertia="0.05 0.05 0.02"/>
+            <geom name="iron" type="mesh" mesh="iron" pos="0 0 0" rgba="0.67 0.73 0.78 1" class="visual" material="iron_material"/>
+            <geom name="iron_body_collision" type="box" pos="0 0 0.035" size="0.09 0.17 0.045" class="collision"/>
+
+            <body name="iron_handle" pos="0 0.035 0.123">
+                <inertial pos="0 0 0" mass="0.3" diaginertia="0.01 0.01 0.01"/>
+                <geom name="iron_handle" type="box" pos="0 0 0" size="0.020 0.07 0.04" rgba="1.0 1.0 1.0 0.0" class="visual" material="iron_material"/>
+                <geom name="iron_handle_collision" type="box" pos="0 0 0" size="0.020 0.07 0.04" class="collision"/>
+            </body>
+        </body>
+
+        <body name="fabric" pos="0.75 0 0.901">
+            <inertial pos="0 0 0" mass="0.3" diaginertia="0.01 0.01 0.01"/>
+            <geom name="fabric" type="box" pos="0 0 0" size="0.33 0.3 0.0015" rgba="0.9 0.9 0.9 1" class="visual" material="fabric"/>
+            <geom name="fabric_collision" type="box" pos="0 0 0" size="0.33 0.3 0.0015" class="collision"/>
+        </body> 
+    </worldbody>
+</mujocoinclude>
