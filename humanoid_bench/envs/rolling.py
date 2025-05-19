@@ -102,7 +102,7 @@ class Rolling(Task):
             margin=0.2,
         )
 
-        hand_tool_proximity_reward = hand_tool_proximity_reward * 0.1
+        hand_tool_proximity_reward = hand_tool_proximity_reward
         moving_tool_reward = moving_tool_reward * 1
 
         reward = hand_tool_proximity_reward + moving_tool_reward
