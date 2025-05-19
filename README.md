@@ -6,18 +6,6 @@ We present [HumanoidBench](https://sferrazza.cc/humanoidbench_site/), a simulate
 
 ![image](humanoid_bench.jpg)
 
-## Directories
-Structure of the repository:
-* `data`: Weights of the low-level skill policies
-* `dreamerv3`: Training code for dreamerv3
-* `humanoid_bench`: Core benchmark code
-    * `assets`: Simulation assets
-    * `envs`: Environment files
-    * `mjx`: MuJoCo MJX training code
-* `jaxrl_m`: Training code for SAC
-* `ppo`: Training code for PPO
-* `tdmpc2`: Training code for TD-MPC2
-
 ## Installation
 Create a clean conda environment:
 ```
@@ -81,30 +69,11 @@ pip install -r requirements_tdmpc.txt
 * `h1hand-insert_normal-v0`
 * `h1hand-insert_small-v0`
 
-### Test Environments with Random Actions
+### Train a Task with Sensory Observations
 ```
-python -m humanoid_bench.test_env --env h1hand-walk-v0
-```
-
-### Test Environments with Hierarchical Policy and Random Actions
-```
-# Define checkpoints to pre-trained low-level policy and obs normalization
-export POLICY_PATH="data/reach_two_hands/torch_model.pt"
-export MEAN_PATH="data/reach_two_hands/mean.npy"
-export VAR_PATH="data/reach_two_hands/var.npy"
-
-# Test the environment
-python -m humanoid_bench.test_env --env h1hand-push-v0 --policy_path ${POLICY_PATH} --mean_path ${MEAN_PATH} --var_path ${VAR_PATH} --policy_type "reach_double_relative"
+gpu=0 bash run.sh python -m tdmpc2.train task=h1dualarm-windowrub-v0
 ```
 
-### Test Low-Level Reaching Policy (trained with MJX, testing on classical MuJoCo)
-```
-# One-hand reaching
-python -m humanoid_bench.mjx.mjx_test --with_full_model 
-
-# Two-hand reaching
-python -m humanoid_bench.mjx.mjx_test --with_full_model --task=reach_two_hands --folder=./data/reach_two_hands
-```
 
 ### Change Observations
 As a default, the environment returns a privileged state of the environment (e.g., robot state + environment state). To get proprio, visual, and tactile sensing, set `obs_wrapper=True` and accordingly select the required sensors, e.g. `sensors="proprio,image,tactile"`. When using tactile sensing, make sure to use `h1touch` in place of `h1hand`.

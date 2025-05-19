@@ -245,6 +245,8 @@
 
     <worldbody>
         <camera name="cam_kitchen" pos="-0.3 -2.5 2.5" xyaxes="1 0 0 0 0.5 1"/>
+        <camera name="cam_dishwash" pos="-0.3 -0.5 2.5" xyaxes="0.3 0.3 0.7 0 0.3 0.3"/>
+
         <body name="pelvis" pos="0 0 0.98" childclass="h1">
             <site name="com" pos="0 0 0" rgba="1 0 0 0" size="0.01"/>
             <camera name="cam_default" pos="2 3 0.8" mode="trackcom" xyaxes="-1 0.5 0 -0.2 -0.2 1"/>

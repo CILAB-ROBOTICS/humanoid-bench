@@ -69,6 +69,7 @@ RUN apt-get update && apt-get install -y cuda-compat-12-2 && rm -rf /var/lib/apt
 # JAX GPU 버전 설치
 RUN pip install --upgrade pip && \
     pip install "jax[cuda12]==0.4.28" -f https://storage.googleapis.com/jax-releases/jax_cuda_releases.html orbax-checkpoint
+RUN pip install python-dotenv
 
 # 환경 변수 설정 (mujoco 관련 경로)
 ENV LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:${LD_LIBRARY_PATH}
@@ -77,4 +78,5 @@ ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/x86_64-linux-gnu
 ENV LIBGL_DRIVERS_PATH=/usr/lib/x86_64-linux-gnu/dri
 ENV MUJOCO_GL=osmesa
 # 기본 커맨드
+
 CMD ["bash"]
