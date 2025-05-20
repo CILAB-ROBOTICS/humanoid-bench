@@ -49,7 +49,7 @@
             <geom name="window_top_pane_3" type="box" pos="0 0.65 1.7125" size="0.05 0.3 0.2" rgba="0.2 0.95 0.95 0.3" class="visual"/>
             <geom name="window_pane_collision" type="box" pos="0 0 0.97" size="0.05 1 0.97" class="collision"/>
         </body>
-        <body name="window_wiping_tool" pos="0.45 0 1.2">
+        <body name="window_wiping_tool" pos="0.45 0 1.085">
             <freejoint name="free_window_wiping_tool"/>
             <body name="tool_handle_right" pos="0 -0.21 0.02"/>
             <body name="tool_handle_left" pos="0 0.21 0.02"/>
