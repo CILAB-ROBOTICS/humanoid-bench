@@ -59,6 +59,6 @@
         </body>
     </worldbody>
     <sensor>
-        <subtreelinvel name="window_wiping_tool_subtreelinvel" body="window_wiping_tool"/>
+        <subtreelinvel name="window_wiping_tool_subtreelinvel" body="window_wiper_sphere"/>
     </sensor>
 </mujocoinclude>

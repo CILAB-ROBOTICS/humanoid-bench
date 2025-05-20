@@ -119,17 +119,13 @@ class FloorWipe(Task):
 
         manipulation_reward = (
             0.2 * (stand_reward * small_control)
-            # + 0.4 * moving_wipe_reward
-        )
-        floor_contact_total_reward = floor_contact_filter * floor_contact_reward
-        moving_wipe_reward = floor_contact_filter * moving_wipe_reward
-        reward = 0.1 * manipulation_reward + 5 * floor_contact_total_reward + 5 * moving_wipe_reward
+        ) * 0.1
+        moving_wipe_reward = floor_contact_filter * moving_wipe_reward * 5
+        reward = manipulation_reward + moving_wipe_reward
 
         return reward, {
-            "stand_reward": stand_reward,
-            "small_control": small_control,
+            "manipulation_reward": manipulation_reward,
             "moving_wipe_reward": moving_wipe_reward,
-            "floor_contact_reward": floor_contact_total_reward,
         }
 
     def get_terminated(self):

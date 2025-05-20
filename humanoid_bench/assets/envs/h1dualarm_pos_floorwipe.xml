@@ -7,9 +7,11 @@
     <include file="../tasks/floorwipe.xml"/>
 
     <equality>
-        <weld name="fix_robot" body1="world" body2="pelvis"/>
+        <weld name="fix_robot" body1="world" body2="pelvis" solref="0.002 1" solimp="0.998 0.999 0.001"/>
 
-        <weld name="fix_tool_left" body1="left_hand" body2="tool_handle_left"/>
-        <weld name="fix_tool_right" body1="right_hand" body2="tool_handle_right"/>
+        <weld name="fix_tool_left" body1="left_hand" body2="window_wiping_tool"
+               solref="0.002 1" solimp="0.998 0.999 0.001"/>
+        <weld name="fix_tool_right" body1="right_hand" body2="window_wiping_tool"
+               solref="0.002 1" solimp="0.998 0.999 0.001"/>
     </equality>
 </mujoco>
