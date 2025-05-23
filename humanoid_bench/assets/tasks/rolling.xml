@@ -34,10 +34,8 @@
             <inertial pos="0 0 0" mass="0.3" diaginertia="0.01 0.01 0.01"/>
             <geom name="roller" type="mesh" mesh="roller" pos="0 0.04 0" rgba="0.67 0.73 0.78 1" class="visual"  material="dark_wooden_cover"/>
             <geom name="roller_collision" type="cylinder" pos="0 0 0" size=".035 .22" zaxis="1 0 0" class="collision"/>
-            <geom name="roller_handle_left" type="cylinder" pos="-0.3 0 0" size=".015 .075" zaxis="1 0 0" class="collision"/>
-            <geom name="roller_handle_right" type="cylinder" pos="0.3 0 0" size=".015 .075" zaxis="1 0 0" class="collision"/>
-
-
+            <geom name="roller_handle_left" type="cylinder" pos="-0.3 0 0" size=".022 .075" zaxis="1 0 0" class="collision"/>
+            <geom name="roller_handle_right" type="cylinder" pos="0.3 0 0" size=".022 .075" zaxis="1 0 0" class="collision"/>
         </body>
 
         <body name="dough" pos="0.6 0 0.945">
