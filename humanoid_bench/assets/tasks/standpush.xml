@@ -24,7 +24,7 @@
         </body>
         <body name="object" pos="0.6 0 1" euler='-0 0 -0'>
             <freejoint name="free_object"/>
-            <inertial pos="0 0 0" mass="0.3" diaginertia="0.001 0.001 0.001"/>
+            <inertial pos="0 0 0" mass="1.0" diaginertia="0.001 0.001 0.001"/>
             <geom name="object" type="box" size=".1 .1 .1" rgba="0.67 0.73 0.78 1" class="visual"/>
             <geom name="object_collision" type="box" size=".1 .1 .1" class="collision"/>
         </body>
