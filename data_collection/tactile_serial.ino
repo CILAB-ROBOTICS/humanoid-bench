@@ -10,7 +10,7 @@ const int NUM_CHANNELS = 16;
 int sensorValues[NUM_MUX * NUM_CHANNELS];
 
 void setup() {
-  Serial.begin(1000000);
+  Serial.begin(2000000);
 
   pinMode(S0, OUTPUT);
   pinMode(S1, OUTPUT);

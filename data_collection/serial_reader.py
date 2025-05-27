@@ -1,6 +1,8 @@
 import serial
 import platform
 import matplotlib
+from sympy.liealgebras.type_e import TypeE
+
 matplotlib.use('tkagg')
 import matplotlib.pyplot as plt
 
@@ -56,6 +58,8 @@ def serial_reader():
                 for i in range(NUM_SENSORS):
                     data_buffers[i].append(values[i])
 
+        except ValueError:
+            continue
         except Exception as e:
             print(f"[!] Read error: {e}")
 
