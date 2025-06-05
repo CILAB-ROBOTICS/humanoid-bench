@@ -3,6 +3,7 @@ defaults:
 
 # environment
 task: dog-run
+exp_group: ???
 obs: state
 
 # evaluation

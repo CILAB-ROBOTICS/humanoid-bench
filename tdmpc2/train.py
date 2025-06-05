@@ -50,15 +50,18 @@ def train(cfg: dict):
     """
     # assert torch.cuda.is_available()
     assert cfg.steps > 0, "Must train for at least 1 step."
-    cfg = parse_cfg(cfg)
-    set_seed(cfg.seed)
-    print(colored("Work dir:", "yellow", attrs=["bold"]), cfg.work_dir)
 
     if cfg.instruct:
         instruct_dir = os.path.join(dirname(__file__), "..", "instruct_rl", "instruct", "bert-base-uncased")
         cfg.instruct_path = os.path.abspath(os.path.join(instruct_dir, f"{cfg.instruct}.csv"))
     else:
         cfg.instruct_path = None
+
+    cfg = parse_cfg(cfg)
+    set_seed(cfg.seed)
+    print(colored("Work dir:", "yellow", attrs=["bold"]), cfg.work_dir)
+
+
 
     trainer_cls = OfflineTrainer if cfg.multitask else OnlineTrainer
     trainer = trainer_cls(

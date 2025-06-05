@@ -6,6 +6,19 @@ from omegaconf import OmegaConf
 
 from tdmpc2.common import MODEL_SIZE, TASK_SET
 
+def get_exp_group(cfg: OmegaConf) -> str:
+    """
+    Returns the experiment group based on the task and model size.
+    """
+
+    names = list()
+    names.append(cfg.task)
+
+
+    if cfg.instruct:
+        names.append(f"inst-{cfg.instruct}")
+
+    return "_".join(names)
 
 def parse_cfg(cfg: OmegaConf) -> OmegaConf:
     """
@@ -34,11 +47,13 @@ def parse_cfg(cfg: OmegaConf) -> OmegaConf:
         except:
             pass
 
+    cfg.exp_group = get_exp_group(cfg)
+
     # Convenience
     cfg.work_dir = (
         Path(hydra.utils.get_original_cwd())
         / "logs"
-        / cfg.task
+        / cfg.exp_group
         / str(cfg.seed)
         / cfg.exp_name
     )
