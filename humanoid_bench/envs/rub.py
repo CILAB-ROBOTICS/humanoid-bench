@@ -8,7 +8,7 @@ from humanoid_bench.tasks import Task
 from instruct_rl.create_instruct import ConditionFeature
 
 _STAND_HEIGHT = 1.65
-_MIN_FORCE = 0.0
+_MIN_FORCE = 100.0
 _MAX_FORCE = 2000.0
 
 
@@ -71,41 +71,34 @@ class Rub(Task):
         )
 
     def get_reward(self):
-        stand_reward = self._compute_stand_reward()
         small_control = self._compute_small_control_reward()
         hand_window_proximity_reward = self._compute_hand_window_proximity_reward()
-        head_window_distance_reward = self._compute_head_window_distance_reward()
-        rubbing_reward = self._compute_rubbing_reward()
-        pressure_reward, pressure_info = self._compute_pressure_reward(self._env.condition)
-        direction_reward, direction_info = self._compute_direction_reward(self._env.condition)
-        frequency_reward, frequency_info = self._compute_frequency_reward(self._env.condition)
         window_contact_filter = self._check_window_contact()
+        rubbing_reward = self._compute_rubbing_reward()
+
+        if self._env.condition is not None:
+            pressure_reward, pressure_info = self._compute_pressure_reward(self._env.condition)
+        else:
+            pressure_reward, pressure_info = 0.0, {}
 
         manipulation_reward = (
-            0.05 * (stand_reward * small_control * head_window_distance_reward)
+            0.05 * small_control
             + 0.15 * rubbing_reward
             + 0.15 * hand_window_proximity_reward
             + 0.5 * pressure_reward
-            + 0.1 * direction_reward
-            + 0.05 * frequency_reward
         )
 
         window_contact_total_reward = window_contact_filter * hand_window_proximity_reward
         reward = 0.7 * manipulation_reward + 0.3 * window_contact_total_reward
 
         return reward, {
-            "stand_reward": stand_reward,
             "small_control": small_control,
             "rubbing_reward": rubbing_reward,
             "hand_window_proximity_reward": hand_window_proximity_reward,
             "pressure_reward": pressure_reward,
-            "direction_reward": direction_reward,
-            "frequency_reward": frequency_reward,
             "window_contact_filter": window_contact_filter,
             "window_contact_total_reward": window_contact_total_reward,
             **pressure_info,
-            **direction_info,
-            **frequency_info,
         }
 
     def _get_window_pane_cid_with(self, body_names=[]):
@@ -181,67 +174,48 @@ class Rub(Task):
         )
 
     def _compute_pressure_reward(self, condition):
-        if condition is not None:
-            modality = condition.modality
-            if modality == "embed":
-                feature = [-1] * condition.get_feature_size()
-                for condition in condition.conditions:
-                    feature[condition.condition_type] = condition.value
-                feature = np.array(feature, dtype=np.float32)
-            elif modality == "vector":
-                feature = condition.get_feature()
-            else:
-                raise ValueError(
-                    "There is no such modality. "
-                    "Please refer to the 'ConditionSet' class in 'tdmpc2/common/sampler.py'."
-                )
-            target_str = feature[ConditionFeature.strength]
-        else:
-            target_str = 1.0
+        strength_cond = condition.get_strength()
 
+        # rescale [0, 1] to [_MIN_FORCE, _MAX_FORCE]
+        # strength_target = strength_cond.value * (_MAX_FORCE - _MIN_FORCE) + _MIN_FORCE
+        strength_target = strength_cond.value
+        strength_target_denormalized = strength_cond.value * (_MAX_FORCE - _MIN_FORCE) + _MIN_FORCE
         # calculate current maximum strength
-        current_str = []
+        strengths = []
         for cid in self._get_window_pane_cid_with(body_names=["left_hand", "right_hand"]):
             contact_force = np.zeros(6)
             mujoco.mj_contactForce(self._env.model, self._env.data, cid, contact_force)
-            current_str.append(contact_force[0])  # vertical force
-        current_str = max(current_str) if len(current_str) > 0 else 0.0
+            strengths.append(contact_force[0])
 
-        # normalize strength
-        clipped_str = min(max(current_str, _MIN_FORCE), _MAX_FORCE)
-        normalized_str = (clipped_str - _MIN_FORCE) / (_MAX_FORCE - _MIN_FORCE)
+        is_window_contact = self._check_window_contact()
 
-        # rewarding
-        reward = 0
-        curr_gap = abs(target_str - normalized_str)
-        if self.prev_gap:
-            reward += self.prev_gap - curr_gap
-        self.prev_gap = curr_gap
+        strength_current = max(strengths) if len(strengths) > 0 else 0.0
+        strength_current_raw = strength_current
+        strength_current = np.clip(strength_current, _MIN_FORCE, _MAX_FORCE)
+        strength_current = strength_current if is_window_contact else 0.0
 
-        # update max/min strength
-        if self.max_strength < current_str:
-            self.max_strength = current_str
-        elif self.min_strength > current_str:
-            self.min_strength = current_str
+        reward = rewards.tolerance(
+            strength_current,
+            bounds=(strength_target, strength_target),
+            margin=0.2,
+            sigmoid="linear",
+        )
+        reward = reward if is_window_contact else 0.0
 
         # update info
         info = {
-            'target_str': target_str,
-            'normalized_str': normalized_str,
-            'current_str': current_str,
-            'max_strength': self.max_strength,
-            'min_strength': self.min_strength,
+            'strength_condition': strength_cond.value,
+            'strength_reward': reward,
+            'strength_current': strength_current,
+            'strength_current_raw': strength_current_raw,
+            'strength_target': strength_target,
+            'strength_target_denormalized': strength_target_denormalized,
+            'strength_error': abs(strength_target - strength_current),
+            'strength_min': _MIN_FORCE,
+            'strength_max': _MAX_FORCE,
         }
 
         return reward, info
-
-    def _compute_direction_reward(self, condition):
-        # TODO: implement
-        return 0, {}
-
-    def _compute_frequency_reward(self, condition):
-        # TODO: implement
-        return 0, {}
 
     def _check_window_contact(self):
         window_pane_id = self._env.named.data.geom_xpos.axes.row.names.index("window_pane_collision")
@@ -254,7 +228,4 @@ class Rub(Task):
 
     def reset_model(self):
         self.head_pos0 = np.copy(self._env.named.data.site_xpos["head"])
-        self.max_strength = -np.inf
-        self.min_strength = np.inf
-        self.prev_gap = None
         return super().reset_model()
