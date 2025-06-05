@@ -44,6 +44,16 @@ class ConditionSet:
             feature = np.array(feature, dtype=np.float32)
             return feature
 
+    def get_strength(self):
+        """
+        Get the strength condition value from the condition set.
+        If no strength condition is present, return None.
+        """
+        for condition in self.conditions:
+            if condition.condition_type == ConditionEnum.Strength:
+                return condition
+        return None
+
     def __repr__(self):
         return f"ConditionSet(conditions={self.conditions})"
 
