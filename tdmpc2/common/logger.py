@@ -161,13 +161,13 @@ class Logger:
         if self._save_agent and agent:
             fp = self._model_dir / f"{str(identifier)}.pt"
             agent.save(fp)
-            if self._wandb:
-                artifact = self._wandb.Artifact(
-                    self._group + "-" + str(self._seed) + "-" + str(identifier),
-                    type="model",
-                )
-                artifact.add_file(fp)
-                self._wandb.log_artifact(artifact)
+            # if self._wandb:
+            #     artifact = self._wandb.Artifact(
+            #         self._group + "-" + str(self._seed) + "-" + str(identifier),
+            #         type="model",
+            #     )
+            #     artifact.add_file(fp)
+            #     self._wandb.log_artifact(artifact)
 
     def finish(self, agent=None):
         try:
