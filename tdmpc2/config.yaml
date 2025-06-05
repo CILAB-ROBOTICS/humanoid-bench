@@ -64,7 +64,7 @@ simnorm_dim: 8
 
 # logging
 wandb_project: humanoid-bench
-wandb_entity: robot-learning
+wandb_entity: cilab-robot
 wandb_silent: false
 disable_wandb: false
 save_csv: true
