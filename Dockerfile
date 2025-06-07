@@ -56,11 +56,14 @@ RUN pip install -e .
 COPY requirements_jaxrl.txt .
 COPY requirements_dreamer.txt .
 COPY requirements_tdmpc.txt .
+COPY requirements_fasttd3.txt .
 
 # requirements 파일들 개별 설치 (레이어 분리)
 RUN pip install -r requirements_jaxrl.txt
 RUN pip install -r requirements_dreamer.txt
 RUN pip install -r requirements_tdmpc.txt
+RUN pip install -r requirements_fasttd3.txt
+RUN pip install --no-deps tensordict==0.7.2
 RUN pip install opencv-python-headless
 
 # CUDA 호환 패키지 추가 설치 (호스트와 버전 맞추기 위해)
