@@ -106,11 +106,12 @@ class HumanoidBenchEnv:
         infos["observations"] = {"raw": {"obs": observations.copy()}}
         truncateds = np.zeros_like(dones)
         for i in range(self.num_envs):
-            if raw_infos[i].get("TimeLimit.truncated", False):
+            if raw_infos[i].pop("TimeLimit.truncated", False):
                 truncateds[i] = True
                 infos["observations"]["raw"]["obs"][i] = raw_infos[i][
                     "terminal_observation"
                 ]
+            infos["reward"] = raw_infos[i]
 
         observations = torch.from_numpy(observations).to(
             device=self.sim_device, dtype=torch.float

@@ -417,6 +417,9 @@ def main():
         next_obs, rewards, dones, infos = envs.step(actions.float())
         truncations = infos["time_outs"]
 
+        # Update the reward info
+        logs_dict["reward"] = infos["reward"]
+
         if envs.asymmetric_obs:
             next_critic_obs = infos["observations"]["critic"]
 
@@ -499,6 +502,7 @@ def main():
                         "critic_grad_norm": logs_dict["critic_grad_norm"].mean(),
                         "buffer_rewards": logs_dict["buffer_rewards"].mean(),
                         "env_rewards": rewards.mean(),
+                        **logs_dict["reward"],
                     }
 
                     if args.eval_interval > 0 and global_step % args.eval_interval == 0:
