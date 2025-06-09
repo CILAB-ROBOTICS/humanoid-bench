@@ -99,3 +99,7 @@ instruct: false
 instruct_path: ???
 modality: ???
 condition_dim: ???
+
+
+# W&B Settings
+wb_prefix: ???

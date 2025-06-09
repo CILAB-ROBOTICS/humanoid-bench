@@ -48,7 +48,7 @@ def parse_cfg(cfg: OmegaConf) -> OmegaConf:
             pass
 
     cfg.exp_group = get_exp_group(cfg)
-
+    cfg.wb_prefix = f'{cfg.exp_group}.{cfg.exp_name}.{cfg.seed}'
     # Convenience
     cfg.work_dir = (
         Path(hydra.utils.get_original_cwd())
