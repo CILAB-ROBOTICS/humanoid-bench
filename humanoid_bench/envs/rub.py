@@ -1,3 +1,5 @@
+from cgitb import small
+
 import numpy as np
 import mujoco
 import gymnasium as gym
@@ -71,33 +73,24 @@ class Rub(Task):
         )
 
     def get_reward(self):
-        small_control = self._compute_small_control_reward()
-        hand_window_proximity_reward = self._compute_hand_window_proximity_reward()
-        window_contact_filter = self._check_window_contact()
-        rubbing_reward = self._compute_rubbing_reward()
+        small_control = self._compute_small_control_reward() * 0.05
+        hand_window_proximity_reward = self._compute_hand_window_proximity_reward() * 1000
+        rubbing_reward = self._compute_rubbing_reward() * 0.15
 
         if self._env.condition is not None:
             pressure_reward, pressure_info = self._compute_pressure_reward(self._env.condition)
         else:
             pressure_reward, pressure_info = 0.0, {}
 
-        manipulation_reward = (
-            0.05 * small_control
-            + 0.15 * rubbing_reward
-            + 0.15 * hand_window_proximity_reward
-            + 0.5 * pressure_reward
-        )
-
-        window_contact_total_reward = window_contact_filter * hand_window_proximity_reward
-        reward = 0.7 * manipulation_reward + 0.3 * window_contact_total_reward
+        reward = (small_control + hand_window_proximity_reward + rubbing_reward
+                  + pressure_reward)
 
         return reward, {
             "small_control": small_control,
-            "rubbing_reward": rubbing_reward,
-            "hand_window_proximity_reward": hand_window_proximity_reward,
-            "pressure_reward": pressure_reward,
-            "window_contact_filter": window_contact_filter,
-            "window_contact_total_reward": window_contact_total_reward,
+            "hand_window_proximity": hand_window_proximity_reward,
+            "rubbing": rubbing_reward,
+            "pressure": pressure_reward,
+            "window_contact_filter": self._check_window_contact(),
             **pressure_info,
         }
 
@@ -152,8 +145,8 @@ class Rub(Task):
             self._env.named.data.site_xpos["right_hand"] - self._env.named.data.geom_xpos["window_pane_collision"]
         )
         return min([
-            rewards.tolerance(ldist, bounds=(0, 0.05), margin=0.2),
-            rewards.tolerance(rdist, bounds=(0, 0.05), margin=0.2),
+            rewards.tolerance(ldist, bounds=(0, 0.1), margin=0.5),
+            rewards.tolerance(rdist, bounds=(0, 0.1), margin=0.5),
         ])
 
     def _compute_head_window_distance_reward(self):
@@ -190,9 +183,8 @@ class Rub(Task):
         is_window_contact = self._check_window_contact()
 
         strength_current = max(strengths) if len(strengths) > 0 else 0.0
-        strength_current_raw = strength_current
-        strength_current = np.clip(strength_current, _MIN_FORCE, _MAX_FORCE)
-        strength_current = strength_current if is_window_contact else 0.0
+        strength_current_denormalized = strength_current
+        strength_current = (strength_current_denormalized - _MIN_FORCE) / (_MAX_FORCE - _MIN_FORCE)
 
         reward = rewards.tolerance(
             strength_current,
@@ -207,9 +199,9 @@ class Rub(Task):
             'strength_condition': strength_cond.value,
             'strength_reward': reward,
             'strength_current': strength_current,
-            'strength_current_raw': strength_current_raw,
+            'strength_current_denorm': strength_current_denormalized,
             'strength_target': strength_target,
-            'strength_target_denormalized': strength_target_denormalized,
+            'strength_target_denorm': strength_target_denormalized,
             'strength_error': abs(strength_target - strength_current),
             'strength_min': _MIN_FORCE,
             'strength_max': _MAX_FORCE,
