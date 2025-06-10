@@ -457,6 +457,7 @@ class ObservationWrapper(BaseWrapper):
         super().__init__(task)
 
         sensors = kwargs.get("sensors").split(",")
+        self._proprio_ob = "proprio" in sensors
         self._tactile_ob = "tactile" in sensors
         self._camera_ob = "image" in sensors
         self._privileged_ob = "privileged" in sensors
@@ -468,24 +469,16 @@ class ObservationWrapper(BaseWrapper):
 
     @property
     def observation_space(self):
-        proprio_space = Box(
-            low=-np.inf,
-            high=np.inf,
-            shape=(self.task._env.robot.dof * 2 - 1 - 13,),
-            dtype=np.float64,
-        )
+        spaces = []
 
-        if self._camera_ob:
-            image_example = self.get_camera_obs()
-            camera_spaces = [
-                (
-                    key,
-                    Box(
-                        low=0, high=255, shape=image_example[key].shape, dtype=np.uint8
-                    ),
-                )
-                for key in image_example
-            ]
+        if self._proprio_ob:
+            proprio_space = Box(
+                low=-np.inf,
+                high=np.inf,
+                shape=(self.task._env.robot.dof * 2 - 1 - 13,),
+                dtype=np.float64,
+            )
+            spaces.append(("proprio", proprio_space))
 
         if self._tactile_ob:
             tactile_example = self.get_tactile_obs()
@@ -501,38 +494,38 @@ class ObservationWrapper(BaseWrapper):
                 )
                 for key in tactile_example
             ]
+            spaces.extend(tactile_spaces)
+
+        if self._camera_ob:
+            image_example = self.get_camera_obs()
+            camera_spaces = [
+                (
+                    key,
+                    Box(
+                        low=0, high=255, shape=image_example[key].shape, dtype=np.uint8
+                    ),
+                )
+                for key in image_example
+            ]
+            spaces.extend(camera_spaces)
+
         if self._privileged_ob:
             privileged_space = self._env.observation_space
-
-        if not self._privileged_ob and not self._tactile_ob and not self._camera_ob:
-            return proprio_space
-
-        spaces = [("proprio", proprio_space)]
-        if self._privileged_ob:
             spaces.append(("privileged", privileged_space))
-        if self._tactile_ob:
-            spaces.extend(tactile_spaces)
-        if self._camera_ob:
-            spaces.extend(camera_spaces)
-            
+
         return Dict(spaces)
 
     def get_obs(self):
-        position = self.task._env.robot.joint_angles()
-        velocity = self.task._env.robot.joint_velocities()
-        state = np.concatenate((position, velocity))
+        obses = []
 
-        if not self._privileged_ob and not self._tactile_ob and not self._camera_ob:
-            return state
+        if self._proprio_ob:
+            proprio = self.get_proprio_obs()
+            obses.extend(list(proprio.items()))
 
-        obses = [("proprio", state)]
-
-        tactile = None
         if self._tactile_ob:
             tactile = self.get_tactile_obs()
             obses.extend(list(tactile.items()))
 
-        camera = None
         if self._camera_ob:
             camera = self.get_camera_obs()
             obses.extend(list(camera.items()))
@@ -542,6 +535,12 @@ class ObservationWrapper(BaseWrapper):
             obses.append(("privileged", privileged))
 
         return dict(obses)
+
+    def get_proprio_obs(self):
+        position = self.task._env.robot.joint_angles()
+        velocity = self.task._env.robot.joint_velocities()
+        state = np.concatenate((position, velocity))
+        return {"proprio": state}
 
     def get_tactile_obs(self):
         """

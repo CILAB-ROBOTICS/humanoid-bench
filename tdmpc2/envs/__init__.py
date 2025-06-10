@@ -6,6 +6,7 @@ from omegaconf import MissingMandatoryValue
 
 from tdmpc2.envs.wrappers.multitask import MultitaskWrapper
 from tdmpc2.envs.wrappers.pixels import PixelWrapper
+from tdmpc2.envs.wrappers.multi_modal import MultimodalWrapper
 from tdmpc2.envs.wrappers.tensor import TensorWrapper
 
 
@@ -83,7 +84,8 @@ def make_env(cfg):
         env = TensorWrapper(env)
     if cfg.get("obs", "state") == "rgb":
         env = PixelWrapper(cfg, env)
-
+    if cfg.get("obs", "state") == "multi-modal":
+        env = MultimodalWrapper(cfg, env)
 
     try:  # Dict
         cfg.obs_shape = {k: v.shape for k, v in env.observation_space.spaces.items()}

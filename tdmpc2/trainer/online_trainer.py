@@ -56,8 +56,7 @@ class OnlineTrainer(Trainer):
         """Creates a TensorDict for a new episode."""
         if isinstance(obs, dict):
             obs = TensorDict(obs, batch_size=(), device="cpu")
-        else:
-            obs = obs.unsqueeze(0).cpu()
+        obs = obs.unsqueeze(0).cpu()
         if action is None:
             action = torch.full_like(self.env.rand_act(), float("nan"))
         if reward is None:
