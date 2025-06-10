@@ -7,11 +7,10 @@ from gymnasium.spaces import Box
 from dm_control.utils import rewards
 
 from humanoid_bench.tasks import Task
-from instruct_rl.create_instruct import ConditionFeature
 
 _STAND_HEIGHT = 1.65
-_MIN_FORCE = 100.0
-_MAX_FORCE = 2000.0
+_MIN_FORCE = 0.0
+_MAX_FORCE = 200.0
 
 
 def _is_body_descendant(model, body_id, target_name):
@@ -74,7 +73,7 @@ class Rub(Task):
 
     def get_reward(self):
         small_control = self._compute_small_control_reward() * 0.05
-        hand_window_proximity_reward = self._compute_hand_window_proximity_reward() * 1000
+        hand_window_proximity_reward = self._compute_hand_window_proximity_reward()
         rubbing_reward = self._compute_rubbing_reward() * 0.15
 
         if self._env.condition is not None:
@@ -184,7 +183,10 @@ class Rub(Task):
 
         strength_current = max(strengths) if len(strengths) > 0 else 0.0
         strength_current_denormalized = strength_current
-        strength_current = (strength_current_denormalized - _MIN_FORCE) / (_MAX_FORCE - _MIN_FORCE)
+        # clip strength_current to [_MIN_FORCE, _MAX_FORCE]
+
+        strength_clipped = np.clip(strength_current_denormalized, _MIN_FORCE, _MAX_FORCE)
+        strength_current = (strength_clipped - _MIN_FORCE) / (_MAX_FORCE - _MIN_FORCE)
 
         reward = rewards.tolerance(
             strength_current,

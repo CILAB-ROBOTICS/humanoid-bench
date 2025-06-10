@@ -57,6 +57,7 @@ def parse_cfg(cfg: OmegaConf) -> OmegaConf:
         / str(cfg.seed)
         / cfg.exp_name
     )
+
     cfg.task_title = cfg.task.replace("-", " ").title()
     cfg.bin_size = (cfg.vmax - cfg.vmin) / (
         cfg.num_bins - 1

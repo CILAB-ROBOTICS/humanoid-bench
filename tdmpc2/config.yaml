@@ -5,6 +5,7 @@ defaults:
 task: dog-run
 exp_group: ???
 obs: state
+overwrite: false
 
 # evaluation
 checkpoint: ???

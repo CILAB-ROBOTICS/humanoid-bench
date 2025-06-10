@@ -1,5 +1,6 @@
 import os
 import sys
+import shutil
 from os.path import dirname
 
 from tdmpc2.common.sampler import ConditionSampler
@@ -61,7 +62,8 @@ def train(cfg: dict):
     set_seed(cfg.seed)
     print(colored("Work dir:", "yellow", attrs=["bold"]), cfg.work_dir)
 
-
+    if cfg.overwrite:
+        shutil.rmtree(cfg.work_dir)
 
     trainer_cls = OfflineTrainer if cfg.multitask else OnlineTrainer
     trainer = trainer_cls(
