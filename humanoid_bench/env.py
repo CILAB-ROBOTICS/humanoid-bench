@@ -12,6 +12,7 @@ from dm_control.mujoco.engine import NamedIndexStructs
 from dm_control.utils import rewards
 
 from humanoid_bench.dmc_wrapper import MjDataWrapper, MjModelWrapper
+from tdmpc2.common.sampler import Condition, ConditionSet
 
 from .wrappers import (
     SingleReachWrapper,
@@ -287,15 +288,20 @@ if __name__ == "__main__":
         kwargs={
             "robot": "h1dualarm",
             "control": "pos",
-            "task": "floorwipe",
+            "task": "rub",
         },
     )
 
     import cv2
     env = gym.make("temp-v0")
-    ob, _ = env.reset()
+    # ob, _ = env.reset(ConditionSet)
+
+    ob, _ = env.reset(options={"condition": ConditionSet(
+        conditions=[Condition(0, 0.1)])})
+
     print(f"ob_space = {env.observation_space}, ob = {ob.shape}")
     print(f"ac_space = {env.action_space.shape}")
+
     # env.render()
     while True:
         action = env.action_space.sample()

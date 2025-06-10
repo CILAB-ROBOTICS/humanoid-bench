@@ -1,7 +1,7 @@
 import random
 import numpy as np
 import pandas as pd
-
+from sentry_sdk.logger import warning
 
 
 class ConditionEnum:
@@ -22,13 +22,16 @@ class ConditionSet:
     conditions: list[Condition]
     embed: np.ndarray
     modality: str
+    is_eval: bool = False
 
     def __init__(self, conditions: list[Condition],
                  embed: np.ndarray = None,
-                 modality: str = "vector"):
+                 modality: str = "vector",
+                 is_eval: bool = False):
         self.conditions = conditions
         self.embed = embed
         self.modality = modality
+        self.is_eval = is_eval
 
     def get_feature_size(self) -> int:
         # get the maximum value in ConditionEnum
@@ -55,7 +58,7 @@ class ConditionSet:
         return None
 
     def __repr__(self):
-        return f"ConditionSet(conditions={self.conditions})"
+        return f"ConditionSet(conditions={self.conditions}, is_eval={self.is_eval})"
 
 class ConditionSampler:
 
@@ -93,10 +96,12 @@ class ConditionSampler:
                 col for col in df.columns if col.startswith("embed_")
             ]
             embed_vals = np.array(row[embeds].values, dtype=np.float32)
+            is_eval = row['eval'] if 'eval' in row else False
 
             self.condition_sets.append(ConditionSet(conditions=conditions,
                                                     modality=self.modality,
-                                                    embed=embed_vals))
+                                                    embed=embed_vals,
+                                                    is_eval=is_eval))
         print(f"Loaded {len(self.condition_sets)} condition sets from {csv_path}")
 
     def sample(self, n: int = 1) -> ConditionSet:
@@ -109,6 +114,19 @@ class ConditionSampler:
         sampled_set = random.sample(self.condition_sets, n)[0]
 
         return sampled_set
+
+    def items(self, only_eval: bool = False) -> ConditionSet:
+
+        items = self.condition_sets
+        if only_eval:
+            items = [cs for cs in self.condition_sets if cs.is_eval]
+
+
+        if len(items) == 0:
+            warning("No condition sets available for sampling. Returning the first one.")
+            items = [self.condition_sets[0]]
+
+        return items
 
     def __repr__(self):
         return f"ConditionSampler(condition_sets={len(self.condition_sets)} sets, modality={self.modality})"
