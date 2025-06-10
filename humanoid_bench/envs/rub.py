@@ -1,16 +1,15 @@
-from cgitb import small
-
+import cv2
 import numpy as np
 import mujoco
-import gymnasium as gym
 from gymnasium.spaces import Box
 from dm_control.utils import rewards
+from sympy.strategies.branch import condition
 
 from humanoid_bench.tasks import Task
 
 _STAND_HEIGHT = 1.65
 _MIN_FORCE = 0.0
-_MAX_FORCE = 200.0
+_MAX_FORCE = 600.0
 
 
 def _is_body_descendant(model, body_id, target_name):
@@ -54,13 +53,14 @@ class Rub(Task):
     frame_skip = 10
     camera_name = "cam_hand_visible"
 
-    success_bar = 650
 
     def __init__(self, robot=None, env=None, **kwargs):
         super().__init__(robot, env, **kwargs)
         if robot.__class__.__name__ == "G1":
             global _STAND_HEIGHT
             _STAND_HEIGHT = 1.28
+
+        self.curr_progress = 0.0
 
     @property
     def observation_space(self):
@@ -78,21 +78,30 @@ class Rub(Task):
 
         if self._env.condition is not None:
             pressure_reward, pressure_info = self._compute_pressure_reward(self._env.condition)
+
+            if abs(self._env.condition.get_strength().value - pressure_info['strength_current']) < 0.05 and \
+                    self._check_window_contact():
+                self.curr_progress = min(1.0, self.curr_progress + 0.01)
+
         else:
             pressure_reward, pressure_info = 0.0, {}
 
         reward = (small_control + hand_window_proximity_reward + rubbing_reward
                   + pressure_reward)
 
-        return reward, {
+        info =  {
             "small_control": small_control,
             "hand_window_proximity": hand_window_proximity_reward,
             "rubbing": rubbing_reward,
             "pressure": pressure_reward,
             "window_contact_filter": self._check_window_contact(),
             **pressure_info,
+            'progress': self.curr_progress,
         }
 
+        self.latest_info = info
+
+        return reward, info
     def _get_window_pane_cid_with(self, body_names=[]):
         window_pane_id = self._env.named.data.geom_xpos.axes.row.names.index("window_pane_collision")
 
@@ -208,7 +217,6 @@ class Rub(Task):
             'strength_min': _MIN_FORCE,
             'strength_max': _MAX_FORCE,
         }
-
         return reward, info
 
     def _check_window_contact(self):
@@ -222,4 +230,154 @@ class Rub(Task):
 
     def reset_model(self):
         self.head_pos0 = np.copy(self._env.named.data.site_xpos["head"])
+        self.curr_progress = 0.0
         return super().reset_model()
+
+    def _draw_progress_bar(self, img):
+        height, width, _ = img.shape
+
+        # --- 설정값 ---
+        padding = int(width * 0.05)  # 이미지 왼쪽 여백
+        bar_width = int(width * 0.03)  # 프로그레스바 너비
+        bar_top = int(height * 0.15)  # 바의 상단 위치
+        bar_bottom = int(height * 0.85)  # 바의 하단 위치
+        bar_height = bar_bottom - bar_top  # 전체 바 높이
+
+        # --- 흰색 테두리 ---
+        border_color = (255, 255, 255)
+        border_thickness = 1
+        cv2.rectangle(
+            img,
+            (padding, bar_top),
+            (padding + bar_width, bar_bottom),
+            border_color,
+            thickness=border_thickness
+        )
+
+        # --- 녹색 프로그레스 바 ---
+        fill_height = int(bar_height * self.curr_progress)
+        fill_top = bar_bottom - fill_height
+        fill_color = (0, 255, 0)
+        cv2.rectangle(
+            img,
+            (padding + border_thickness, fill_top),
+            (padding + bar_width - border_thickness, bar_bottom),
+            fill_color,
+            thickness=-1
+        )
+
+        # --- 백분율 숫자 ---
+        percent = int(self.curr_progress * 100)
+        text = f"{percent}%"
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        font_scale = 0.4
+        font_thickness = 1
+        text_size = cv2.getTextSize(text, font, font_scale, font_thickness)[0]
+        text_x = padding + bar_width + 10
+        text_y = fill_top + text_size[1] // 2
+
+        cv2.putText(
+            img,
+            text,
+            (text_x, max(text_y, bar_top + text_size[1])),  # 상단 초과 방지
+            font,
+            font_scale,
+            (255, 255, 255),
+            font_thickness,
+            lineType=cv2.LINE_AA
+        )
+
+        return img
+
+    def _draw_force_bar(self, img):
+        height, width, _ = img.shape
+
+        if not hasattr(self, 'latest_info'):
+            return img
+        if 'strength_current' not in self.latest_info:
+            return img
+
+        strength_current = self.latest_info['strength_current']
+        strength_target = self.latest_info['strength_target']
+
+        # --- 설정값 ---
+        padding = int(width * 0.05)  # 오른쪽 여백
+        bar_width = int(width * 0.03)
+        bar_top = int(height * 0.15)
+        bar_bottom = int(height * 0.85)
+        bar_height = bar_bottom - bar_top
+        bar_left = width - padding - bar_width
+        bar_right = width - padding
+
+        # --- 흰색 테두리 ---
+        border_color = (255, 255, 255)
+        border_thickness = 1
+        cv2.rectangle(
+            img,
+            (bar_left, bar_top),
+            (bar_right, bar_bottom),
+            border_color,
+            thickness=border_thickness
+        )
+
+        # --- 빨간색 current 프로그레스 바 ---
+        fill_height = int(bar_height * strength_current)
+        fill_top = bar_bottom - fill_height
+        fill_color = (0, 0, 255)  # 빨간색
+        cv2.rectangle(
+            img,
+            (bar_left + border_thickness, fill_top),
+            (bar_right - border_thickness, bar_bottom),
+            fill_color,
+            thickness=-1
+        )
+
+        # --- 흰색 target 선 ---
+        target_y = int(bar_bottom - bar_height * strength_target)
+        cv2.line(
+            img,
+            (bar_left, target_y),
+            (bar_right, target_y),
+            (255, 0, 0),
+            thickness=1,
+            lineType=cv2.LINE_AA
+        )
+
+        # --- 백분율 숫자 ---
+        percent = int(strength_current * 100)
+        text = f"{percent}%"
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        font_scale = 0.4
+        font_thickness = 1
+        text_size = cv2.getTextSize(text, font, font_scale, font_thickness)[0]
+        text_x = bar_left - text_size[0] - 5  # 막대 왼쪽에 위치
+        text_y = fill_top + text_size[1] // 2
+        text_y = max(text_y, bar_top + text_size[1])  # 상단 초과 방지
+
+        cv2.putText(
+            img,
+            text,
+            (text_x, text_y),
+            font,
+            font_scale,
+            (255, 255, 255),
+            font_thickness,
+            lineType=cv2.LINE_AA
+        )
+
+        return img
+
+
+    def render(self):
+        img = self._env.mujoco_renderer.render(
+            self._env.render_mode, self._env.camera_id, self._env.camera_name
+        )
+
+        img = img.copy()
+
+        if self._env.condition is not None:
+            img = self._draw_progress_bar(img)
+            img = self._draw_force_bar(img)
+
+
+        return img
