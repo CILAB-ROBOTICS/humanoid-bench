@@ -18,6 +18,22 @@ class Condition:
     def __repr__(self):
         return f"Condition(type={self.condition_type}, value={self.value})"
 
+    def to_dict(self):
+        """
+        Convert the Condition to a dictionary representation.
+        """
+        condition_name = {
+            ConditionEnum.Strength: "strength",
+            ConditionEnum.Direction: "direction",
+            ConditionEnum.Speed: "speed"
+        }
+
+        return {
+            "type": condition_name[self.condition_type],
+            "value": self.value
+        }
+
+
 class ConditionSet:
     conditions: list[Condition]
     embed: np.ndarray
@@ -59,6 +75,30 @@ class ConditionSet:
 
     def __repr__(self):
         return f"ConditionSet(conditions={self.conditions}, is_eval={self.is_eval})"
+
+    def to_dict(self):
+        """
+        Convert the ConditionSet to a dictionary representation.
+        """
+
+        # loop the strength, direction, speed, making a dictionary that the key named with those names
+        condition_dict = {
+            "strength": -1,
+            "direction": -1,
+            "speed": -1
+        }
+
+        for condition in self.conditions:
+            condition_name = {
+                ConditionEnum.Strength: "strength",
+                ConditionEnum.Direction: "direction",
+                ConditionEnum.Speed: "speed"
+            }
+            condition_dict[condition_name[condition.condition_type]] = condition.value
+
+        return condition_dict
+
+
 
 class ConditionSampler:
 
@@ -127,6 +167,13 @@ class ConditionSampler:
             items = [self.condition_sets[0]]
 
         return items
+
+    def to_list(self) -> list:
+        """
+        Convert the condition sets to a list of dictionaries.
+        """
+        return self.condition_sets
+
 
     def __repr__(self):
         return f"ConditionSampler(condition_sets={len(self.condition_sets)} sets, modality={self.modality})"

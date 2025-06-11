@@ -1,1 +1,0 @@
-docker run --rm -it --gpus all -v $PWD:/workspace bic4907/humanbench:cu12 /bin/bash

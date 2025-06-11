@@ -1,6 +1,7 @@
+import os
 import re
 from pathlib import Path
-
+from os.path import join
 import hydra
 from omegaconf import OmegaConf
 
@@ -52,11 +53,12 @@ def parse_cfg(cfg: OmegaConf) -> OmegaConf:
     # Convenience
     cfg.work_dir = (
         Path(hydra.utils.get_original_cwd())
-        / "logs"
+        / "results"
         / cfg.exp_group
         / str(cfg.seed)
-        / cfg.exp_name
     )
+    cfg.short_task_name = cfg.task.replace("humanoid_", "")
+
 
     cfg.task_title = cfg.task.replace("-", " ").title()
     cfg.bin_size = (cfg.vmax - cfg.vmin) / (
@@ -82,5 +84,8 @@ def parse_cfg(cfg: OmegaConf) -> OmegaConf:
     else:
         cfg.task_dim = 0
     cfg.tasks = TASK_SET.get(cfg.task, [cfg.task])
+
+    cfg.eval_dir = join(cfg.work_dir, "eval")
+    cfg.model_dir = join(cfg.work_dir, "models")
 
     return cfg

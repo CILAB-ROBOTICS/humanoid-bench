@@ -9,10 +9,10 @@ from gymnasium.envs.mujoco import MujocoEnv
 from gymnasium.spaces import Box
 from dm_control.mujoco import index
 from dm_control.mujoco.engine import NamedIndexStructs
-from dm_control.utils import rewards
 
 from humanoid_bench.dmc_wrapper import MjDataWrapper, MjModelWrapper
 from tdmpc2.common.sampler import Condition, ConditionSet
+
 
 from .wrappers import (
     SingleReachWrapper,
@@ -20,9 +20,10 @@ from .wrappers import (
     DoubleReachRelativeWrapper,
     BlockedHandsLocoWrapper,
     ObservationWrapper,
+    TactileInfoWrapper,
 )
 
-from .robots import H1, H1Hand, H1SimpleHand, H1Touch, H1Strong, G1, H1DualArm
+from .robots import H1, H1Hand, H1SimpleHand, H1Touch, H1Strong, G1, H1DualArm, H1TouchDualArm
 from .envs.cube import Cube
 from .envs.bookshelf import BookshelfSimple, BookshelfHard
 from .envs.window import Window
@@ -54,7 +55,12 @@ from .envs.room import Room
 from .envs.powerlift import Powerlift
 from .envs.insert import Insert
 from .envs.rub import Rub
+from .envs.standpush import StandPush
 from .envs.floorwipe import FloorWipe
+from .envs.rolling import Rolling
+from .envs.polishing import Polishing
+from .envs.iron import Iron
+from .envs.dishwash import Dishwash
 
 DEFAULT_CAMERA_CONFIG = {
     "trackbodyid": 1,
@@ -71,6 +77,7 @@ ROBOTS = {
     "h1strong": H1Strong,
     "h1touch": H1Touch,
     "h1dualarm": H1DualArm,
+    "h1touchdualarm": H1TouchDualArm,
     "g1": G1
 }
 TASKS = {
@@ -107,7 +114,12 @@ TASKS = {
     "insert_small": Insert,  # This is not an error
     "powerlift": Powerlift,
     "rub": Rub,
+    "standpush": StandPush,
+    "dishwash": Dishwash,
     "floorwipe": FloorWipe,
+    "rolling": Rolling,
+    "polishing": Polishing,
+    "iron": Iron,
 }
 
 
@@ -143,6 +155,12 @@ class HumanoidEnv(MujocoEnv, gym.utils.EzPickle):
             self.obs_wrapper = kwargs.get("obs_wrapper", "False").lower() == "true"
         else:
             self.obs_wrapper = False
+
+        self.tactile_info = kwargs.get("tactile_info", None)
+        if self.tactile_info is not None:
+            self.tactile_info = kwargs.get("tactile_info", "False").lower() == "true"
+        else:
+            self.tactile_info = False
 
         self.blocked_hands = kwargs.get("blocked_hands", None)
         if self.blocked_hands is not None:
@@ -199,6 +217,9 @@ class HumanoidEnv(MujocoEnv, gym.utils.EzPickle):
             # Note that observation wrapper is not compatible with hierarchical policy
             self.task = ObservationWrapper(self.task, **kwargs)
             self.observation_space = self.task.observation_space
+
+        if self.tactile_info:
+            self.task = TactileInfoWrapper(self.task)
 
         # Keyframe
         self.keyframe = (
@@ -281,6 +302,8 @@ class HumanoidEnv(MujocoEnv, gym.utils.EzPickle):
 
 
 if __name__ == "__main__":
+    import cv2
+
     register(
         id="temp-v0",
         entry_point="humanoid_bench.env:HumanoidEnv",
@@ -292,24 +315,21 @@ if __name__ == "__main__":
         },
     )
 
-    import cv2
-    env = gym.make("temp-v0")
-    # ob, _ = env.reset(ConditionSet)
 
-    ob, _ = env.reset(options={"condition": ConditionSet(
-        conditions=[Condition(0, 0.1)])})
-
+    env = gym.make("temp-v0", render_mode="rgb_array")
+    ob, _ = env.reset()
     print(f"ob_space = {env.observation_space}, ob = {ob.shape}")
     print(f"ac_space = {env.action_space.shape}")
+    env.render()
 
-    # env.render()
     while True:
         action = env.action_space.sample()
         ob, rew, terminated, truncated, info = env.step(action)
+
         print(f"ob_space = {env.observation_space}, ob = {ob.shape}, info = {info}")
         image = env.render()
-        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-        cv2.imshow("mujoco", image)
+
+        cv2.imshow("image", image)
         cv2.waitKey(1)
 
         if terminated or truncated:

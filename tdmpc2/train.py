@@ -3,16 +3,12 @@ import sys
 import shutil
 from os.path import dirname
 
-from tdmpc2.common.sampler import ConditionSampler
 
 if sys.platform != "darwin":
     os.environ["MUJOCO_GL"] = "egl"
 
 os.environ["LAZY_LEGACY_OP"] = "0"
-import warnings
 
-warnings.filterwarnings("ignore")
-import torch
 
 import hydra
 from termcolor import colored
@@ -25,8 +21,7 @@ from tdmpc2.tdmpc2 import TDMPC2
 from tdmpc2.trainer.offline_trainer import OfflineTrainer
 from tdmpc2.trainer.online_trainer import OnlineTrainer
 from tdmpc2.common.logger import Logger
-
-torch.backends.cudnn.benchmark = True
+from tdmpc2.common.sampler import ConditionSampler
 
 
 @hydra.main(config_name="config", config_path=".")
@@ -49,14 +44,17 @@ def train(cfg: dict):
             $ python train.py task=dog-run steps=7000000
     ```
     """
-    # assert torch.cuda.is_available()
-    assert cfg.steps > 0, "Must train for at least 1 step."
+
+    cfg = parse_cfg(cfg)
+    set_seed(cfg.seed)
+    print(colored("Work dir:", "yellow", attrs=["bold"]), cfg.work_dir)
 
     if cfg.instruct:
         instruct_dir = os.path.join(dirname(__file__), "..", "instruct_rl", "instruct", "bert-base-uncased")
         cfg.instruct_path = os.path.abspath(os.path.join(instruct_dir, f"{cfg.instruct}.csv"))
     else:
         cfg.instruct_path = None
+
 
     cfg = parse_cfg(cfg)
     set_seed(cfg.seed)
