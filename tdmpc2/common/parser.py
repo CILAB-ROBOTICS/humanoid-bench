@@ -7,6 +7,19 @@ from omegaconf import OmegaConf
 
 from tdmpc2.common import MODEL_SIZE, TASK_SET
 
+def get_exp_group(cfg: OmegaConf) -> str:
+    """
+    Returns the experiment group based on the task and model size.
+    """
+
+    names = list()
+    names.append(cfg.task)
+
+
+    if cfg.instruct:
+        names.append(f"inst-{cfg.instruct}")
+
+    return "_".join(names)
 
 def parse_cfg(cfg: OmegaConf) -> OmegaConf:
     """
@@ -35,14 +48,8 @@ def parse_cfg(cfg: OmegaConf) -> OmegaConf:
         except:
             pass
 
-    cfg.short_task_name = cfg.task.replace("humanoid_", "")
-
-
-    cfg.exp_group = "_".join([cfg.short_task_name, cfg.exp_name,
-                              f"inst-{cfg.instruct}" if cfg.instruct else "",
-                              f"mod-{cfg.modality}" if cfg.modality else "",
-                              ])
-
+    cfg.exp_group = get_exp_group(cfg)
+    cfg.wb_prefix = f'{cfg.exp_group}.{cfg.exp_name}.{cfg.seed}'
     # Convenience
     cfg.work_dir = (
         Path(hydra.utils.get_original_cwd())
@@ -50,6 +57,9 @@ def parse_cfg(cfg: OmegaConf) -> OmegaConf:
         / cfg.exp_group
         / str(cfg.seed)
     )
+    cfg.short_task_name = cfg.task.replace("humanoid_", "")
+
+
     cfg.task_title = cfg.task.replace("-", " ").title()
     cfg.bin_size = (cfg.vmax - cfg.vmin) / (
         cfg.num_bins - 1

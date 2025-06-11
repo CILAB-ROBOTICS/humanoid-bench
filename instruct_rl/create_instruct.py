@@ -22,7 +22,7 @@ class ConditionFeature(IntEnum):
 class Config:
     def __init__(self):
         self.max_length = 128
-        self.train_ratio = 0.8
+        self.eval_ratio = 0.1
         self.num_scenario = 1
         self.similar_words = True
         self.prompt_path = "instruct_template.json"  # ✨ 경로 수정 필요
@@ -219,7 +219,6 @@ def main():
             # 우선 train 컬럼을 전부 True로 초기화
             prompt_eval_csv["eval"] = False
 
-            # 그룹화하고 그룹별로 20%를 False로 설정
             grouped = prompt_eval_csv.groupby(["condition_0", "condition_1", "condition_2"])
 
             for _, group_indices in grouped.groups.items():

@@ -123,7 +123,7 @@ class Logger:
         self._model_dir = make_dir(self._log_dir / "models")
         self._save_csv = cfg.save_csv
         self._save_agent = cfg.save_agent
-        self._group = cfg_to_group(cfg)
+        self.exp_group = cfg_to_group(cfg)
         self._seed = cfg.seed
         self._eval = []
         print_run(cfg)
@@ -143,12 +143,15 @@ class Logger:
         os.environ["WANDB_SILENT"] = "true" if cfg.wandb_silent else "false"
         import wandb
 
+        now = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+
         wandb.init(
             project=self.project,
             entity=self.entity,
-            name=f"{cfg.task}.tdmpc.{cfg.exp_name}.{cfg.seed}",
-            group=self._group,
-            tags=cfg_to_group(cfg, return_list=True) + [f"seed:{cfg.seed}"],
+            id=f'{cfg.wb_prefix}-{now}',
+            name=cfg.wb_prefix,
+            group=self.exp_group,
+            # tags=cfg_to_group(cfg, return_list=True) + [f"seed:{cfg.seed}"],
             dir=self._log_dir,
             config=OmegaConf.to_container(cfg, resolve=True),
         )
@@ -240,21 +243,22 @@ class Logger:
                 best_path = self._model_dir / "best.pt"
                 agent.save(best_path)
                 self._save_best_meta(step, score)
-                if self._wandb:
-                    artifact = self._wandb.Artifact(
-                        f"{self._group}-{self._seed}-best", type="model"
-                    )
-                    artifact.add_file(best_path)
-                    self._wandb.log_artifact(artifact)
+#                 if self._wandb:
+#                     artifact = self._wandb.Artifact(
+#                         f"{self._group}-{self._seed}-best", type="model"
+#                     )
+#                     artifact.add_file(best_path)
+#                     self._wandb.log_artifact(artifact)
 
         # Optionally log to wandb
-        if self._wandb:
-            artifact = self._wandb.Artifact(
-                f"{self._group}-{self._seed}-{step}", type="model"
-            )
-            artifact.add_file(ckpt_path)
-            artifact.add_file(meta_path)
-            self._wandb.log_artifact(artifact)
+#         if self._wandb:
+#             artifact = self._wandb.Artifact(
+#                 f"{self._group}-{self._seed}-{step}", type="model"
+#             )
+#             artifact.add_file(ckpt_path)
+#             artifact.add_file(meta_path)
+#             self._wandb.log_artifact(artifact)
+
 
     def finish(self, agent=None):
         try:
