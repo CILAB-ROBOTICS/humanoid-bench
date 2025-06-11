@@ -94,14 +94,13 @@ def make_env(cfg):
         cfg.obs_shape = {cfg.get("obs", "state"): env.observation_space.shape}
 
     if cfg.instruct:
-
         try:
             if cfg.modality == "vector":
                 cfg.condition_dim = 3
-                cfg.obs_shape["state"] = [cfg.obs_shape["state"][0] + 3]
+                cfg.obs_shape["proprio"] = [cfg.obs_shape["proprio"][0] + 3]
             elif cfg.modality == "embed":
                 cfg.condition_dim = 768
-                cfg.obs_shape["state"] = [cfg.obs_shape["state"][0] + 768]
+                cfg.obs_shape["proprio"] = [cfg.obs_shape["proprio"][0] + 768]
             else:
                 raise ValueError("Unknown condition modality:", cfg.modality)
         except MissingMandatoryValue:

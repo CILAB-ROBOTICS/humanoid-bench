@@ -38,6 +38,7 @@ docker pull bic4907/humanbench:cu12
 
 The default setup uses **scalar instruction vectors** indicating pressure levels (`0.2`, `0.6`, `1.0`). Example:
 The default arguments for the pressure condition is `instruct=scn-1_se-0` and `modality=vector`.
+Use `overwrite=True` to overwrite existing checkpoints and start training from scratch:
 ```
 gpu=0 bash run.sh python -m tdmpc2.train task=humanoid_h1dualarm-rub-v0 seed=0
 ```
@@ -49,7 +50,6 @@ To train with a combination of vision, tactile, and proprioceptive observations:
 gpu=0 bash run.sh python -m tdmpc2.train \
     task=humanoid_h1dualarm-rub-v0 \
     seed=0 \
-    obs_wrapper=True \
     sensors="proprio,image,tactile"
 ```
 

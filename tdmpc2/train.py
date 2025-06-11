@@ -55,11 +55,6 @@ def train(cfg: dict):
     else:
         cfg.instruct_path = None
 
-
-    cfg = parse_cfg(cfg)
-    set_seed(cfg.seed)
-    print(colored("Work dir:", "yellow", attrs=["bold"]), cfg.work_dir)
-
     if cfg.overwrite and os.path.exists(cfg.work_dir):
         shutil.rmtree(cfg.work_dir)
 
