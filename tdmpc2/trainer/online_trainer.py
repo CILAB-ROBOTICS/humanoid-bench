@@ -34,7 +34,7 @@ class OnlineTrainer(Trainer):
 
         for i in range(self.cfg.eval_episodes):
 
-            eval_set = self.cond_sampler.items(only_eval=True)
+            eval_set = self.cond_sampler.items(only_eval=True) if self.cond_sampler else [None]
 
             for condition in eval_set:
                 obs, done, ep_reward, t = self.env.reset(options={'condition': condition})[0], False, 0, 0
