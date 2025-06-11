@@ -3,7 +3,9 @@ defaults:
 
 # environment
 task: humanoid_h1dualarm-rub-v0
+exp_group: ???
 obs: state
+overwrite: false
 
 exp_group: ???
 exp_name: tdmpc2
@@ -109,6 +111,10 @@ small_obs: ???
 tactile_info: ???
 
 instruct: false
-modality: !!null
 instruct_path: ???
+modality: ???
 condition_dim: ???
+
+
+# W&B Settings
+wb_prefix: ???

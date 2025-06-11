@@ -1,5 +1,6 @@
 import os
 import sys
+import shutil
 from os.path import dirname
 
 
@@ -53,6 +54,14 @@ def train(cfg: dict):
         cfg.instruct_path = os.path.abspath(os.path.join(instruct_dir, f"{cfg.instruct}.csv"))
     else:
         cfg.instruct_path = None
+
+
+    cfg = parse_cfg(cfg)
+    set_seed(cfg.seed)
+    print(colored("Work dir:", "yellow", attrs=["bold"]), cfg.work_dir)
+
+    if cfg.overwrite and os.path.exists(cfg.work_dir):
+        shutil.rmtree(cfg.work_dir)
 
     trainer_cls = OfflineTrainer if cfg.multitask else OnlineTrainer
     trainer = trainer_cls(

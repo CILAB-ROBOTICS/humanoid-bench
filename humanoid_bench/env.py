@@ -11,7 +11,8 @@ from dm_control.mujoco import index
 from dm_control.mujoco.engine import NamedIndexStructs
 
 from humanoid_bench.dmc_wrapper import MjDataWrapper, MjModelWrapper
-from humanoid_bench.envs.dishwash import Dishwash
+from tdmpc2.common.sampler import Condition, ConditionSet
+
 
 from .wrappers import (
     SingleReachWrapper,
@@ -59,6 +60,7 @@ from .envs.floorwipe import FloorWipe
 from .envs.rolling import Rolling
 from .envs.polishing import Polishing
 from .envs.iron import Iron
+from .envs.dishwash import Dishwash
 
 DEFAULT_CAMERA_CONFIG = {
     "trackbodyid": 1,
@@ -309,15 +311,17 @@ if __name__ == "__main__":
         kwargs={
             "robot": "h1dualarm",
             "control": "pos",
-            "task": "iron",
+            "task": "rub",
         },
     )
+
 
     env = gym.make("temp-v0", render_mode="rgb_array")
     ob, _ = env.reset()
     print(f"ob_space = {env.observation_space}, ob = {ob.shape}")
     print(f"ac_space = {env.action_space.shape}")
     env.render()
+
     while True:
         action = env.action_space.sample()
         ob, rew, terminated, truncated, info = env.step(action)

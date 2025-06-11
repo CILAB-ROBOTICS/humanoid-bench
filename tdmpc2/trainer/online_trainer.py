@@ -28,25 +28,35 @@ class OnlineTrainer(Trainer):
     def eval(self):
         """Evaluate a TD-MPC2 agent."""
         ep_rewards, ep_successes = [], []
-        for i in range(self.cfg.eval_episodes):
-            condition = self.cond_sampler.sample() if self.cond_sampler else None
-            obs, done, ep_reward, t = self.env.reset(options={'condition': condition})[0], False, 0, 0
-            if self.cfg.save_video:
-                self.logger.video.init(self.env, enabled=(i == 0))
 
-            while not done:
-                action = self.agent.act(obs, t0=t == 0, eval_mode=True)
-                obs, reward, done, truncated, info = self.env.step(action)
-                done = done or truncated
-                ep_reward += reward
-                t += 1
-                if self.cfg.save_video:
-                    self.logger.video.record(self.env)
-            ep_rewards.append(ep_reward)
-            ep_successes.append(info["success"])
-            if self.cfg.save_video:
-                # self.logger.video.save(self._step)
-                self.logger.video.save(self._step, key='results/video')
+        if self.cfg.save_video:
+            self.logger.video.init(self.env, enabled=True)
+
+        for i in range(self.cfg.eval_episodes):
+
+            eval_set = self.cond_sampler.items(only_eval=True) if self.cond_sampler else [None]
+
+            for condition in eval_set:
+                obs, done, ep_reward, t = self.env.reset(options={'condition': condition})[0], False, 0, 0
+
+                while not done:
+                    action = self.agent.act(obs, t0=t == 0, eval_mode=True)
+                    obs, reward, done, truncated, info = self.env.step(action)
+
+                    done = done or truncated
+                    ep_reward += reward
+
+                    t += 1
+
+                    if self.cfg.save_video and i == 0:
+                        self.logger.video.record(self.env)
+
+                ep_rewards.append(ep_reward)
+                ep_successes.append(info["progress"])
+
+        if self.cfg.save_video:
+            self.logger.video.save(self._step, key='results/video')
+
         return dict(
             episode_reward=np.nanmean(ep_rewards),
             episode_success=np.nanmean(ep_successes),
