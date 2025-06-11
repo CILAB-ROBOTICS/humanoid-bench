@@ -3,7 +3,7 @@ defaults:
 
 # environment
 task: humanoid_h1dualarm-rub-v0
-obs: state
+obs: multi-modal
 
 exp_group: ???
 exp_name: tdmpc2
@@ -107,6 +107,7 @@ mean_path: ???
 var_path: ???
 policy_type: ???
 small_obs: ???
+sensors: proprio
 tactile_info: ???
 
 instruct: scn-1_se-0

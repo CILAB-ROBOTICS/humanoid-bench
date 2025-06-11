@@ -22,10 +22,22 @@ class HumanoidWrapper(gym.Wrapper):
         self.env = env
         self.cfg = cfg
 
+    @staticmethod
+    def _process_obs(obs):
+        if isinstance(obs, dict):
+            for key, value in obs.items():
+                obs[key] = value.astype(np.float32)
+        else:
+            obs = obs.astype(np.float32)
+        return obs
+
+    def reset(self, options=None):
+        obs, info = self.env.reset(options=options)
+        return self._process_obs(obs), info
+
     def step(self, action):
         obs, reward, done, truncated, info = self.env.step(action.copy())
-        obs = obs.astype(np.float32)
-        return obs, reward, done, truncated, info
+        return self._process_obs(obs), reward, done, truncated, info
 
     @property
     def unwrapped(self):
@@ -63,6 +75,8 @@ def make_env(cfg):
         var_path=var_path,
         policy_type=policy_type,
         small_obs=small_obs,
+        obs_wrapper='true' if cfg.obs == "multi-modal" else None,
+        sensors=cfg.sensors if cfg.obs == "multi-modal" else None,
         tactile_info=tactile_info,
     )
     env = HumanoidWrapper(env, cfg)

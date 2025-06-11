@@ -1,3 +1,4 @@
+import math
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -135,6 +136,27 @@ def mlp(in_dim, mlp_dims, out_dim, act=None, dropout=0.0):
     return nn.Sequential(*mlp)
 
 
+def mlp_tac(in_dims, mlp_dims, out_dim, act=None, dropout=0.0):
+    """
+    Basic building block of TD-MPC2.
+    MLP with LayerNorm, Mish activations, and optionally dropout.
+    """
+    if isinstance(mlp_dims, int):
+        mlp_dims = [mlp_dims]
+    dims = [math.prod(in_dims)] + mlp_dims + [out_dim]
+    mlp = nn.ModuleList([
+        torch.nn.Flatten(start_dim=-3, end_dim=-1),
+    ])
+    for i in range(len(dims) - 2):
+        mlp.append(NormedLinear(dims[i], dims[i + 1], dropout=dropout * (i == 0)))
+    mlp.append(
+        NormedLinear(dims[-2], dims[-1], act=act)
+        if act
+        else nn.Linear(dims[-2], dims[-1])
+    )
+    return nn.Sequential(*mlp)
+
+
 def conv(in_shape, num_channels, act=None):
     """
     Basic convolutional encoder for TD-MPC2 with raw image observations.
@@ -162,6 +184,7 @@ def enc(cfg, out={}):
     """
     Returns a dictionary of encoders for each observation in the dict.
     """
+    hidden_dim = 0
     for k in cfg.obs_shape.keys():
         if k == "state":
             out[k] = mlp(
@@ -170,10 +193,34 @@ def enc(cfg, out={}):
                 cfg.latent_dim,
                 act=SimNorm(cfg),
             )
+            out_dim = cfg.enc_dim
         elif k == "rgb":
             out[k] = conv(cfg.obs_shape[k], cfg.num_channels, act=SimNorm(cfg))
+            out_dim = cfg.num_channels * 4 * 4
+        elif k == "proprio":
+            out[k] = mlp(
+                cfg.obs_shape[k][0] + cfg.task_dim,
+                max(cfg.num_enc_layers - 1, 1) * [cfg.enc_dim],
+                cfg.enc_dim,
+                act=SimNorm(cfg),
+            )
+            out_dim = cfg.enc_dim
+        elif k.endswith("_eye"):
+            out[k] = conv(cfg.obs_shape[k], cfg.num_channels, act=SimNorm(cfg))
+            out_dim = cfg.num_channels * 4 * 4
+        elif k.startswith("tactile_"):
+            out[k] = mlp_tac(
+                cfg.obs_shape[k],
+                max(cfg.num_enc_layers - 1, 1) * [cfg.enc_dim],
+                cfg.enc_dim,
+                act=SimNorm(cfg),
+            )
+            out_dim = cfg.enc_dim
         else:
             raise NotImplementedError(
                 f"Encoder for observation type {k} not implemented."
             )
-    return nn.ModuleDict(out)
+        hidden_dim += out_dim
+    return nn.Sequential(
+        nn.ModuleDict(out), nn.Linear(hidden_dim, cfg.latent_dim)
+    )
