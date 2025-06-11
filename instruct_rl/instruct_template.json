@@ -6,7 +6,7 @@
     },
     "strength": {
         "gentle": {
-            "value": 0.0,
+            "value": 0.2,
             "similar": [
                 "The surface is touched with very light pressure",
                 "There is almost no resistance from the motion",
@@ -31,7 +31,7 @@
             ]
         },
         "moderate": {
-            "value": 0.5,
+            "value": 0.6,
             "similar": [
                 "The surface is pressed with medium pressure",
                 "There is clear but controlled force",

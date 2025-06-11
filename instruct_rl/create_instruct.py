@@ -217,16 +217,17 @@ def main():
             )
 
             # 우선 train 컬럼을 전부 True로 초기화
-            prompt_eval_csv["train"] = True
+            prompt_eval_csv["eval"] = False
 
             # 그룹화하고 그룹별로 20%를 False로 설정
             grouped = prompt_eval_csv.groupby(["condition_0", "condition_1", "condition_2"])
 
             for _, group_indices in grouped.groups.items():
                 group_indices = list(group_indices)
-                n_test = max(1, int(len(group_indices) * 0.2))  # 그룹마다 최소 1개는 테스트
+                # n_test = max(1, int(len(group_indices) * 0.2))  # 그룹마다 최소 1개는 테스트
+                n_test = 1
                 test_indices = np.random.choice(group_indices, size=n_test, replace=False)
-                prompt_eval_csv.loc[test_indices, "train"] = False
+                prompt_eval_csv.loc[test_indices, "eval"] = True
 
             prompt_eval_csv.to_csv(save_path, index=False)
             print(f"Saved to {save_path}")
