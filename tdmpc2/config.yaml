@@ -8,7 +8,8 @@ obs: state
 exp_group: ???
 exp_name: tdmpc2
 short_task_name: ???
-
+wb_prefix: ???
+overwrite: false
 
 model_dir: ???
 
@@ -108,7 +109,7 @@ policy_type: ???
 small_obs: ???
 tactile_info: ???
 
-instruct: false
-modality: !!null
+instruct: scn-1_se-0
+modality: vector
 instruct_path: ???
 condition_dim: ???
