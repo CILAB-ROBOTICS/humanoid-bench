@@ -17,7 +17,7 @@ cd humanoid-bench
 cp .env.example .env
 ```
 
-### Configure API Key (for logging with [Weight & Biases](https://wandb.ai/]))
+### Configure API Key (for logging with [Weight & Biases](https://wandb.ai/))
 Replace the placeholder with your actual WandB API key:
 
 ```
