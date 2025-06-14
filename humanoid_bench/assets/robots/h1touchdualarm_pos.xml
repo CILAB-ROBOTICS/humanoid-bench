@@ -381,7 +381,7 @@
                                 <body name='left_hand' pos='0.169 0 -0.02912' quat="0 1 0 1">
                                     <inertial mass="0.001" pos="0 0 0.001" diaginertia="1e-05 1e-05 1e-05"/>
                                     <joint name="left_wrist_yaw" axis="0 0 1" range="-0.15 1.57"/>
-                                    <include file="../shadow_hand_submodel/left_hand.xml"/>
+                                    <include file="../shadow_hand_submodel/left_hand_fsr.xml"/>
                                 </body>
                             </body>
                         </body>
@@ -411,7 +411,7 @@
                                 <body name='right_hand' pos='0.169 0 -0.02912' quat="0 1 0 1">
                                     <inertial mass="0.001" pos="0 0 0.001" diaginertia="1e-05 1e-05 1e-05"/>
                                     <joint name="right_wrist_yaw" axis="0 0 -1" range="-0.15 1.57"/>
-                                    <include file="../shadow_hand_submodel/right_hand.xml"/>
+                                    <include file="../shadow_hand_submodel/right_hand_fsr.xml"/>
                                 </body>
                             </body>
                         </body>
@@ -565,6 +565,6 @@
         <velocimeter name="body_velocimeter" site="com"/>
     </sensor>
 
-    <include file="../shadow_hand_submodel/touch_sensors.xml"/>
+    <include file="../shadow_hand_submodel/touch_sensors_fsr.xml"/>
 
 </mujoco>
