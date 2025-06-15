@@ -481,20 +481,15 @@ class ObservationWrapper(BaseWrapper):
             spaces.append(("proprio", proprio_space))
 
         if self._tactile_ob:
-            tactile_example = self.get_tactile_obs()
-            tactile_spaces = [
-                (
-                    key,
-                    Box(
-                        low=-np.inf,
-                        high=np.inf,
-                        shape=tactile_example[key].shape,
-                        dtype=np.float64,
-                    ),
-                )
-                for key in tactile_example
-            ]
-            spaces.extend(tactile_spaces)
+            tactile_obs = self.get_tactile_obs()
+
+            tactile_space = Box(
+                low=-np.inf,
+                high=np.inf,
+                shape=(len(tactile_obs),),
+                dtype=np.float64,
+            )
+            spaces.append(("tactile", tactile_space))
 
         if self._camera_ob:
             image_example = self.get_camera_obs()
@@ -524,7 +519,9 @@ class ObservationWrapper(BaseWrapper):
 
         if self._tactile_ob:
             tactile = self.get_tactile_obs()
-            obses.extend(list(tactile.items()))
+            tactile_values = list(tactile.values())
+            tactile_tensor = np.concatenate(tactile_values, axis=0)
+            obses.append(("tactile", tactile_tensor))
 
         if self._camera_ob:
             camera = self.get_camera_obs()
@@ -551,6 +548,7 @@ class ObservationWrapper(BaseWrapper):
         """
         model = self.task._env.model
         data = self.task._env.data
+
         sensor_names = [
             mujoco.mj_id2name(model, mujoco.mjtObj.mjOBJ_SENSOR, i)
             for i in range(model.nsensor)
@@ -564,11 +562,14 @@ class ObservationWrapper(BaseWrapper):
             ]
         )
 
-        for key in touch:
-            if key != "tactile_torso":
-                touch[key] = touch[key].reshape(3, 2, 4)[[1, 2, 0]]
-            else:
-                touch[key] = touch[key].reshape(3, 4, 8)[[1, 2, 0]]
+        # for key in touch:
+        #     if key != "tactile_torso":
+        #         print(f"Reshaping tactile data for {key} from {touch[key].shape} to (3, 2, 4)")
+        #         pass
+        #         # touch[key] = touch[key].reshape(3, 2, 4)[[1, 2, 0]]
+        #     else:
+        #         pass
+        #         # touch[key] = touch[key].reshape(3, 4, 8)[[1, 2, 0]]
 
         return touch
 

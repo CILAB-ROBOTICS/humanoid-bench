@@ -208,9 +208,9 @@ def enc(cfg, out={}):
         elif k.endswith("_eye"):
             out[k] = conv(cfg.obs_shape[k], cfg.num_channels, act=SimNorm(cfg))
             out_dim = cfg.num_channels * 4 * 4
-        elif k.startswith("tactile_"):
-            out[k] = mlp_tac(
-                cfg.obs_shape[k],
+        elif k.startswith("tactile"):
+            out[k] = mlp(
+                cfg.obs_shape[k][0],
                 max(cfg.num_enc_layers - 1, 1) * [cfg.enc_dim],
                 cfg.enc_dim,
                 act=SimNorm(cfg),
