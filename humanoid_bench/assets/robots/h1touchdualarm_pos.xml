@@ -110,6 +110,8 @@
                     <geom group="3"/>
                 </default>
             </default>
+
+            <site size="0.009" rgba="0 0 0 0"/>
         </default>
     </default>
 
@@ -180,9 +182,16 @@
                     <geom group="3"/>
                 </default>
             </default>
+
+            <site size="0.009" rgba="0 0 0 0"/>
         </default>
     </default>
 
+    <default>
+        <default class="fsr">
+            <geom size="0.009 0.00025" mass="0.0015" rgba="0 0 0 0"/>
+        </default>
+    </default>
 
     <asset>
         <material name="black_sh" specular="0.5" shininess="0.25" rgba="0.16355 0.16355 0.16355 1"/>
@@ -381,7 +390,7 @@
                                 <body name='left_hand' pos='0.169 0 -0.02912' quat="0 1 0 1">
                                     <inertial mass="0.001" pos="0 0 0.001" diaginertia="1e-05 1e-05 1e-05"/>
                                     <joint name="left_wrist_yaw" axis="0 0 1" range="-0.15 1.57"/>
-                                    <include file="../shadow_hand_submodel/left_hand.xml"/>
+                                    <include file="../shadow_hand_submodel/left_hand_fsr.xml"/>
                                 </body>
                             </body>
                         </body>
@@ -411,7 +420,7 @@
                                 <body name='right_hand' pos='0.169 0 -0.02912' quat="0 1 0 1">
                                     <inertial mass="0.001" pos="0 0 0.001" diaginertia="1e-05 1e-05 1e-05"/>
                                     <joint name="right_wrist_yaw" axis="0 0 -1" range="-0.15 1.57"/>
-                                    <include file="../shadow_hand_submodel/right_hand.xml"/>
+                                    <include file="../shadow_hand_submodel/right_hand_fsr.xml"/>
                                 </body>
                             </body>
                         </body>
@@ -445,6 +454,39 @@
         <exclude body1="lh_palm" body2="lh_mfproximal"/>
         <exclude body1="lh_palm" body2="lh_ffproximal"/>
         <exclude body1="lh_lfmetacarpal" body2="lh_lfproximal"/>
+
+        <exclude body1="lh_ffknuckle_fsr" body2="lh_ffknuckle"/>
+        <exclude body1="lh_ffknuckle_fsr" body2="lh_palm"/>
+        <exclude body1="lh_ffproximal_fsr" body2="lh_ffproximal"/>
+        <exclude body1="lh_ffmiddle_fsr" body2="lh_ffproximal"/>
+        <exclude body1="lh_ffdistal_fsr" body2="lh_ffdistal"/>
+
+        <exclude body1="lh_mfknuckle_fsr" body2="lh_mfknuckle"/>
+        <exclude body1="lh_mfknuckle_fsr" body2="lh_palm"/>
+        <exclude body1="lh_mfproximal_fsr" body2="lh_mfproximal"/>
+        <exclude body1="lh_mfmiddle_fsr" body2="lh_mfproximal"/>
+        <exclude body1="lh_mfdistal_fsr" body2="lh_mfdistal"/>
+
+        <exclude body1="lh_rfknuckle_fsr" body2="lh_rfknuckle"/>
+        <exclude body1="lh_rfknuckle_fsr" body2="lh_palm"/>
+        <exclude body1="lh_rfproximal_fsr" body2="lh_rfproximal"/>
+        <exclude body1="lh_rfmiddle_fsr" body2="lh_rfproximal"/>
+        <exclude body1="lh_rfdistal_fsr" body2="lh_rfdistal"/>
+
+        <exclude body1="lh_lfknuckle_fsr" body2="lh_lfknuckle"/>
+        <exclude body1="lh_lfknuckle_fsr" body2="lh_lfmetacarpal"/>
+        <exclude body1="lh_lfproximal_fsr" body2="lh_lfproximal"/>
+        <exclude body1="lh_lfmiddle_fsr" body2="lh_lfproximal"/>
+        <exclude body1="lh_lfdistal_fsr" body2="lh_lfdistal"/>
+
+        <exclude body1="lh_thproximal_fsr" body2="lh_palm"/>
+        <exclude body1="lh_thproximal_fsr" body2="lh_thproximal"/>
+        <exclude body1="lh_thmiddle_fsr" body2="lh_thproximal"/>
+        <exclude body1="lh_thmiddle_fsr" body2="lh_thmiddle"/>
+        <exclude body1="lh_thdistal_fsr" body2="lh_thdistal"/>
+
+        <exclude body1="lh_palm_fsr" body2="lh_palm"/>
+        <exclude body1="lh_palm_fsr" body2="lh_lfmetacarpal"/>
     </contact>
 
     <tendon>
@@ -499,6 +541,39 @@
         <exclude body1="rh_palm" body2="rh_mfproximal"/>
         <exclude body1="rh_palm" body2="rh_ffproximal"/>
         <exclude body1="rh_lfmetacarpal" body2="rh_lfproximal"/>
+
+        <exclude body1="rh_ffknuckle_fsr" body2="rh_ffknuckle"/>
+        <exclude body1="rh_ffknuckle_fsr" body2="rh_palm"/>
+        <exclude body1="rh_ffproximal_fsr" body2="rh_ffproximal"/>
+        <exclude body1="rh_ffmiddle_fsr" body2="rh_ffproximal"/>
+        <exclude body1="rh_ffdistal_fsr" body2="rh_ffdistal"/>
+
+        <exclude body1="rh_mfknuckle_fsr" body2="rh_mfknuckle"/>
+        <exclude body1="rh_mfknuckle_fsr" body2="rh_palm"/>
+        <exclude body1="rh_mfproximal_fsr" body2="rh_mfproximal"/>
+        <exclude body1="rh_mfmiddle_fsr" body2="rh_mfproximal"/>
+        <exclude body1="rh_mfdistal_fsr" body2="rh_mfdistal"/>
+
+        <exclude body1="rh_rfknuckle_fsr" body2="rh_rfknuckle"/>
+        <exclude body1="rh_rfknuckle_fsr" body2="rh_palm"/>
+        <exclude body1="rh_rfproximal_fsr" body2="rh_rfproximal"/>
+        <exclude body1="rh_rfmiddle_fsr" body2="rh_rfproximal"/>
+        <exclude body1="rh_rfdistal_fsr" body2="rh_rfdistal"/>
+
+        <exclude body1="rh_lfknuckle_fsr" body2="rh_lfknuckle"/>
+        <exclude body1="rh_lfknuckle_fsr" body2="rh_lfmetacarpal"/>
+        <exclude body1="rh_lfproximal_fsr" body2="rh_lfproximal"/>
+        <exclude body1="rh_lfmiddle_fsr" body2="rh_lfproximal"/>
+        <exclude body1="rh_lfdistal_fsr" body2="rh_lfdistal"/>
+
+        <exclude body1="rh_thproximal_fsr" body2="rh_palm"/>
+        <exclude body1="rh_thproximal_fsr" body2="rh_thproximal"/>
+        <exclude body1="rh_thmiddle_fsr" body2="rh_thproximal"/>
+        <exclude body1="rh_thmiddle_fsr" body2="rh_thmiddle"/>
+        <exclude body1="rh_thdistal_fsr" body2="rh_thdistal"/>
+
+        <exclude body1="rh_palm_fsr" body2="rh_palm"/>
+        <exclude body1="rh_palm_fsr" body2="rh_lfmetacarpal"/>
     </contact>
 
     <tendon>
@@ -554,6 +629,24 @@
         <weld name="lock_right_hip_pitch" body1="right_hip_roll_link" body2="right_hip_pitch_link"/>
         <weld name="lock_right_knee" body1="right_hip_pitch_link" body2="right_knee_link"/>
         <weld name="lock_right_ankle" body1="right_knee_link" body2="right_ankle_link"/>
+
+        <weld name="lock_lh_palm_fsr" body1="lh_palm" body2="lh_palm_fsr" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
+        <weld name="lock_lh_thproximal_fsr" body1="lh_thproximal" body2="lh_palm_fsr" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
+        <weld name="lock_lh_thmiddle_fsr" body1="lh_thmiddle" body2="lh_thmiddle_fsr" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
+        <weld name="lock_lh_thdistal_fsr" body1="lh_thdistal" body2="lh_thdistal_fsr" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
+        <weld name="lock_lh_ffknuckle_fsr" body1="lh_ffknuckle" body2="lh_ffknuckle_fsr" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
+        <weld name="lock_lh_ffproximal_fsr" body1="lh_ffproximal" body2="lh_ffproximal_fsr" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
+        <weld name="lock_lh_ffmiddle_fsr" body1="lh_ffmiddle" body2="lh_ffmiddle_fsr" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
+        <weld name="lock_lh_ffdistal_fsr" body1="lh_ffdistal" body2="lh_ffdistal_fsr" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
+
+        <weld name="lock_rh_palm_fsr" body1="rh_palm" body2="rh_palm_fsr" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
+        <weld name="lock_rh_thproximal_fsr" body1="rh_thproximal" body2="rh_palm_fsr" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
+        <weld name="lock_rh_thmiddle_fsr" body1="rh_thmiddle" body2="rh_thmiddle_fsr" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
+        <weld name="lock_rh_thdistal_fsr" body1="rh_thdistal" body2="rh_thdistal_fsr" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
+        <weld name="lock_rh_ffknuckle_fsr" body1="rh_ffknuckle" body2="rh_ffknuckle_fsr" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
+        <weld name="lock_rh_ffproximal_fsr" body1="rh_ffproximal" body2="rh_ffproximal_fsr" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
+        <weld name="lock_rh_ffmiddle_fsr" body1="rh_ffmiddle" body2="rh_ffmiddle_fsr" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
+        <weld name="lock_rh_ffdistal_fsr" body1="rh_ffdistal" body2="rh_ffdistal_fsr" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
     </equality>
 
     <sensor>
@@ -565,6 +658,6 @@
         <velocimeter name="body_velocimeter" site="com"/>
     </sensor>
 
-    <include file="../shadow_hand_submodel/touch_sensors.xml"/>
+    <include file="../shadow_hand_submodel/touch_sensors_fsr.xml"/>
 
 </mujoco>
