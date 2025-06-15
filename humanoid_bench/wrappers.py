@@ -464,8 +464,8 @@ class ObservationWrapper(BaseWrapper):
 
         if self._tactile_ob:
             assert (
-                "H1Touch" == task.unwrapped._env.robot.__class__.__name__
-            ), "Tactile observations are only available for H1Touch robot"
+                task.unwrapped._env.robot.__class__.__name__ in ["H1Touch", "H1TouchDualArm"]
+            ), "Tactile observations are only available for H1Touch/H1TouchDualArm robot"
 
     @property
     def observation_space(self):
