@@ -48,16 +48,16 @@ def print_run(cfg):
     """
     prefix, color, attrs = "  ", "green", ["bold"]
 
-    def _limstr(s, maxlen=36):
+    def _limstr(s, maxlen=100):
         return str(s[:maxlen]) + "..." if len(str(s)) > maxlen else s
 
     def _pprint(k, v):
         print(
-            prefix + colored(f'{k.capitalize()+":":<15}', color, attrs=attrs),
+            prefix + colored(f'{k.capitalize()+":":<20}', color, attrs=attrs),
             _limstr(v),
         )
 
-    observations = ", ".join([str(v) for v in cfg.obs_shape.values()])
+    observations = ", ".join([f'{k}: {v}' for k, v in cfg.obs_shape.items()])
     kvs = [
         ("task", cfg.task_title),
         ("steps", f"{int(cfg.steps):,}"),

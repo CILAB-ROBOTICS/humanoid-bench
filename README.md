@@ -50,7 +50,7 @@ To train with a combination of vision, tactile, and proprioceptive observations:
 gpu=0 bash run.sh python -m tdmpc2.train \
     task=humanoid_h1dualarm-rub-v0 \
     seed=0 \
-    sensors="proprio,image,tactile"
+    sensors=\"proprio,image,tactile\"
 ```
 
 **Available Modalities:**
