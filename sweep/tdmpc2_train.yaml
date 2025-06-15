@@ -2,21 +2,29 @@ parameters:
   task:
     distribution: categorical
     values:
-      - humanoid_h1dualarm-rub-v0
-      - humanoid_h1dualarm-window-v0
-      - humanoid_h1dualarm-standpush-v0
-      - humanoid_h1dualarm-dishwash-v0
-      - humanoid_h1dualarm-floorwipe-v0
-      - humanoid_h1dualarm-rolling-v0
-      - humanoid_h1dualarm-polishing-v0
+      - humanoid_h1touch-rub-v0
+#      - humanoid_h1dualarm-window-v0
+#      - humanoid_h1dualarm-standpush-v0
+#      - humanoid_h1dualarm-dishwash-v0
+#      - humanoid_h1dualarm-floorwipe-v0
+#      - humanoid_h1dualarm-rolling-v0
+#      - humanoid_h1dualarm-polishing-v0
   seed:
     distribution: categorical
     values:
       - 0
+      - 1
+      - 2
+  sensors:
+    distribution: categorical
+    values:
+        - proprio
+        - proprio/tactile
+        - proprio/image/tactile
 method: grid
 metric:
   goal: maximize
-  name: eval/episode_reward
+  name: eval/episode_success
 program: tdmpc2.train
 command:
 - ${interpreter}

@@ -456,7 +456,7 @@ class ObservationWrapper(BaseWrapper):
 
         super().__init__(task)
 
-        sensors = kwargs.get("sensors").split(",")
+        sensors = kwargs.get("sensors").split("/")
         self._proprio_ob = "proprio" in sensors
         self._tactile_ob = "tactile" in sensors
         self._camera_ob = "image" in sensors
