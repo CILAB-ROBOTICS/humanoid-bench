@@ -2,7 +2,7 @@ parameters:
   task:
     distribution: categorical
     values:
-      - humanoid_h1touch-rub-v0
+      - humanoid_h1touchdualarm-rub-v0
 #      - humanoid_h1dualarm-window-v0
 #      - humanoid_h1dualarm-standpush-v0
 #      - humanoid_h1dualarm-dishwash-v0
