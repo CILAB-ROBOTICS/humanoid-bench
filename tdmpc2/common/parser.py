@@ -17,7 +17,7 @@ def get_exp_group(cfg: OmegaConf) -> str:
 
     sensor_split = cfg.sensors.split("/") if cfg.sensors else []
 
-    if len(sensor_split) > 1:
+    if len(sensor_split) > 0:
         # get the first character of the sensor names
         sensor_names = [s[0] for s in sensor_split]
         names.append("obs-" + "".join(sensor_names))
