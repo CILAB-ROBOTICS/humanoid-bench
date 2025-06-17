@@ -263,9 +263,11 @@ class HumanoidEnv(MujocoEnv, gym.utils.EzPickle):
 
         if self.condition is not None:
             cond_obs = self.get_condition_obs()
-            obs['proprio'] = np.concatenate(
-                [obs['proprio'], cond_obs], axis=-1
-            )
+
+            if type(obs) == dict:
+                obs['condition'] = cond_obs
+            else:
+                obs = np.concatenate([obs, cond_obs])
 
         return obs, reward, t1, t2, info
 
@@ -290,8 +292,11 @@ class HumanoidEnv(MujocoEnv, gym.utils.EzPickle):
         if self.condition is not None:
             cond_obs = self.get_condition_obs()
 
-            task_obs['proprio'] = np.concatenate([task_obs['proprio'], cond_obs], axis=-1)
-            obs = task_obs
+            if type(task_obs) == dict:
+                task_obs['condition'] = cond_obs
+                obs = task_obs
+            else:
+                obs = np.concatenate([task_obs, cond_obs])
         else:
             obs = task_obs
 
