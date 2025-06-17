@@ -1,3 +1,6 @@
+import mujoco
+
+
 class H1:
     dof = 26
 
@@ -89,6 +92,45 @@ class H1DualArm(H1):
 
 class H1TouchDualArm(H1):
     dof = 76
+
+    def left_tactile(self):
+        model = self._env.model
+        data = self._env.data
+
+        sensor_names = [
+            mujoco.mj_id2name(model, mujoco.mjtObj.mjOBJ_SENSOR, i)
+            for i in range(model.nsensor)
+        ]
+
+        touch = dict(
+            [
+                ("_".join(["tactile", *name.split("_")[:-1]]), data.sensor(name).data)
+                for i, name in enumerate(sensor_names)
+                if name.startswith("lh") and name.endswith("_touch")
+            ]
+        )
+
+        return touch
+
+    def right_tactile(self):
+        model = self._env.model
+        data = self._env.data
+
+        sensor_names = [
+            mujoco.mj_id2name(model, mujoco.mjtObj.mjOBJ_SENSOR, i)
+            for i in range(model.nsensor)
+        ]
+
+        touch = dict(
+            [
+                ("_".join(["tactile", *name.split("_")[:-1]]), data.sensor(name).data)
+                for i, name in enumerate(sensor_names)
+                if name.startswith("rh") and name.endswith("_touch")
+            ]
+        )
+
+        return touch
+
 
 class G1 (H1):
     dof = 44
