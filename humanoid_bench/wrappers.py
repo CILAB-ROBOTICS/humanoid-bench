@@ -462,6 +462,11 @@ class ObservationWrapper(BaseWrapper):
         self._camera_ob = "image" in sensors
         self._privileged_ob = "privileged" in sensors
 
+        self.n_prev_tactile_ob = 2 # number of previous tactile observations to be averaged
+        self.prev_tactile_ob = np.zeros(
+            (self.n_prev_tactile_ob, self.get_tactile_obs().shape[0])
+        )
+
         if self._tactile_ob:
             assert (
                 task.unwrapped._env.robot.__class__.__name__ in ["H1Touch", "H1TouchDualArm"]
@@ -519,9 +524,15 @@ class ObservationWrapper(BaseWrapper):
 
         if self._tactile_ob:
             tactile = self.get_tactile_obs()
-            tactile_values = list(tactile.values())
-            tactile_tensor = np.concatenate(tactile_values, axis=0)
-            obses.append(("tactile", tactile_tensor))
+
+            # push the current tactile observation to the previous ones
+            self.prev_tactile_ob = np.roll(self.prev_tactile_ob, shift=-1, axis=0)
+            self.prev_tactile_ob[-1] = tactile
+
+            # average the previous tactile observations
+            tactile = np.mean(self.prev_tactile_ob, axis=0)
+
+            obses.append(("tactile", tactile))
 
         if self._camera_ob:
             camera = self.get_camera_obs()
@@ -562,16 +573,16 @@ class ObservationWrapper(BaseWrapper):
             ]
         )
 
-        # for key in touch:
-        #     if key != "tactile_torso":
-        #         print(f"Reshaping tactile data for {key} from {touch[key].shape} to (3, 2, 4)")
-        #         pass
-        #         # touch[key] = touch[key].reshape(3, 2, 4)[[1, 2, 0]]
-        #     else:
-        #         pass
-        #         # touch[key] = touch[key].reshape(3, 4, 8)[[1, 2, 0]]
+        tactile_values = list(touch.values())
+        tactile_tensor = np.concatenate(tactile_values, axis=0)
 
-        return touch
+        _MIN_FORCE = 0.0
+        _MAX_FORCE = 600.0
+
+        tactile_tensor = np.clip(tactile_tensor, _MIN_FORCE, _MAX_FORCE)
+        tactile_tensor = (tactile_tensor - _MIN_FORCE) / (_MAX_FORCE - _MIN_FORCE)
+
+        return tactile_tensor
 
     def step(self, action):
         _, rew, terminated, truncated, info = self.task.step(action)
@@ -595,6 +606,11 @@ class ObservationWrapper(BaseWrapper):
             / (self.task._env.action_high - self.task._env.action_low)
             - 1
         )
+
+    def reset_model(self):
+        self.task.reset_model()
+
+        return self.get_obs()
 
 
 class TactileInfoWrapper(BaseWrapper):
