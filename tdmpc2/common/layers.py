@@ -216,6 +216,14 @@ def enc(cfg, out={}):
                 act=SimNorm(cfg),
             )
             out_dim = cfg.enc_dim
+        elif k == "condition":
+            out[k] = mlp(
+                cfg.obs_shape[k][0] + cfg.task_dim,
+                max(cfg.num_enc_layers - 1, 1) * [cfg.enc_dim],
+                cfg.enc_dim,
+                act=SimNorm(cfg),
+            )
+            out_dim = cfg.enc_dim
         else:
             raise NotImplementedError(
                 f"Encoder for observation type {k} not implemented."

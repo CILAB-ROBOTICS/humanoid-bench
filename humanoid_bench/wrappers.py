@@ -461,6 +461,7 @@ class ObservationWrapper(BaseWrapper):
         self._tactile_ob = "tactile" in sensors
         self._camera_ob = "image" in sensors
         self._privileged_ob = "privileged" in sensors
+        self._condition_dim = kwargs.get("condition_dim", None)
 
         self.n_prev_tactile_ob = 2 # number of previous tactile observations to be averaged
         self.prev_tactile_ob = np.zeros(
@@ -513,6 +514,15 @@ class ObservationWrapper(BaseWrapper):
             privileged_space = self._env.observation_space
             spaces.append(("privileged", privileged_space))
 
+        if self._condition_dim:
+            condition_space = Box(
+                low=-np.inf,
+                high=np.inf,
+                shape=(self._condition_dim,),
+                dtype=np.float64,
+            )
+            spaces.append(("condition", condition_space))
+
         return Dict(spaces)
 
     def get_obs(self):
@@ -541,6 +551,10 @@ class ObservationWrapper(BaseWrapper):
         if self._privileged_ob:
             privileged = self.task.get_obs()
             obses.append(("privileged", privileged))
+
+        if self._condition_dim:
+            condition = self._env.get_condition_obs()
+            obses.append(("condition", condition))
 
         return dict(obses)
 

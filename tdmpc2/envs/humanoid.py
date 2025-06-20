@@ -1,5 +1,6 @@
 import os
 import sys
+from omegaconf import MissingMandatoryValue
 
 import numpy as np
 import gymnasium as gym
@@ -65,6 +66,17 @@ def make_env(cfg):
     tactile_info = cfg.get("tactile_info", None)
     if tactile_info is not None:
         tactile_info = str(tactile_info)
+    condition_dim = None
+    if cfg.instruct:
+        try:
+            if cfg.modality == "vector":
+                condition_dim = 3
+            elif cfg.modality == "embed":
+                condition_dim = 768
+            else:
+                raise ValueError("Unknown condition modality:", cfg.modality)
+        except MissingMandatoryValue:
+            raise ValueError("Condition modality not specified in config.")
 
     print("small obs start:", small_obs)
 
@@ -78,6 +90,7 @@ def make_env(cfg):
         obs_wrapper='true' if cfg.obs == "multi-modal" else None,
         sensors=cfg.sensors if cfg.obs == "multi-modal" else None,
         tactile_info=tactile_info,
+        condition_dim=condition_dim,
     )
     env = HumanoidWrapper(env, cfg)
     env.max_episode_steps = env.get_wrapper_attr("_max_episode_steps")
