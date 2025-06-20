@@ -48,7 +48,7 @@ def print_run(cfg):
     """
     prefix, color, attrs = "  ", "green", ["bold"]
 
-    def _limstr(s, maxlen=100):
+    def _limstr(s, maxlen=120):
         return str(s[:maxlen]) + "..." if len(str(s)) > maxlen else s
 
     def _pprint(k, v):

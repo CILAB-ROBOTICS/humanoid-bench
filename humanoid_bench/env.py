@@ -272,7 +272,10 @@ class HumanoidEnv(MujocoEnv, gym.utils.EzPickle):
         return obs, reward, t1, t2, info
 
     def get_condition_obs(self):
-        return self.condition.get_feature()
+        if self.condition is not None:
+            return self.condition.get_feature()
+        else:
+            return np.zeros(3, dtype=np.float32)
 
     def reset_model(self):
         mujoco.mj_resetDataKeyframe(self.model, self.data, self.keyframe)
