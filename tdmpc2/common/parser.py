@@ -25,6 +25,8 @@ def get_exp_group(cfg: OmegaConf) -> str:
     if cfg.instruct:
         names.append(f"inst-{cfg.instruct}")
 
+    names.append(f"exp-{cfg.exp_name}")
+
     return "_".join(names)
 
 def parse_cfg(cfg: OmegaConf) -> OmegaConf:
