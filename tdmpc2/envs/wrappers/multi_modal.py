@@ -13,7 +13,7 @@ class MultimodalWrapper(gym.Wrapper):
     def __init__(
         self, cfg, env,
         image_frames=3, image_size=64,
-        tactile_frames=10,
+        tactile_frames=1,
     ):
         super().__init__(env)
         self.cfg = cfg
