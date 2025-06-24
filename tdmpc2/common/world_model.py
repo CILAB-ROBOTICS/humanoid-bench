@@ -118,22 +118,11 @@ class WorldModel(nn.Module):
         """
         if self.cfg.multitask:
             obs = self.task_emb(obs, task)
-        encoder, projector = self._encoder
-
         if self.cfg.obs == "rgb" and obs.ndim == 5:
-            return torch.stack([encoder[self.cfg.obs](o) for o in obs])
-
+            return torch.stack([self._encoder[self.cfg.obs](o) for o in obs])
         elif self.cfg.obs == "multi-modal":
-
-            z = torch.cat([
-                torch.stack([encoder[k](o) for o in v])
-                if v.ndim == 5
-                else encoder[k](v)
-                for k, v in obs.items()
-            ], dim=-1)
-            return projector(z)
-
-        return encoder[self.cfg.obs](obs)
+            return self._encoder(obs)
+        return self._encoder[self.cfg.obs](obs)
 
     def next(self, z, a, task):
         """

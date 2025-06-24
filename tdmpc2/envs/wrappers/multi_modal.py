@@ -41,7 +41,7 @@ class MultimodalWrapper(gym.Wrapper):
                     obs_space[k] = gym.spaces.Box(
                         low=-np.inf,
                         high=np.inf,
-                        shape=(self._frames['tactile'].maxlen * obs_shape[0],),
+                        shape=(self._frames['tactile'].maxlen, obs_shape[0],),
                         dtype=np.float64,
                     )
         return obs_space
@@ -62,7 +62,8 @@ class MultimodalWrapper(gym.Wrapper):
                     self._frames['image'].append(frame)
                     new_obs[k] = torch.concatenate(list(self._frames['image']), dim=0)
                 elif k.startswith("tactile"):  # tactile -> stacking
-                    self._frames['tactile'].append(obs[k])
+                    frame = obs[k].unsqueeze(0)  # -> (1, 40)
+                    self._frames['tactile'].append(frame)
                     new_obs[k] = torch.concatenate(list(self._frames['tactile']), dim=0)
                 else:
                     new_obs[k] = obs[k]
