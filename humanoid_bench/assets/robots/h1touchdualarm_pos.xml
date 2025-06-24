@@ -631,7 +631,7 @@
         <weld name="lock_right_ankle" body1="right_knee_link" body2="right_ankle_link"/>
 
         <weld name="lock_lh_palm_fsr" body1="lh_palm" body2="lh_palm_fsr" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
-        <weld name="lock_lh_thproximal_fsr" body1="lh_thproximal" body2="lh_palm_fsr" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
+        <weld name="lock_lh_thproximal_fsr" body1="lh_thproximal" body2="lh_thproximal_fsr" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
         <weld name="lock_lh_thmiddle_fsr" body1="lh_thmiddle" body2="lh_thmiddle_fsr" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
         <weld name="lock_lh_thdistal_fsr" body1="lh_thdistal" body2="lh_thdistal_fsr" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
         <weld name="lock_lh_ffknuckle_fsr" body1="lh_ffknuckle" body2="lh_ffknuckle_fsr" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
@@ -640,7 +640,7 @@
         <weld name="lock_lh_ffdistal_fsr" body1="lh_ffdistal" body2="lh_ffdistal_fsr" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
 
         <weld name="lock_rh_palm_fsr" body1="rh_palm" body2="rh_palm_fsr" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
-        <weld name="lock_rh_thproximal_fsr" body1="rh_thproximal" body2="rh_palm_fsr" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
+        <weld name="lock_rh_thproximal_fsr" body1="rh_thproximal" body2="rh_thproximal_fsr" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
         <weld name="lock_rh_thmiddle_fsr" body1="rh_thmiddle" body2="rh_thmiddle_fsr" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
         <weld name="lock_rh_thdistal_fsr" body1="rh_thdistal" body2="rh_thdistal_fsr" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
         <weld name="lock_rh_ffknuckle_fsr" body1="rh_ffknuckle" body2="rh_ffknuckle_fsr" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
