@@ -11,6 +11,7 @@ from dm_control.mujoco import index
 from dm_control.mujoco.engine import NamedIndexStructs
 
 from humanoid_bench.dmc_wrapper import MjDataWrapper, MjModelWrapper
+from humanoid_bench.envs.tactiletest import TactileTest
 from tdmpc2.common.sampler import Condition, ConditionSet
 
 
@@ -120,6 +121,7 @@ TASKS = {
     "rolling": Rolling,
     "polishing": Polishing,
     "iron": Iron,
+    "tactiletest": TactileTest
 }
 
 
