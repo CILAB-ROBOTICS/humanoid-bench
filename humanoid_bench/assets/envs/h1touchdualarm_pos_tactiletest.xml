@@ -1,0 +1,15 @@
+<mujoco model="h1touchdualarm_pos_floorwipe">
+    <option timestep="0.002" iterations="100" ls_iterations="50" solver="Newton">
+        <flag eulerdamp="enable"/>
+    </option>
+    <include file="../common/visual.xml"/>
+    <include file="../robots/h1touchdualarm_pos.xml"/>
+    <include file="../tasks/tactiletest.xml"/>
+
+    <equality>
+        <weld name="fix_robot" body1="world" body2="pelvis"/>
+        <weld name="fix_hand1" body1="world" body2="left_hand"/>
+        <weld name="fix_hand2" body1="world" body2="right_hand"/>
+
+    </equality>
+</mujoco>
