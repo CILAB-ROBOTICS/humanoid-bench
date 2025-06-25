@@ -18,12 +18,12 @@
             <light pos="0 0 10" dir="0 0 -1" directional="true" ambient="0.1 0.1 0.1" diffuse="0.5 0.5 0.5" specular="0.3 0.3 0.3"/>
             <geom name="floor" size="20 20 1" pos="0 0 -0.02" type="plane" conaffinity="1" material="MatPlane"/>
         </body>
-        <body name="window_wiping_tool" pos="0.38 0.0 1.2" euler="-1.57 1.57 0">
+        <body name="window_wiping_tool" pos="0.4 0.0 1.2" euler="-1.57 1.57 0">
             <freejoint name="free_window_wiping_tool"/>
 
 
-            <geom type="cylinder" pos="0 0 0" size="0.02 0.25" zaxis="1 0 0" material="steel_cover" class="visual"/>
-            <geom type="cylinder" pos="0 0 0" size="0.02 0.25" zaxis="1 0 0" class="collision"/>
+            <geom type="cylinder" pos="0 0 0" size="0.02 0.45" zaxis="1 0 0" material="steel_cover" class="visual"/>
+            <geom type="cylinder" pos="0 0 0" size="0.02 0.45" zaxis="1 0 0" class="collision"/>
 
 
 

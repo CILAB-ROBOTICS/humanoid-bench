@@ -3,7 +3,7 @@
         <flag eulerdamp="enable"/>
     </option>
     <include file="../common/visual.xml"/>
-    <include file="../robots/h1touchdualarm_pos.xml"/>
+    <include file="../robots/h1touchdualarmnoop_pos.xml"/>
     <include file="../tasks/tactiletest.xml"/>
 
     <equality>
