@@ -1,25 +1,25 @@
 import numpy as np
 
 # 부위별 센서 shape 정의
-tactile_data_shapes = {
-    "little_finger_tip": [3, 3],
-    "little_finger_nail": [12, 8],
-    "little_finger_pad": [10, 8],
-    "ring_finger_tip": [3, 3],
-    "ring_finger_nail": [12, 8],
-    "ring_finger_pad": [10, 8],
-    "middle_finger_tip": [3, 3],
-    "middle_finger_nail": [12, 8],
-    "middle_finger_pad": [10, 8],
-    "index_finger_tip": [3, 3],
-    "index_finger_nail": [12, 8],
-    "index_finger_pad": [10, 8],
-    "thumb_tip": [3, 3],
-    "thumb_nail": [12, 8],
-    "thumb_middle_section": [3, 3],
-    "thumb_pad": [12, 8],
-    "palm": [8, 14]
-}
+tactile_data_shapes = [
+    {"little_finger_tip": [3, 3]},
+    {"little_finger_nail": [12, 8]},
+    { "little_finger_pad": [10, 8]},
+    {"ring_finger_tip": [3, 3]},
+    {"ring_finger_nail": [12, 8]},
+    {"ring_finger_pad": [10, 8]},
+    {"middle_finger_tip": [3, 3]},
+    {"middle_finger_nail": [12, 8]},
+    {"middle_finger_pad": [10, 8]},
+    {"index_finger_tip": [3, 3]},
+    {"index_finger_nail": [12, 8]},
+    {"index_finger_pad": [10, 8]},
+    {"thumb_tip": [3, 3]},
+    {"thumb_nail": [12, 8]},
+    {"thumb_middle_section": [3, 3]},
+    {"thumb_pad": [12, 8]},
+    {"palm": [8, 14]}
+]
 
 def split_tactile_data(flat_array: np.ndarray) -> dict:
     """
@@ -31,7 +31,8 @@ def split_tactile_data(flat_array: np.ndarray) -> dict:
 
     result = {}
     idx = 0
-    for key, shape in tactile_data_shapes.items():
+    for tactile_data_shape in tactile_data_shapes:
+        key, shape = list(tactile_data_shape.items())[0]
         size = shape[0] * shape[1]
         values = flat_array[idx: idx + size]
         result[key] = values.reshape(shape)

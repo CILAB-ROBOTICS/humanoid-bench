@@ -99,34 +99,74 @@ class TactileRGBViewer(QWidget):
         self.setWindowTitle(f"Frame {self.frame_idx + 1}/{self.total_frames}")
 
     def draw_hand_heatmap(self, side):
-        canvas = np.ones((self.hand_canvas_height, self.hand_canvas_width, 3), dtype=np.uint8) * 255
+        canvas = np.zeros((self.hand_canvas_height, self.hand_canvas_width, 3), dtype=np.uint8) * 255
         layout = self.get_hand_layout(side)
 
+        scale = 5  # 히트맵 스케일
         for part, (x, y) in layout.items():
             key = f"{side}_{part}"
-            if key in self.tactile_data:
-                data = self.tactile_data[key][self.frame_idx]
-                norm = np.clip((data - np.min(data)) / (np.ptp(data) + 1e-6), 0, 1) * 255
-                norm = norm.astype(np.uint8)
-                heat = cv2.applyColorMap(norm, cv2.COLORMAP_TURBO)
-                heat = cv2.resize(heat, (80, 80))
-                if y + 80 <= canvas.shape[0] and x + 80 <= canvas.shape[1]:
-                    canvas[y:y+80, x:x+80] = heat
+            data = self.tactile_data.get(key)
+            if data is None or self.frame_idx >= len(data):
+                continue
+
+            patch = data[self.frame_idx]
+            norm = np.clip((patch - np.min(patch)) / (np.ptp(patch) + 1e-6), 0, 1) * 255
+            norm = norm.astype(np.uint8)
+            heat = cv2.applyColorMap(norm, cv2.COLORMAP_TURBO)
+
+            hmap_h, hmap_w = heat.shape[:2]
+            heat = cv2.resize(heat, (hmap_w * scale, hmap_h * scale), interpolation=cv2.INTER_LINEAR)
+
+            hx, hy = x - heat.shape[1] // 2, y - heat.shape[0] // 2
+
+            # 클리핑된 위치 계산
+            x1, y1 = max(hx, 0), max(hy, 0)
+            x2, y2 = min(hx + heat.shape[1], canvas.shape[1]), min(hy + heat.shape[0], canvas.shape[0])
+
+            # 히트맵 내 클리핑 영역
+            heat_x1 = x1 - hx
+            heat_x2 = heat_x1 + (x2 - x1)
+            heat_y1 = y1 - hy
+            heat_y2 = heat_y1 + (y2 - y1)
+
+            canvas[y1:y2, x1:x2] = heat[heat_y1:heat_y2, heat_x1:heat_x2]
+
+        # 텍스트 추가
+        for part, (x, y) in layout.items():
+            cv2.putText(canvas, part.replace('_', ' ').title(), (x - 20, y + 50),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.3, (255, 255, 255), 1, cv2.LINE_AA)
 
         h, w, ch = canvas.shape
-        bytes_per_line = ch * w
-        return QImage(canvas.data, w, h, bytes_per_line, QImage.Format_RGB888).rgbSwapped()
+        return QImage(canvas.data, w, h, ch * w, QImage.Format_RGB888).rgbSwapped()
 
     def get_hand_layout(self, side):
         return {
-            "thumb_tip": (20, 185), "thumb_nail": (20, 145), "thumb_middle_section": (20, 105), "thumb_pad": (20, 65),
-            "index_finger_tip": (80, 20), "index_finger_nail": (80, 60), "index_finger_pad": (80, 100),
-            "middle_finger_tip": (130, 15), "middle_finger_nail": (130, 55), "middle_finger_pad": (130, 95),
-            "ring_finger_tip": (180, 20), "ring_finger_nail": (180, 60), "ring_finger_pad": (180, 100),
-            "little_finger_tip": (230, 25), "little_finger_nail": (230, 65), "little_finger_pad": (230, 105),
-            "palm": (120, 160)
-        }
+            # Thumb on the side
+            "thumb_tip": (40, 130),
+            "thumb_nail": (50, 110),
+            "thumb_middle_section": (60, 90),
+            "thumb_pad": (70, 50),
 
+            # Fingers from left to right
+            "index_finger_tip": (100, 20),
+            "index_finger_nail": (100, 50),
+            "index_finger_pad": (100, 100),
+
+            "middle_finger_tip": (140, 15),
+            "middle_finger_nail": (140, 45),
+            "middle_finger_pad": (140, 75),
+
+            "ring_finger_tip": (180, 20),
+            "ring_finger_nail": (180, 50),
+            "ring_finger_pad": (180, 80),
+
+            "little_finger_tip": (220, 30),
+            "little_finger_nail": (220, 60),
+            "little_finger_pad": (220, 90),
+
+            # Palm area
+            "palm": (150, 140),
+        }
 
 def load_data(npz_path: str):
     data = np.load(npz_path)
@@ -145,7 +185,7 @@ def load_data(npz_path: str):
 
 def main():
     app = QApplication(sys.argv)
-    tactile_dict, rgb_frames = load_data("output/episode_0033.npz")
+    tactile_dict, rgb_frames = load_data("output/episode_0001.npz")
     viewer = TactileRGBViewer(tactile_dict, rgb_frames)
     viewer.show()
     sys.exit(app.exec_())
