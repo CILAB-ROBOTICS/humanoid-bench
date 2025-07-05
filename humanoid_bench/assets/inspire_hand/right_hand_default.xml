@@ -1,0 +1,32 @@
+<mujoco model="inspire_hand_right">
+  <default>
+    <default class="right_hand">
+      <mesh scale="0.001 0.001 0.001"/>
+      <joint axis="0 0 1"/>
+
+      <default class="rh_thumb">
+        <default class="rh_thbase">
+          <joint axis="0 0 -1" range="0 1.1641"/>
+        </default>
+        <default class="rh_thproximal">
+          <joint axis="0 0 1" range="0 0.5864"/>
+        </default>
+        <default class="rh_thmiddle">
+          <joint axis="0 0 1" range="0 0.5"/>
+        </default>
+        <default class="rh_thdistal">
+          <joint axis="0 0 1" range="0 3.1416"/>
+        </default>
+      </default>
+
+      <default class="rh_finger">
+        <default class="rh_proximal">
+          <joint range="0 1.4381"/>
+        </default>
+        <default class="rh_distal">
+          <joint range="0 3.1416"/>
+        </default>
+      </default>
+    </default>
+  </default>
+</mujoco>

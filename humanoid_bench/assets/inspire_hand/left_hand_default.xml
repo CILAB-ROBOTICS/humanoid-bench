@@ -1,0 +1,32 @@
+<mujoco>
+  <default>
+    <default class="left_hand">
+      <mesh scale="0.001 0.001 0.001"/>
+      <joint axis="0 0 1"/>
+
+      <default class="lh_thumb">
+        <default class="lh_thbase">
+          <joint axis="0 0 1" range="0 1.1641"/>
+        </default>
+        <default class="lh_thproximal">
+          <joint axis="0 0 -1" range="0 0.5864"/>
+        </default>
+        <default class="lh_thmiddle">
+          <joint axis="0 0 -1" range="0 0.5"/>
+        </default>
+        <default class="lh_thdistal">
+          <joint axis="0 0 -1" range="0 3.1416"/>
+        </default>
+      </default>
+
+      <default class="lh_finger">
+        <default class="lh_proximal">
+          <joint range="0 1.4381"/>
+        </default>
+        <default class="lh_distal">
+          <joint range="0 3.1416"/>
+        </default>
+      </default>
+    </default>
+  </default>
+</mujoco>

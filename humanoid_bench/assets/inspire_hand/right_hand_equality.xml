@@ -1,0 +1,10 @@
+<mujoco>
+  <equality>
+    <joint name="mimic_right_thumb_3_2" joint1="right_thumb_2_joint" joint2="right_thumb_3_joint" polycoef="0 0.8024 0 0 0"/>
+    <joint name="mimic_right_thumb_4_3" joint1="right_thumb_3_joint" joint2="right_thumb_4_joint" polycoef="0 0.9487 0 0 0"/>
+    <joint name="mimic_right_index_2_1" joint1="right_index_1_joint" joint2="right_index_2_joint" polycoef="0 1.0843 0 0 0"/>
+    <joint name="mimic_right_middle_2_1" joint1="right_middle_1_joint" joint2="right_middle_2_joint" polycoef="0 1.0843 0 0 0"/>
+    <joint name="mimic_right_ring_2_1" joint1="right_ring_1_joint" joint2="right_ring_2_joint" polycoef="0 1.0843 0 0 0"/>
+    <joint name="mimic_right_little_2_1" joint1="right_little_1_joint" joint2="right_little_2_joint" polycoef="0 1.0843 0 0 0"/>
+  </equality>
+</mujoco>

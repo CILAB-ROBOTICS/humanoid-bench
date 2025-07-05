@@ -1,0 +1,37 @@
+<mujoco>
+  <asset>
+    <material name="rh_black" specular="0.5" shininess="0.25" rgba="0.16355 0.16355 0.16355 1"/>
+    <material name="rh_metallic" specular="0" shininess="0.25" rgba="1 1 1 1"/>
+
+    <mesh name="right_index_force_sensor_1" file="../inspire_hand/meshes/right_index_force_sensor_1.STL"/>
+    <mesh name="right_index_1" file="../inspire_hand/meshes/right_index_1.STL"/>
+    <mesh name="right_index_force_sensor_3" file="../inspire_hand/meshes/right_index_force_sensor_3.STL"/>
+    <mesh name="right_thumb_4" file="../inspire_hand/meshes/right_thumb_4.STL"/>
+    <mesh name="right_base_link" file="../inspire_hand/meshes/right_base_link.STL"/>
+    <mesh name="right_index_force_sensor_2" file="../inspire_hand/meshes/right_index_force_sensor_2.STL"/>
+    <mesh name="right_middle_1" file="../inspire_hand/meshes/right_middle_1.STL"/>
+    <mesh name="right_index_2" file="../inspire_hand/meshes/right_index_2.STL"/>
+    <mesh name="right_ring_force_sensor_1" file="../inspire_hand/meshes/right_ring_force_sensor_1.STL"/>
+    <mesh name="right_little_1" file="../inspire_hand/meshes/right_little_1.STL"/>
+    <mesh name="right_middle_force_sensor_1" file="../inspire_hand/meshes/right_middle_force_sensor_1.STL"/>
+    <mesh name="right_middle_2" file="../inspire_hand/meshes/right_middle_2.STL"/>
+    <mesh name="right_thumb_force_sensor_4" file="../inspire_hand/meshes/right_thumb_force_sensor_4.STL"/>
+    <mesh name="right_thumb_force_sensor_2" file="../inspire_hand/meshes/right_thumb_force_sensor_2.STL"/>
+    <mesh name="right_thumb_force_sensor_3" file="../inspire_hand/meshes/right_thumb_force_sensor_3.STL"/>
+    <mesh name="right_little_force_sensor_1" file="../inspire_hand/meshes/right_little_force_sensor_1.STL"/>
+    <mesh name="right_thumb_3" file="../inspire_hand/meshes/right_thumb_3.STL"/>
+    <mesh name="right_ring_force_sensor_2" file="../inspire_hand/meshes/right_ring_force_sensor_2.STL"/>
+    <mesh name="right_little_2" file="../inspire_hand/meshes/right_little_2.STL"/>
+    <mesh name="right_thumb_1" file="../inspire_hand/meshes/right_thumb_1.STL"/>
+    <mesh name="right_little_force_sensor_2" file="../inspire_hand/meshes/right_little_force_sensor_2.STL"/>
+    <mesh name="right_little_force_sensor_3" file="../inspire_hand/meshes/right_little_force_sensor_3.STL"/>
+    <mesh name="right_thumb_2" file="../inspire_hand/meshes/right_thumb_2.STL"/>
+    <mesh name="right_ring_1" file="../inspire_hand/meshes/right_ring_1.STL"/>
+    <mesh name="right_thumb_force_sensor_1" file="../inspire_hand/meshes/right_thumb_force_sensor_1.STL"/>
+    <mesh name="right_ring_2" file="../inspire_hand/meshes/right_ring_2.STL"/>
+    <mesh name="right_palm_force_sensor" file="../inspire_hand/meshes/right_palm_force_sensor.STL"/>
+    <mesh name="right_middle_force_sensor_3" file="../inspire_hand/meshes/right_middle_force_sensor_3.STL"/>
+    <mesh name="right_ring_force_sensor_3" file="../inspire_hand/meshes/right_ring_force_sensor_3.STL"/>
+    <mesh name="right_middle_force_sensor_2" file="../inspire_hand/meshes/right_middle_force_sensor_2.STL"/>
+  </asset>
+</mujoco>

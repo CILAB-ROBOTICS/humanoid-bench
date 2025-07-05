@@ -1,0 +1,11 @@
+<mujoco>
+  <contact>
+    <exclude body1="right_base_link" body2="right_thumb_force_sensor_1"/>
+    <exclude body1="right_base_link" body2="right_thumb_1"/>
+		<exclude body1="right_base_link" body2="right_thumb_2"/>
+		<exclude body1="right_base_link" body2="right_index_1"/>
+		<exclude body1="right_base_link" body2="right_middle_1"/>
+		<exclude body1="right_base_link" body2="right_ring_1"/>
+		<exclude body1="right_base_link" body2="right_little_1"/>
+  </contact>
+</mujoco>

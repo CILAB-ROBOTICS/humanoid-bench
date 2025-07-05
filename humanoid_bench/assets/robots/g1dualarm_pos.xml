@@ -5,6 +5,18 @@
     <global ellipsoidinertia="true"/>
   </visual>
 
+  <include file="../inspire_hand/left_hand_default.xml"/>
+  <include file="../inspire_hand/left_hand_asset.xml"/>
+  <include file="../inspire_hand/left_hand_equality.xml"/>
+  <include file="../inspire_hand/left_hand_contact.xml"/>
+  <include file="../inspire_hand/left_hand_actuator.xml"/>
+
+  <include file="../inspire_hand/right_hand_default.xml"/>
+  <include file="../inspire_hand/right_hand_asset.xml"/>
+  <include file="../inspire_hand/right_hand_equality.xml"/>
+  <include file="../inspire_hand/right_hand_contact.xml"/>
+  <include file="../inspire_hand/right_hand_actuator.xml"/>
+
   <default>
     <default class="g1">
       <site rgba="1 0 0 1" size="0.01" group="5"/>
@@ -252,7 +264,7 @@
                       <geom type="mesh" class="visual" mesh="left_wrist_yaw_link"/>
                       <geom type="mesh" mesh="left_wrist_yaw_link" class="collision"/>
                       <frame name="rot_left_hand" pos="0 0 0" quat="0.7071068 0.7071068 0 0">
-                        <attach model="inspire_hand_left" body="left_base_link" prefix=""/>
+                        <include file="../inspire_hand/left_hand_body.xml"/>
                       </frame>
                     </body>
                   </body>
@@ -304,7 +316,7 @@
                       <geom type="mesh" class="visual" mesh="right_wrist_yaw_link"/>
                       <geom type="mesh" mesh="right_wrist_yaw_link" class="collision"/>
                       <frame name="rot_right_hand" pos="0 0 0" quat="-0.7071068 0.7071068 0 0">
-                        <attach model="inspire_hand_right" body="right_base_link" prefix=""/>
+                        <include file="../inspire_hand/right_hand_body.xml"/>
                       </frame>
                     </body>
                   </body>

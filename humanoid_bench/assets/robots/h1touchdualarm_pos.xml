@@ -5,6 +5,18 @@
     <plugin plugin="mujoco.sensor.touch_grid"/>
   </extension>
 
+  <include file="../inspire_hand/left_hand_default.xml"/>
+  <include file="../inspire_hand/left_hand_asset.xml"/>
+  <include file="../inspire_hand/left_hand_equality.xml"/>
+  <include file="../inspire_hand/left_hand_contact.xml"/>
+  <include file="../inspire_hand/left_hand_actuator.xml"/>
+
+  <include file="../inspire_hand/right_hand_default.xml"/>
+  <include file="../inspire_hand/right_hand_asset.xml"/>
+  <include file="../inspire_hand/right_hand_equality.xml"/>
+  <include file="../inspire_hand/right_hand_contact.xml"/>
+  <include file="../inspire_hand/right_hand_actuator.xml"/>
+
   <default>
     <default class="h1">
       <geom type="mesh"/>
@@ -83,9 +95,6 @@
     <mesh file="../h1/assets/right_shoulder_yaw_link.stl"/>
     <mesh file="../h1/assets/right_elbow_link.stl"/>
     <mesh file="../h1/assets/logo_link.stl"/>
-
-    <model name="inspire_hand_right" file="../inspire_hand/right_hand.xml"/>
-    <model name="inspire_hand_left" file="../inspire_hand/left_hand.xml"/>
   </asset>
 
   <worldbody>
@@ -187,7 +196,7 @@
                   <joint name="left_wrist_roll" axis="1 0 0" class="wrist_roll"/>
                   <joint name="left_wrist_yaw" pos="0.02 0 0" axis="0 0 1" class="wrist_yaw"/>
                   <joint name="left_wrist_pitch" pos="0.02 0 0" axis="0 -1 0" class="wrist_pitch"/>
-                  <attach model="inspire_hand_left" body="left_base_link" prefix=""/>
+                  <include file="../inspire_hand/left_hand_body.xml"/>
                 </body>
               </body>
             </body>
@@ -215,7 +224,7 @@
                   <joint name="right_wrist_roll" axis="-1 0 0" class="wrist_roll"/>
                   <joint name="right_wrist_yaw" pos="0.02 0 0" axis="0 0 -1" class="wrist_yaw"/>
                   <joint name="right_wrist_pitch" pos="0.02 0 0" axis="0 1 0" class="wrist_pitch"/>
-                  <attach model="inspire_hand_right" body="right_base_link" prefix=""/>
+                  <include file="../inspire_hand/right_hand_body.xml"/>
                 </body>
               </body>
             </body>
