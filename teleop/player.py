@@ -168,24 +168,34 @@ class TactileRGBViewer(QWidget):
             "palm": (150, 140),
         }
 
-def load_data(npz_path: str):
+def load_data(npz_path: str, video_path: str):
     data = np.load(npz_path)
     tactile_dict = {}
-    rgb = None
 
     for k in data:
         if k.startswith("tactile."):
             key = k.replace("tactile.", "")
             tactile_dict[key] = data[k]
-        elif k == "rgb":
-            rgb = data[k]
 
-    return tactile_dict, rgb
+    # RGB 영상에서 프레임 추출
+    cap = cv2.VideoCapture(video_path)
+    rgb_frames = []
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
+            break
+        rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        rgb_frames.append(rgb)
+    cap.release()
 
+    rgb_array = np.stack(rgb_frames)
+    return tactile_dict, rgb_array
 
 def main():
     app = QApplication(sys.argv)
-    tactile_dict, rgb_frames = load_data("output/episode_0001.npz")
+    input_name = "output/episode_0001.npz"
+    video_name = input_name.replace(".npz", ".mp4")
+    tactile_dict, rgb_frames = load_data(input_name, video_name)
     viewer = TactileRGBViewer(tactile_dict, rgb_frames)
     viewer.show()
     sys.exit(app.exec_())
