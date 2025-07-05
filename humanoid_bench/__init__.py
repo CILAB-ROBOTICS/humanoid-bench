@@ -3,7 +3,7 @@ from gymnasium.envs import register
 from .env import ROBOTS, TASKS
 
 for robot in ROBOTS:
-    if robot == "g1" or robot == "digit":
+    if robot in ["g1", "g1dualarm"] or robot == "digit":
         control = "torque"
     else:
         control = "pos"
