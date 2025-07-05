@@ -92,3 +92,6 @@ class H1TouchDualArm(H1):
 
 class G1 (H1):
     dof = 44
+
+class G1DualArm(G1):
+    dof = 58
