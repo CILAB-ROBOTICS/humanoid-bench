@@ -464,9 +464,11 @@ class ObservationWrapper(BaseWrapper):
         self._condition_dim = kwargs.get("condition_dim", None)
 
         self.n_prev_tactile_ob = 2 # number of previous tactile observations to be averaged
-        self.prev_tactile_ob = np.zeros(
-            (self.n_prev_tactile_ob, self.get_tactile_obs().shape[0])
-        )
+        self.prev_tactile_ob = None
+        if self._tactile_ob:
+            self.prev_tactile_ob = np.zeros(
+                (self.n_prev_tactile_ob, self.get_tactile_obs().shape[0])
+            )
 
         if self._tactile_ob:
             assert (
