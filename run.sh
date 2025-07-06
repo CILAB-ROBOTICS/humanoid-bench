@@ -18,6 +18,7 @@ docker run --rm -it --gpus all \
     -v $PWD:/workspace \
     --network host \
     --env-file .env \
+    -v /mnt/nas:/mnt/nas \
     -e CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES \
     --name "$CONTAINER_NAME" \
     bic4907/humanbench:cu12 \
