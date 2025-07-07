@@ -27,6 +27,40 @@
           <joint range="0 3.1416"/>
         </default>
       </default>
+
+      <default class="rh_force_sensor">
+        <site zaxis="0 0 -1" rgba="0 0 0 0"/>
+
+        <default class="rh_thumb_force_sensor">
+          <default class="rh_thbase_force_sensor">
+            <site size="0.01"/>
+          </default>
+          <default class="rh_thproximal_force_sensor">
+            <site size="0.005"/>
+          </default>
+          <default class="rh_thmiddle_force_sensor">
+            <site size="0.01"/>
+          </default>
+          <default class="rh_thdistal_force_sensor">
+            <site size="0.005"/>
+          </default>
+        </default>
+
+        <default class="rh_finger_force_sensor">
+          <default class="rh_palm_force_sensor">
+            <site size="0.03"/>
+          </default>
+          <default class="rh_proximal_force_sensor">
+            <site size="0.01"/>
+          </default>
+          <default class="rh_middle_force_sensor">
+            <site size="0.01"/>
+          </default>
+          <default class="rh_distal_force_sensor">
+            <site size="0.005"/>
+          </default>
+        </default>
+      </default>
     </default>
   </default>
 </mujoco>

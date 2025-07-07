@@ -280,4 +280,6 @@
     <position name="right_wrist_pitch" joint="right_wrist_pitch" class="wrist_pitch"/>
   </actuator>
 
+  <include file="../inspire_hand/touch_sensors.xml"/>
+
 </mujoco>

@@ -1,0 +1,41 @@
+<mujoco model="touch_sensors">
+
+  <sensor>
+    <touch name="left_palm_touch" site="left_palm_touch"/>
+    <touch name="left_thumb_touch_1" site="left_thumb_touch_1"/>
+    <touch name="left_thumb_touch_2" site="left_thumb_touch_2"/>
+    <touch name="left_thumb_touch_3" site="left_thumb_touch_3"/>
+    <touch name="left_thumb_touch_4" site="left_thumb_touch_4"/>
+    <touch name="left_index_touch_1" site="left_index_touch_1"/>
+    <touch name="left_index_touch_2" site="left_index_touch_2"/>
+    <touch name="left_index_touch_3" site="left_index_touch_3"/>
+    <touch name="left_middle_touch_1" site="left_middle_touch_1"/>
+    <touch name="left_middle_touch_2" site="left_middle_touch_2"/>
+    <touch name="left_middle_touch_3" site="left_middle_touch_3"/>
+    <touch name="left_ring_touch_1" site="left_ring_touch_1"/>
+    <touch name="left_ring_touch_2" site="left_ring_touch_2"/>
+    <touch name="left_ring_touch_3" site="left_ring_touch_3"/>
+    <touch name="left_little_touch_1" site="left_little_touch_1"/>
+    <touch name="left_little_touch_2" site="left_little_touch_2"/>
+    <touch name="left_little_touch_3" site="left_little_touch_3"/>
+
+    <touch name="right_palm_touch" site="right_palm_touch"/>
+    <touch name="right_thumb_touch_1" site="right_thumb_touch_1"/>
+    <touch name="right_thumb_touch_2" site="right_thumb_touch_2"/>
+    <touch name="right_thumb_touch_3" site="right_thumb_touch_3"/>
+    <touch name="right_thumb_touch_4" site="right_thumb_touch_4"/>
+    <touch name="right_index_touch_1" site="right_index_touch_1"/>
+    <touch name="right_index_touch_2" site="right_index_touch_2"/>
+    <touch name="right_index_touch_3" site="right_index_touch_3"/>
+    <touch name="right_middle_touch_1" site="right_middle_touch_1"/>
+    <touch name="right_middle_touch_2" site="right_middle_touch_2"/>
+    <touch name="right_middle_touch_3" site="right_middle_touch_3"/>
+    <touch name="right_ring_touch_1" site="right_ring_touch_1"/>
+    <touch name="right_ring_touch_2" site="right_ring_touch_2"/>
+    <touch name="right_ring_touch_3" site="right_ring_touch_3"/>
+    <touch name="right_little_touch_1" site="right_little_touch_1"/>
+    <touch name="right_little_touch_2" site="right_little_touch_2"/>
+    <touch name="right_little_touch_3" site="right_little_touch_3"/>
+  </sensor>
+
+</mujoco>

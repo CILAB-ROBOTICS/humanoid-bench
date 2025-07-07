@@ -470,7 +470,7 @@ class ObservationWrapper(BaseWrapper):
 
         if self._tactile_ob:
             assert (
-                task.unwrapped._env.robot.__class__.__name__ in ["H1Touch", "H1TouchDualArm"]
+                task.unwrapped._env.robot.__class__.__name__ in ["H1Touch", "H1TouchDualArm", "G1TouchDualArm"]
             ), "Tactile observations are only available for H1Touch/H1TouchDualArm robot"
 
     @property
@@ -628,7 +628,7 @@ class ObservationWrapper(BaseWrapper):
 
 
 class TactileInfoWrapper(BaseWrapper):
-    AVAILABLE_ROBOTS = ["H1Touch", "H1TouchDualArm"]
+    AVAILABLE_ROBOTS = ["H1Touch", "H1TouchDualArm", "G1TouchDualArm"]
 
     def __init__(self, task):
 
