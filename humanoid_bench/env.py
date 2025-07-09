@@ -33,6 +33,7 @@ from .robots import (
     H1TouchDualArm,
     G1,
     G1DualArm,
+    G1TouchDualArm,
 )
 from .envs.cube import Cube
 from .envs.bookshelf import BookshelfSimple, BookshelfHard
@@ -90,6 +91,7 @@ ROBOTS = {
     "h1touchdualarm": H1TouchDualArm,
     "g1": G1,
     "g1dualarm": G1DualArm,
+    "g1touchdualarm": G1TouchDualArm,
 }
 TASKS = {
     "stand": Stand,

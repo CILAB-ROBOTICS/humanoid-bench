@@ -25,8 +25,11 @@
     <default class="g1">
       <site rgba="1 0 0 1" size="0.01" group="5"/>
       <joint damping="0.5" armature="0.01" frictionloss="0.1"/>
-      <default class="arm_joint">
-        <motor ctrlrange="-20 20"/>
+      <default class="shoulder">
+        <position kp="70" kv="4"/>
+      </default>
+      <default class="elbow">
+        <position kp="60" kv="3"/>
       </default>
       <default class="visual">
         <geom group="2" type="mesh" contype="0" conaffinity="0" density="0.001" material="metallic"/>
@@ -41,16 +44,16 @@
       <default class="wrist">
         <joint damping="0.05" armature="0.01" frictionloss="0.1"/>
         <default class="wrist_roll">
-          <joint range="-1.97222 1.97222" actuatorfrcrange="-25 25"/>
-          <motor ctrlrange="-25 25"/>
+          <joint range="-1.97222 1.97222"/>
+          <position kp="50" kv="2" ctrlrange="-1.97222 1.97222"/>
         </default>
         <default class="wrist_pitch">
-          <joint range="-1.61443 1.61443" actuatorfrcrange="-5 5"/>
-          <motor ctrlrange="-5 5"/>
+          <joint range="-1.61443 1.61443"/>
+          <position kp="50" kv="2" ctrlrange="-1.61443 1.61443"/>
         </default>
         <default class="wrist_yaw">
-          <joint range="-1.61443 1.61443" actuatorfrcrange="-5 5"/>
-          <motor ctrlrange="-5 5"/>
+          <joint range="-1.61443 1.61443"/>
+          <position kp="50" kv="2" ctrlrange="-1.61443 1.61443"/>
         </default>
       </default>
     </default>
@@ -265,9 +268,7 @@
                       <geom type="mesh" class="visual" mesh="left_wrist_yaw_link"/>
                       <geom type="mesh" mesh="left_wrist_yaw_link" class="collision"/>
                       <site name="left_hand" pos="0 0 0" rgba="0 1 0 1" size="0.01"/>
-                      <frame name="rot_left_hand" pos="0 0 0" quat="0.7071068 0.7071068 0 0">
-                        <include file="../inspire_hand/left_hand_body.xml"/>
-                      </frame>
+                      <include file="../inspire_hand/left_hand_body.xml"/>
                     </body>
                   </body>
                 </body>
@@ -318,9 +319,7 @@
                       <geom type="mesh" class="visual" mesh="right_wrist_yaw_link"/>
                       <geom type="mesh" mesh="right_wrist_yaw_link" class="collision"/>
                       <site name="right_hand" pos="0 0 0" rgba="0 1 0 1" size="0.01"/>
-                      <frame name="rot_right_hand" pos="0 0 0" quat="-0.7071068 0.7071068 0 0">
-                        <include file="../inspire_hand/right_hand_body.xml"/>
-                      </frame>
+                      <include file="../inspire_hand/right_hand_body.xml"/>
                     </body>
                   </body>
                 </body>
@@ -357,24 +356,18 @@
   </sensor>
 
   <actuator>
-    <motor name="torso_joint" joint="torso_joint" ctrlrange="-88 88" class="g1"/>
-    <motor name="left_shoulder_pitch_joint" joint="left_shoulder_pitch_joint" class="arm_joint"/>
-    <motor name="left_shoulder_roll_joint" joint="left_shoulder_roll_joint" class="arm_joint"/>
-    <motor name="left_shoulder_yaw_joint" joint="left_shoulder_yaw_joint" class="arm_joint"/>
-    <motor name="left_elbow_joint" joint="left_elbow_joint"/>
-    <motor name="right_shoulder_pitch_joint" joint="right_shoulder_pitch_joint" class="arm_joint"/>
-    <motor name="right_shoulder_roll_joint" joint="right_shoulder_roll_joint" class="arm_joint"/>
-    <motor name="right_shoulder_yaw_joint" joint="right_shoulder_yaw_joint" class="arm_joint"/>
-    <motor name="right_elbow_joint" joint="right_elbow_joint" class="arm_joint"/>
-  </actuator>
-
-  <actuator>
+    <position name="torso_joint" joint="torso_joint" ctrlrange="-2.618 2.618" class="g1"/>
+    <position name="left_shoulder_pitch_joint" joint="left_shoulder_pitch_joint" ctrlrange="-2.9671 2.7925" class="shoulder"/>
+    <position name="left_shoulder_roll_joint" joint="left_shoulder_roll_joint" ctrlrange="-1.5882 2.2515" class="shoulder"/>
+    <position name="left_shoulder_yaw_joint" joint="left_shoulder_yaw_joint" ctrlrange="-2.618 2.618" class="shoulder"/>
+    <position name="left_elbow_joint" joint="left_elbow_joint" ctrlrange="-0.2268 3.4208" class="elbow"/>
+    <position name="right_shoulder_pitch_joint" joint="right_shoulder_pitch_joint" ctrlrange="-2.9671 2.7925" class="shoulder"/>
+    <position name="right_shoulder_roll_joint" joint="right_shoulder_roll_joint" ctrlrange="-1.5882 2.2515" class="shoulder"/>
+    <position name="right_shoulder_yaw_joint" joint="right_shoulder_yaw_joint" ctrlrange="-2.618 2.618" class="shoulder"/>
+    <position name="right_elbow_joint" joint="right_elbow_joint" ctrlrange="-0.2268 3.4208" class="elbow"/>
     <position name="left_wrist_roll" joint="left_wrist_roll_joint" class="wrist_roll"/>
     <position name="left_wrist_yaw" joint="left_wrist_yaw_joint" class="wrist_yaw"/>
     <position name="left_wrist_pitch" joint="left_wrist_pitch_joint" class="wrist_pitch"/>
-  </actuator>
-
-  <actuator>
     <position name="right_wrist_roll" joint="right_wrist_roll_joint" class="wrist_roll"/>
     <position name="right_wrist_yaw" joint="right_wrist_yaw_joint" class="wrist_yaw"/>
     <position name="right_wrist_pitch" joint="right_wrist_pitch_joint" class="wrist_pitch"/>

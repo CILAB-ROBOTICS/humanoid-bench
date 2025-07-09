@@ -1,6 +1,10 @@
 <mujoco model="g1">
   <compiler angle="radian" autolimits="true"/>
 
+  <extension>
+    <plugin plugin="mujoco.sensor.touch_grid"/>
+  </extension>
+
   <visual>
     <global ellipsoidinertia="true"/>
   </visual>
@@ -264,9 +268,7 @@
                       <geom type="mesh" class="visual" mesh="left_wrist_yaw_link"/>
                       <geom type="mesh" mesh="left_wrist_yaw_link" class="collision"/>
                       <site name="left_hand" pos="0 0 0" rgba="0 1 0 1" size="0.01"/>
-                      <frame name="rot_left_hand" pos="0 0 0" quat="0.7071068 0.7071068 0 0">
-                        <include file="../inspire_hand/left_hand_body.xml"/>
-                      </frame>
+                      <include file="../inspire_hand/left_hand_body.xml"/>
                     </body>
                   </body>
                 </body>
@@ -317,9 +319,7 @@
                       <geom type="mesh" class="visual" mesh="right_wrist_yaw_link"/>
                       <geom type="mesh" mesh="right_wrist_yaw_link" class="collision"/>
                       <site name="right_hand" pos="0 0 0" rgba="0 1 0 1" size="0.01"/>
-                      <frame name="rot_right_hand" pos="0 0 0" quat="-0.7071068 0.7071068 0 0">
-                        <include file="../inspire_hand/right_hand_body.xml"/>
-                      </frame>
+                      <include file="../inspire_hand/right_hand_body.xml"/>
                     </body>
                   </body>
                 </body>
@@ -372,5 +372,7 @@
     <motor name="right_wrist_yaw" joint="right_wrist_yaw_joint" class="wrist_yaw"/>
     <motor name="right_wrist_pitch" joint="right_wrist_pitch_joint" class="wrist_pitch"/>
   </actuator>
+
+  <include file="../inspire_hand/touch_sensors.xml"/>
 
 </mujoco>
