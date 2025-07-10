@@ -47,14 +47,23 @@ def process_episode(args):
 
         for joint_set_key, joint_set_val in info['joint_names'].items():
             states = row['states']
+
             if (joint_set_key not in states) or (states[joint_set_key]) is None:
                 continue
 
             qpos_vals = states[joint_set_key]['qpos']
             qvel_vals = states[joint_set_key]['qvel']
-            for joint_name, qpos_val, qvel_val in zip(joint_set_val, qpos_vals, qvel_vals):
+            if len(qvel_vals) != len(qpos_vals):
+                qvel_vals = [None for _ in qpos_vals]
+            torque_vals = states[joint_set_key]['torque']
+            if len(torque_vals) != len(qpos_vals):
+                torque_vals = [None for _ in qpos_vals]
+
+
+            for joint_name, qpos_val, qvel_val, torch_val in zip(joint_set_val, qpos_vals, qvel_vals, torque_vals):
                 joint_row[f'state.{joint_set_key}.{joint_name}.qpos'] = qpos_val
                 joint_row[f'state.{joint_set_key}.{joint_name}.qvel'] = qvel_val
+                joint_row[f'state.{joint_set_key}.{joint_name}.torque'] = torch_val
 
                 action_row[f'action.{joint_set_key}.{joint_name}.qpos'] = qpos_val
                 action_row[f'action.{joint_set_key}.{joint_name}.qvel'] = qvel_val
