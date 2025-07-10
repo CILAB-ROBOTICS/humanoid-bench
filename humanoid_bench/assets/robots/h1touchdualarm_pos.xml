@@ -619,16 +619,16 @@
     </actuator>
 
     <equality>
-        <weld name="lock_left_hip_yaw" body1="pelvis" body2="left_hip_yaw_link"/>
-        <weld name="lock_left_hip_roll" body1="left_hip_yaw_link" body2="left_hip_roll_link"/>
-        <weld name="lock_left_hip_pitch" body1="left_hip_roll_link" body2="left_hip_pitch_link"/>
-        <weld name="lock_left_knee" body1="left_hip_pitch_link" body2="left_knee_link"/>
-        <weld name="lock_left_ankle" body1="left_knee_link" body2="left_ankle_link"/>
-        <weld name="lock_right_hip_yaw" body1="pelvis" body2="right_hip_yaw_link"/>
-        <weld name="lock_right_hip_roll" body1="right_hip_yaw_link" body2="right_hip_roll_link"/>
-        <weld name="lock_right_hip_pitch" body1="right_hip_roll_link" body2="right_hip_pitch_link"/>
-        <weld name="lock_right_knee" body1="right_hip_pitch_link" body2="right_knee_link"/>
-        <weld name="lock_right_ankle" body1="right_knee_link" body2="right_ankle_link"/>
+        <weld name="lock_left_hip_yaw" body1="pelvis" body2="left_hip_yaw_link" relpose="0 0 0 1 0 0 0" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
+        <weld name="lock_left_hip_roll" body1="left_hip_yaw_link" body2="left_hip_roll_link" relpose="0 0 0 1 0 0 0" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
+        <weld name="lock_left_hip_pitch" body1="left_hip_roll_link" body2="left_hip_pitch_link" relpose="0 0 0 1 0 0 0" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
+        <weld name="lock_left_knee" body1="left_hip_pitch_link" body2="left_knee_link" relpose="0 0 0 1 0 0 0" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
+        <weld name="lock_left_ankle" body1="left_knee_link" body2="left_ankle_link" relpose="0 0 0 1 0 0 0" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
+        <weld name="lock_right_hip_yaw" body1="pelvis" body2="right_hip_yaw_link" relpose="0 0 0 1 0 0 0" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
+        <weld name="lock_right_hip_roll" body1="right_hip_yaw_link" body2="right_hip_roll_link" relpose="0 0 0 1 0 0 0" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
+        <weld name="lock_right_hip_pitch" body1="right_hip_roll_link" body2="right_hip_pitch_link" relpose="0 0 0 1 0 0 0" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
+        <weld name="lock_right_knee" body1="right_hip_pitch_link" body2="right_knee_link" relpose="0 0 0 1 0 0 0" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
+        <weld name="lock_right_ankle" body1="right_knee_link" body2="right_ankle_link" relpose="0 0 0 1 0 0 0" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
 
         <weld name="lock_lh_palm_fsr" body1="lh_palm" body2="lh_palm_fsr" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
         <weld name="lock_lh_thproximal_fsr" body1="lh_thproximal" body2="lh_palm_fsr" solref="0.005 1" solimp="0.99 0.95 0.001 0.5 2"/>
